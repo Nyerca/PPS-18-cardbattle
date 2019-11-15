@@ -1,3 +1,4 @@
+import model.RectangleCell
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.scene.control.ToolBar
@@ -18,31 +19,10 @@ object test extends JFXApp {
 
 
   val list = List(
-    new Rectangle() {
-      width = 200
-      height = 200
-      x= 0
-      y=0
-      fill=Color.Grey
-    },new Rectangle() {
-      width = 200
-      height = 200
-      x= 0
-      y=200
-      fill=Color.Grey
-    },new Rectangle() {
-      width = 200
-      height = 200
-      x= 200
-      y=200
-      fill=Color.Grey
-    },new Rectangle() {
-    width = 200
-    height = 200
-    x= 400
-    y=200
-    fill=Color.Grey
-  }
+    new RectangleCell(true, true, true, true,elementX = 0, elementY = 0, paint=Color.Grey),
+    new RectangleCell(true, true, true, true,elementX = 200, elementY = 0, paint=Color.Grey),
+    new RectangleCell(true, true, true, true,elementX = 200, elementY = 200, paint=Color.Grey),
+    new RectangleCell(true, true, true, true,elementX = 400, elementY = 200, paint=Color.Grey)
   );
 
   var rect2 = new Rectangle() {
