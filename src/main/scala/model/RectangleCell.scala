@@ -34,7 +34,6 @@ class RectangleCell (top: Boolean, right: Boolean, bottom: Boolean, left: Boolea
   super.fill_=(paint);
 
 
-println(top + " " + left)
   if(!top) {
     var border =  new Rectangle() {
       width=elementWidth;
