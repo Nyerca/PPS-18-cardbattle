@@ -34,6 +34,50 @@ class RectangleCell (top: Boolean, right: Boolean, bottom: Boolean, left: Boolea
   super.fill_=(paint);
 
 
+println(top + " " + left)
+  if(!top) {
+    var border =  new Rectangle() {
+      width=elementWidth;
+      height=20;
+      x = elementX;
+      y = elementY;
+      fill=Color.Red;
+    };
+    _borders.append(border)
+  }
 
+  if(!left) {
+    var border =  new Rectangle() {
+      width=20;
+      height=elementHeight;
+      x = elementX;
+      y = elementY;
+      fill=Color.Red;
+    };
+    _borders.append(border)
+  }
+  if(!right) {
+    var border =  new Rectangle() {
+      width=20;
+      height=elementHeight;
+      x = elementX + elementWidth - 20;
+      y = elementY;
+      fill=Color.Red;
+    };
+    _borders.append(border)
+  }
+
+  if(!bottom) {
+    var border =  new Rectangle() {
+      width=elementWidth;
+      height=20;
+      x = elementX;
+      y = elementY + elementHeight - 20;
+      fill=Color.Red;
+    };
+    _borders.append(border)
+  }
+
+  def borders = { List[Rectangle]() ++ this._borders };
 
 }
