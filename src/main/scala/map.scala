@@ -2,11 +2,12 @@ import model.{Player, RectangleCell}
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.scene.control.ToolBar
-import scalafx.scene.input.KeyCode
+import scalafx.scene.input.{KeyCode, KeyEvent}
 import scalafx.scene.{Group, Scene}
 import scalafx.scene.layout.HBox
 import scalafx.scene.paint.Color
 import scalafx.scene.shape.{Circle, Rectangle}
+import scalafx.Includes._
 
 object test extends JFXApp {
 
@@ -20,11 +21,16 @@ val r0 = new RectangleCell(false, true, false, false,elementX = 0, elementY = 0,
     new RectangleCell(false, false, false, true,elementX = 400, elementY = 200, paint=Color.Grey)
   );
 
-  var rect2 = new Rectangle() {
-    width=200;
-    height=20;
-    fill=Color.Red;
+  def keyPressed (keyCode: KeyCode): Unit = {
+    keyCode.getName match {
+      case "Up" => println("TOP")
+      case "Left" => println("LEFT")
+      case "Down" => println("BOTTOM")
+      case "Right" => println("RIGHT")
+      case _ => {}
+    }
   }
+
 
   stage = new PrimaryStage {
     title = "Cardbattle"
@@ -35,6 +41,10 @@ val r0 = new RectangleCell(false, true, false, false,elementX = 0, elementY = 0,
       val p = new Player()
       p.position_(r0)
       content.add(p.circle)
+
+      onKeyPressed = (ke : KeyEvent) => {
+        keyPressed(ke.code);
+      }
     }
   }
 }
