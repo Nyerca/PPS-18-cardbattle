@@ -1,4 +1,5 @@
-import model.{Player, RectangleCell}
+import controller.Dashboard
+import model.{Player, RectangleCell, Top, Right, Bottom, Left}
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.scene.control.ToolBar
@@ -34,40 +35,15 @@ val r0 = new RectangleCell(false, true, false, false,elementX = 0, elementY = 0,
     // cycleCount = Timeline.Indefinite
   }
 
-  def keyPressed (keyCode: KeyCode): Unit = {
+  def keyPressed (keyCode: KeyCode, dashboard : Dashboard): Unit = {
     keyCode.getName match {
-      case "Up" => {
-        anim.fromX = p.position.getX
-        anim.fromY=p.position.getY;
-        anim.toX = p.position.getX
-        anim.toY=p.position.getY-200;
-        anim.play()
-      }
-      case "Left" => {
-        anim.fromX = p.position.getX
-        anim.fromY=p.position.getY;
-        anim.toX=p.position.getX-200;
-        anim.toY=p.position.getY;
-        anim.play()
-      }
-      case "Down" => {
-        anim.fromX = p.position.getX
-        anim.fromY=p.position.getY;
-        anim.toX = p.position.getX
-        anim.toY=p.position.getY+200;
-        anim.play()
-      }
-      case "Right" =>{
-        anim.fromX = p.position.getX
-        anim.fromY=p.position.getY;
-        anim.toX=p.position.getX+200;
-        anim.toY=p.position.getY;
-        anim.play()
-      }
+      case "Up" => dashboard.move(Top);
+      case "Left" => dashboard.move(Left);
+      case "Down" => dashboard.move(Bottom);
+      case "Right" => dashboard.move(Right);
       case _ => {}
     }
   }
-
 
   stage = new PrimaryStage {
     title = "Cardbattle"
@@ -75,11 +51,11 @@ val r0 = new RectangleCell(false, true, false, false,elementX = 0, elementY = 0,
       content = List();
       for(el <- list) yield { println(el.borders); content.add(el); for(rectangle <- el.borders) yield { content.add(rectangle)} }
 
-
+      val dashboard = new Dashboard(list, p);
       content.add(p.circle)
 
       onKeyPressed = (ke : KeyEvent) => {
-        keyPressed(ke.code);
+        keyPressed(ke.code, dashboard);
       }
     }
   }
