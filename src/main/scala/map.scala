@@ -8,6 +8,8 @@ import scalafx.scene.layout.HBox
 import scalafx.scene.paint.Color
 import scalafx.scene.shape.{Circle, Rectangle}
 import scalafx.Includes._
+import scalafx.animation.{Interpolator, TranslateTransition}
+import scalafx.util.Duration
 
 object test extends JFXApp {
 
@@ -21,12 +23,47 @@ val r0 = new RectangleCell(false, true, false, false,elementX = 0, elementY = 0,
     new RectangleCell(false, false, false, true,elementX = 400, elementY = 200, paint=Color.Grey)
   );
 
+  val p = new Player()
+  p.position_(r0)
+
+  var anim = new TranslateTransition {
+    duration = Duration(1000.0)
+    node = p.circle
+    interpolator = Interpolator.Linear
+    // autoReverse = true
+    // cycleCount = Timeline.Indefinite
+  }
+
   def keyPressed (keyCode: KeyCode): Unit = {
     keyCode.getName match {
-      case "Up" => println("TOP")
-      case "Left" => println("LEFT")
-      case "Down" => println("BOTTOM")
-      case "Right" => println("RIGHT")
+      case "Up" => {
+        anim.fromX = p.position.getX
+        anim.fromY=p.position.getY;
+        anim.toX = p.position.getX
+        anim.toY=p.position.getY-200;
+        anim.play()
+      }
+      case "Left" => {
+        anim.fromX = p.position.getX
+        anim.fromY=p.position.getY;
+        anim.toX=p.position.getX-200;
+        anim.toY=p.position.getY;
+        anim.play()
+      }
+      case "Down" => {
+        anim.fromX = p.position.getX
+        anim.fromY=p.position.getY;
+        anim.toX = p.position.getX
+        anim.toY=p.position.getY+200;
+        anim.play()
+      }
+      case "Right" =>{
+        anim.fromX = p.position.getX
+        anim.fromY=p.position.getY;
+        anim.toX=p.position.getX+200;
+        anim.toY=p.position.getY;
+        anim.play()
+      }
       case _ => {}
     }
   }
@@ -38,8 +75,7 @@ val r0 = new RectangleCell(false, true, false, false,elementX = 0, elementY = 0,
       content = List();
       for(el <- list) yield { println(el.borders); content.add(el); for(rectangle <- el.borders) yield { content.add(rectangle)} }
 
-      val p = new Player()
-      p.position_(r0)
+
       content.add(p.circle)
 
       onKeyPressed = (ke : KeyEvent) => {
