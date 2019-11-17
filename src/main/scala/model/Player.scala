@@ -28,9 +28,11 @@ class Player (var _position : RectangleCell) {
 
 
   def position = _position;
-  def position_ (value:RectangleCell) :Unit = {
+  def position_ (value:RectangleCell, url: String) :Unit = {
     _position = value;
     println("New player position: (" + _position.getX + ", "+ _position.getY+ ")")
 
+
+    image_(url)
   }
 }
