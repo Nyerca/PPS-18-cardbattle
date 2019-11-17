@@ -8,7 +8,7 @@ class Dashboard(cells: List[RectangleCell], player: Player) {
 
   var anim = new TranslateTransition {
     duration = Duration(1000.0)
-    node = player.circle
+    node = player.icon
     interpolator = Interpolator.Linear
     // autoReverse = true
     // cycleCount = Timeline.Indefinite

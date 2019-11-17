@@ -24,16 +24,8 @@ val r0 = new RectangleCell(false, true, false, false,elementX = 0, elementY = 0,
     new RectangleCell(false, false, false, true,elementX = 400, elementY = 200, paint=Color.Grey)
   );
 
-  val p = new Player()
-  p.position_(r0)
+  val p = new Player(r0)
 
-  var anim = new TranslateTransition {
-    duration = Duration(1000.0)
-    node = p.circle
-    interpolator = Interpolator.Linear
-    // autoReverse = true
-    // cycleCount = Timeline.Indefinite
-  }
 
   def keyPressed (keyCode: KeyCode, dashboard : Dashboard): Unit = {
     keyCode.getName match {
@@ -52,7 +44,7 @@ val r0 = new RectangleCell(false, true, false, false,elementX = 0, elementY = 0,
       for(el <- list) yield { println(el.borders); content.add(el); for(rectangle <- el.borders) yield { content.add(rectangle)} }
 
       val dashboard = new Dashboard(list, p);
-      content.add(p.circle)
+      content.add(p.icon)
 
       onKeyPressed = (ke : KeyEvent) => {
         keyPressed(ke.code, dashboard);
