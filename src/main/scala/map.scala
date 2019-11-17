@@ -41,7 +41,7 @@ val r0 = new RectangleCell(false, true, false, false,elementX = 0, elementY = 0,
     title = "Cardbattle"
     scene = new Scene(1200, 800) {
       content = List();
-      for(el <- list) yield { println(el.borders); content.add(el); for(rectangle <- el.borders) yield { content.add(rectangle)} }
+      for(el <- list) yield {content.add(el); }
 
       val dashboard = new Dashboard(list, p);
       content.add(p.icon)
