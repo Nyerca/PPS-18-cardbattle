@@ -47,17 +47,16 @@ class RectangleCell (top: Boolean, right: Boolean, bottom: Boolean, left: Boolea
   super.y_=(elementY);
   super.fill_=(paint);
 
-  private var _url = "";
-  def url() = _url
-  
+  private var _image : Image = null ;
+  def image = _image
+
   def createImage(url: String, rotation: Double): Unit = {
-    this._url = url;
     val iv = new ImageView(new Image( url));
     iv.setRotate(rotation);
     var params = new SnapshotParameters();
     params.setFill(Color.Transparent);
-    val img = iv.snapshot(params, null);
-    this.fill_=(new ImagePattern(img))
+    _image = iv.snapshot(params, null);
+    this.fill_=(new ImagePattern(_image))
   }
 
 

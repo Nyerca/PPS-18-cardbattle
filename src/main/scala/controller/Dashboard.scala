@@ -15,6 +15,10 @@ class Dashboard (var cells: ListBuffer[RectangleCell], player: Player, bpane:Bor
     cells.append(cell)
   }
 
+  def addPane(pane:BorderPane): Unit = {
+    anim.node = pane.center.apply()
+  }
+
   var anim = new TranslateTransition {
     duration = Duration(200.0)
     node = bpane.center.apply()
@@ -36,7 +40,6 @@ class Dashboard (var cells: ListBuffer[RectangleCell], player: Player, bpane:Bor
     }
   }
 
-  //TODO AGGIUNGI CONTROLLO DIREZIONE
   def searchPosition(newX : Double, newY : Double): Option[RectangleCell] = {
     //for(rectangle <- cells if(rectangle.getX == newX)) yield rectangle
     (for (rectangle <- cells if rectangle.getX <= newX && rectangle.getY <= newY && rectangle.getX + rectangle.getWidth > newX && rectangle.getY + rectangle.getHeight > newY) yield rectangle).headOption
@@ -44,6 +47,8 @@ class Dashboard (var cells: ListBuffer[RectangleCell], player: Player, bpane:Bor
 
   def searchPosition(newX : Double, newY : Double, movement: Move): Option[RectangleCell] = {
     //for(rectangle <- cells if(rectangle.getX == newX)) yield rectangle
+    println("Searching: (" + newX + ", " + newY + ")")
+    for (rectangle <- cells if  rectangle.getX <= newX && rectangle.getY <= newY && rectangle.getX + rectangle.getWidth > newX && rectangle.getY + rectangle.getHeight > newY) yield {println("RE: " + rectangle); if(rectangle.isMoveAllowed(movement)) println("ALSO MOVE")}
     (for (rectangle <- cells if  rectangle.getX <= newX && rectangle.getY <= newY && rectangle.getX + rectangle.getWidth > newX && rectangle.getY + rectangle.getHeight > newY && rectangle.isMoveAllowed(movement)) yield rectangle).headOption
   }
 
@@ -104,8 +109,11 @@ class Dashboard (var cells: ListBuffer[RectangleCell], player: Player, bpane:Bor
 
   def movementTo(incX: Integer, incY: Integer, movement: Move): Option[RectangleCell] = {
     setAnimation(traslationX, traslationX + incX, traslationY, traslationY + incY)
-    printInfos
+    //printInfos
     val newRectangle = this.searchPosition(player.position.getX + incX, player.position.getY + incY, movement.opposite)
+    if(newRectangle.isDefined ) println("DEFINED")
+    if(player.position.isMoveAllowed(movement) ) println("ALLOWED")
+    if(anim.status.getValue == Status.STOPPED ) println("STOPPED")
     if (newRectangle.isDefined && player.position.isMoveAllowed(movement) && anim.status.getValue == Status.STOPPED) {
       newRectangle
     } else {
