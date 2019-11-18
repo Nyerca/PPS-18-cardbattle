@@ -4,7 +4,7 @@ import model.{Bottom, Left, Player, RectangleCell, Right, Top}
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.scene.control.{Button, ToolBar}
-import scalafx.scene.input.{KeyCode, KeyEvent}
+import scalafx.scene.input.{KeyCode, KeyEvent, MouseEvent}
 import scalafx.scene.{Group, Scene}
 import scalafx.scene.layout._
 import scalafx.scene.paint.Color
@@ -17,18 +17,15 @@ import scalafx.util.Duration
 import scala.collection.mutable.ListBuffer
 
 object test extends JFXApp {
-
-val r0 = new RectangleCell(false, true, false, false, elementX= 0.0, elementY=0.0, paint=Color.Grey)
-
+  var selected:Option[RectangleCell] = Option.empty;
 
   val list = ListBuffer(
-   r0 ,
-    new RectangleCell(false, true, true, true, elementX= 200.0, elementY=0.0, paint=Color.Grey),
-    new RectangleCell(true, true, false, false, elementX= 200.0, elementY=200.0, paint=Color.Grey),
-    new RectangleCell(false, true, false, true, elementX= 400.0, elementY=200.0, paint=Color.Grey)
+    new RectangleCell(false, true, false, false, elementX= 200.0, elementY=200.0, paint=Color.Grey),
+    new RectangleCell(false, true, true, true, elementX= 400.0, elementY=200.0, paint=Color.Grey),
+    new RectangleCell(true, true, false, false, elementX= 400.0, elementY=400.0, paint=Color.Grey),
+    new RectangleCell(false, true, false, true, elementX= 600.0, elementY=400.0, paint=Color.Grey)
   );
-
-  val p = new Player(r0)
+  import javafx.scene.input.MouseEvent
 
 
   def keyPressed (keyCode: KeyCode, dashboard : Dashboard): Unit = {
@@ -41,92 +38,94 @@ val r0 = new RectangleCell(false, true, false, false, elementX= 0.0, elementY=0.
     }
   }
 
-  var selected:Option[RectangleCell] = Option.empty;
-
-  val addList = List(
-    new RectangleCell(false, true, false, false, elementX= 0.0, elementY=0.0, paint=Color.Grey),
-    new RectangleCell(false, true, true, true, elementX= 200.0, elementY=0.0, paint=Color.Grey),
-    new RectangleCell(true, true, false, false, elementX= 200.0, elementY=200.0, paint=Color.Grey),
-    new RectangleCell(false, true, false, true, elementX= 400.0, elementY=200.0, paint=Color.Grey)
-  );
-
-  val bpane = new BorderPane {
-    center = new scalafx.scene.layout.Pane {
-
-      children = List()
-      for(el <- list) yield { children.add(el); }
-    }
-    bottom = new HBox() {
-
-      layoutX = 10
-      layoutY = 580
-      id = "pane"
-      children = List()
-
-      for(el <- addList) yield {
-        children.add(el)
-      }
-      val btn = new Button {
-        onAction = () => selected = Option(new RectangleCell(true, true, true, true, elementX= 0.0, elementY=0.0, paint=Color.Grey))
-        defaultButton = true
-        graphic = new ImageView(new Image("4road.png"))
-      }
-
-      children.add(btn);
-    }
+  val pane = new Pane {
+    children = list
   }
 
+  def createBottomCard(): ListBuffer[Button] = {
+    val tmpList = ListBuffer[Button]()
+    val btn = new Button {
+      val re = new RectangleCell(true, true, true, true, elementX= 0.0, elementY=0.0, paint=Color.Grey)
+      onAction = () => selected = Option(re)
+      defaultButton = true
+      graphic = new ImageView(new Image(re.url()))
+    }
+    val btn2 = new Button {
+      val re =new RectangleCell(false, true, false, true, elementX= 0.0, elementY=0.0, paint=Color.Grey)
+      onAction = () => selected = Option(re)
+      defaultButton = true
+      graphic = new ImageView(new Image(re.url()))
+    }
+    tmpList.append(btn)
+    tmpList.append(btn2)
+    tmpList
+  }
 
   stage = new PrimaryStage {
     title = "Cardbattle"
     scene = new Scene(1200, 800) {
-      val img = new Image( "noroad.png")
-      fill = (new ImagePattern(img, 0, 0, 200, 200, false));
-      content = List();
 
-      val dashboard = new Dashboard(list, p, bpane);
+
+
+      fill = (new ImagePattern(new Image( "noroad.png"), 0, 0, 200, 200, false));
+      val bpane = new BorderPane {
+        center = pane
+        bottom = new HBox() {
+
+          layoutX = 10
+          layoutY = 580
+          id = "pane"
+          children = List()
+
+
+
+          val addList = createBottomCard
+          children = addList
+        }
+      }
+      val player = new Player(new RectangleCell(false, true, false, false, elementX= 200.0, elementY=200.0, paint=Color.Grey));
+      val dashboard = new Dashboard(list, player, bpane);
       content = bpane
-      content.add(p.icon)
+      content.add(player.icon);
+      //content.add(hbox);
+
 
       onKeyPressed = (ke : KeyEvent) => {
         keyPressed(ke.code, dashboard);
       }
 
 
-      import javafx.scene.input.MouseEvent
-
-
-
       onMouseClicked = (e: MouseEvent) => {
 
         if(selected.isDefined) {
           val tmpRect = selected.get;
-          tmpRect.x_=(e.x - e.x % 200)
-          tmpRect.y_=(e.y - e.y % 200)
+          dashboard.showMap
+          tmpRect.x_=(e.x - dashboard.traslationX - e.x % 200)
+          tmpRect.y_=(e.y - dashboard.traslationY- e.y % 200)
+          tmpRect.setX(e.x - dashboard.traslationX - e.x % 200)
+          tmpRect.setY(e.y - dashboard.traslationY- e.y % 200)
           println("SELECTED: " + selected);
-          val centerRef = bpane.center
-          bpane.center = new Pane {
 
-            children = List()
-            for(el <- list) yield { children.add(el); }
-            children.add(tmpRect)
-            println("XXX: " + tmpRect.getX)
-            tmpRect.setX(e.x - e.x % 200)
-            tmpRect.setY(e.y - e.y % 200)
-            dashboard.addCell(tmpRect)
-            println(dashboard.searchPosition(410,10))
-            dashboard.showMap
-          }
+
+          val listTmp = new ListBuffer[RectangleCell]()
+          for(el <- list) yield { listTmp.append(el); }
+          listTmp.append(tmpRect)
+          pane.children =(listTmp)
+
+          println("------")
+          dashboard.addCell(tmpRect)
+          dashboard.showMap
+
         }
         println(dashboard.searchPosition(e.x, e.y))
       }
 
     }
   }
+  stage.resizable = false
+  stage.fullScreen = true
+
+
+
+
 }
-
-
-
-
-
-
