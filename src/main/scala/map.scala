@@ -1,5 +1,6 @@
 import controller.Dashboard
-import model.{Player, RectangleCell, Top, Right, Bottom, Left}
+import javafx.scene.paint.ImagePattern
+import model.{Bottom, Left, Player, RectangleCell, Right, Top}
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.scene.control.ToolBar
@@ -10,6 +11,7 @@ import scalafx.scene.paint.Color
 import scalafx.scene.shape.{Circle, Rectangle}
 import scalafx.Includes._
 import scalafx.animation.{Interpolator, TranslateTransition}
+import scalafx.scene.image.Image
 import scalafx.util.Duration
 
 object test extends JFXApp {
@@ -40,6 +42,8 @@ val r0 = new RectangleCell(false, true, false, false,elementX = 0, elementY = 0,
   stage = new PrimaryStage {
     title = "Cardbattle"
     scene = new Scene(1200, 800) {
+      val img = new Image( "noroad.png")
+      fill = (new ImagePattern(img, 0, 0, 200, 200, false));
       content = List();
       for(el <- list) yield {content.add(el); }
 
