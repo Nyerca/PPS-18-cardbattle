@@ -1,9 +1,12 @@
 package controller
 
-import model.{Bottom, Left, Move, Player, RectangleCell, Right, Top}
+import javafx.animation.Animation.Status
+import model.{Move, Player, RectangleCell, Top, Right, Left, Bottom}
+import scalafx.Includes._
 import scalafx.animation.{Interpolator, TranslateTransition}
 import scalafx.scene.layout.BorderPane
 import scalafx.util.Duration
+
 import scala.collection.mutable.ListBuffer
 
 class Dashboard (var cells: ListBuffer[RectangleCell], player: Player, bpane:BorderPane) {
@@ -14,12 +17,11 @@ class Dashboard (var cells: ListBuffer[RectangleCell], player: Player, bpane:Bor
 
   var anim = new TranslateTransition {
     duration = Duration(200.0)
-    node = bpane
+    node = bpane.center.apply()
     interpolator = Interpolator.Linear
     // autoReverse = true
     // cycleCount = Timeline.Indefinite
   }
-
 
 
   /*
@@ -33,25 +35,38 @@ class Dashboard (var cells: ListBuffer[RectangleCell], player: Player, bpane:Bor
       println("RECTANGLE: (" + rectangle.getX + ", " + rectangle.getY+ ") w: "+ rectangle.getWidth + " h: " + rectangle.getHeight)
     }
   }
+
+  //TODO AGGIUNGI CONTROLLO DIREZIONE
   def searchPosition(newX : Double, newY : Double): Option[RectangleCell] = {
     //for(rectangle <- cells if(rectangle.getX == newX)) yield rectangle
     (for (rectangle <- cells if rectangle.getX <= newX && rectangle.getY <= newY && rectangle.getX + rectangle.getWidth > newX && rectangle.getY + rectangle.getHeight > newY) yield rectangle).headOption
   }
 
+  def searchPosition(newX : Double, newY : Double, movement: Move): Option[RectangleCell] = {
+    //for(rectangle <- cells if(rectangle.getX == newX)) yield rectangle
+    (for (rectangle <- cells if  rectangle.getX <= newX && rectangle.getY <= newY && rectangle.getX + rectangle.getWidth > newX && rectangle.getY + rectangle.getHeight > newY && rectangle.isMoveAllowed(movement)) yield rectangle).headOption
+  }
+
+  private var _traslationX = 0.0
+  private var _traslationY = 0.0
+  def traslationX = _traslationX
+  def traslationY = _traslationY
+
+
   def setAnimation(fromX: Double, toX: Double, fromY:Double, toY: Double)   = {
     anim.fromX = fromX;
     anim.fromY= fromY;
-    anim.toX = toX;
-    anim.toY= toY;
+    anim.toX = toX
+    anim.toY= toY
   }
 
-  var traslationX = 0.0
+
 
   def setAnimationIncrement(newRectangle:RectangleCell, incrementX : Double, incrementY: Double, stringUrl : String): Unit = {
     anim.toX = anim.fromX.toDouble + incrementX;
     anim.toY = anim.fromY.toDouble + incrementY;
-    traslationX += incrementX * 5;
-    println("From: (" + player.position.getX + ", " + player.position.getY + ") to: (" + anim.toX.toDouble + ", " + anim.toY.toDouble + ") traslationX: " + traslationX)
+    _traslationX += incrementX * 5;
+    _traslationY += incrementY * 5
     anim.setOnFinished(e =>  {
       player.position_(newRectangle, stringUrl + "2.png");
       anim.fromX = anim.toX.toDouble
@@ -73,7 +88,7 @@ class Dashboard (var cells: ListBuffer[RectangleCell], player: Player, bpane:Bor
             anim.fromY = anim.toY.toDouble
             anim.toX = anim.fromX.toDouble + incrementX;
             anim.toY = anim.fromY.toDouble + incrementY;
-            anim.setOnFinished(e => {})
+            anim.setOnFinished(e => {printInfos })
             anim.play();})
           anim.play();})
         anim.play();})
@@ -81,48 +96,71 @@ class Dashboard (var cells: ListBuffer[RectangleCell], player: Player, bpane:Bor
     })
   }
 
+  def printInfos(): Unit = {
+    println("Player position: (" + player.position.getX + ", " + player.position.getY + ")")
+    println("Animation From: (" + anim.fromX.toDouble + ", " + anim.fromY.toDouble + ") to: (" + anim.toX.toDouble + ", " + anim.toY.toDouble + ")")
+    println("Translation: (" + _traslationX + ", " +_traslationY + ")")
+  }
+
+  def movementTo(incX: Integer, incY: Integer, movement: Move): Option[RectangleCell] = {
+    setAnimation(traslationX, traslationX + incX, traslationY, traslationY + incY)
+    printInfos
+    val newRectangle = this.searchPosition(player.position.getX + incX, player.position.getY + incY, movement.opposite)
+    if (newRectangle.isDefined && player.position.isMoveAllowed(movement) && anim.status.getValue == Status.STOPPED) {
+      newRectangle
+    } else {
+      Option.empty
+    }
+
+  }
+
+  def checkAnimationEnd():Boolean = {
+    if(anim.status.getValue == Status.STOPPED) true
+    else false
+  }
+
 
   def move(movement : Move): Unit = movement match {
     case Top  => {
-      setAnimation(player.position.getX, player.position.getX, player.position.getY, player.position.getY-200)
-
-      val newRectangle = this.searchPosition( anim.toX.toDouble, anim.toY.toDouble)
-      if(newRectangle.isDefined) {
+      if(checkAnimationEnd) {
         player.image_("top.png")
-        println("From: (" + player.position.getX + ", " + player.position.getY + ") to: (" + anim.toX.toDouble + ", " + anim.toY.toDouble + ")")
-        setAnimationIncrement(newRectangle.get, 0, +40, "top")
-        anim.play();
+        val newRectangle = movementTo(0, -200, movement)
+        if (newRectangle.isDefined) {
+
+          //println("From: (" + player.position.getX + ", " + player.position.getY + ") to: (" + anim.toX.toDouble + ", " + anim.toY.toDouble + ")")
+          setAnimationIncrement(newRectangle.get, 0, +40, "top")
+          anim.play();
+        }
       }
     }
     case Right => {
-      setAnimation(player.position.getX, player.position.getX + 200, player.position.getY, player.position.getY)
-      val newRectangle = this.searchPosition( anim.toX.toDouble, anim.toY.toDouble)
-      if(newRectangle.isDefined) {
+      if(checkAnimationEnd) {
         player.image_("right.png")
-        println("From: (" + player.position.getX + ", " + player.position.getY + ") to: (" + anim.toX.toDouble + ", " + anim.toY.toDouble + ") traslationX: " + traslationX)
-        setAnimationIncrement(newRectangle.get, -40, 0, "right")
-        anim.play();
+        val newRectangle = movementTo(200,0,movement)
+        if(newRectangle.isDefined ) {
+          setAnimationIncrement(newRectangle.get, -40, 0, "right")
+          anim.play();
+        }
       }
     }
     case Bottom => {
-      setAnimation(player.position.getX, player.position.getX, player.position.getY, player.position.getY + 200)
-      player.image_("bot.png")
-      val newRectangle = this.searchPosition( anim.toX.toDouble, anim.toY.toDouble)
-      if(newRectangle.isDefined) {
-        println("From: (" + player.position.getX + ", " + player.position.getY + ") to: (" + anim.toX.toDouble + ", " + anim.toY.toDouble + ")")
-        setAnimationIncrement(newRectangle.get, 0, -40, "bot")
-        anim.play();
+      if(checkAnimationEnd) {
+        player.image_("bot.png")
+        val newRectangle = movementTo(0,200,movement)
+        if(newRectangle.isDefined && player.position.isMoveAllowed(movement)) {
+          setAnimationIncrement(newRectangle.get, 0, -40, "bot")
+          anim.play();
+        }
       }
     }
     case Left => {
-      setAnimation(player.position.getX, player.position.getX - 200, player.position.getY, player.position.getY)
-
-      val newRectangle = this.searchPosition( anim.toX.toDouble, anim.toY.toDouble)
-      if(newRectangle.isDefined) {
+      if(checkAnimationEnd) {
         player.image_("left.png")
-        println("From: (" + player.position.getX + ", " + player.position.getY + ") to: (" + anim.toX.toDouble + ", " + anim.toY.toDouble + ") traslationX: " + traslationX)
-        setAnimationIncrement(newRectangle.get, +40, 0, "left")
-        anim.play();
+        val newRectangle = movementTo(-200,0,movement)
+        if(newRectangle.isDefined && player.position.isMoveAllowed(movement)) {
+          setAnimationIncrement(newRectangle.get, +40, 0, "left")
+          anim.play();
+        }
       }
     }
     case _  => {}

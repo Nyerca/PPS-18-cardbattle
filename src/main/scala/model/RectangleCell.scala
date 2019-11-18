@@ -89,4 +89,22 @@ class RectangleCell (top: Boolean, right: Boolean, bottom: Boolean, left: Boolea
     this.createImage("1road.png",180)
   }
 
+  def isMoveAllowed(movement : Move): Boolean = movement match {
+    case Top => {
+      if(top) true
+      else false
+    } case Right => {
+      if(right) true
+      else false
+    } case Bottom => {
+      if(bottom) true
+      else false
+    } case Left  => {
+      if(left) true
+      else false
+    } case _  => {
+      false
+    }
+  }
+
 }

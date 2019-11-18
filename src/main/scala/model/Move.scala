@@ -1,15 +1,26 @@
 package model
 
-sealed abstract class Move
+trait Move {
+  def opposite() : Move
+}
 
-case object Top extends Move
-case object Right extends Move
-case object Bottom extends Move
-case object Left extends Move
-
-
-
-
-object Movement extends Enumeration {
-  val Top, Right, Bottom, Left = Value
+case object Top extends Move {
+  override def opposite(): Move = {
+    Bottom
+  }
+}
+case object Right extends Move {
+  override def opposite(): Move = {
+    Left
+  }
+}
+case object Bottom extends Move {
+  override def opposite(): Move = {
+    Top
+  }
+}
+case object Left extends Move {
+  override def opposite(): Move = {
+    Right
+  }
 }

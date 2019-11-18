@@ -120,6 +120,7 @@ val r0 = new RectangleCell(false, true, false, false, elementX= 0.0, elementY=0.
         }
         println(dashboard.searchPosition(e.x, e.y))
       }
+
     }
   }
 }
