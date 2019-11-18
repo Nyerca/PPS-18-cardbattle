@@ -9,15 +9,20 @@ import scalafx.Includes._
 
 import scala.collection.mutable.ListBuffer
 
-class RectangleCell (top: Boolean, right: Boolean, bottom: Boolean, left: Boolean, elementWidth: Double = 200, elementHeight: Double = 200, elementX:Double, elementY:Double, paint:Color) extends Rectangle {
-  private var _borders = new ListBuffer[Rectangle]();
+class RectangleCell (top: Boolean, right: Boolean, bottom: Boolean, left: Boolean, elementWidth: Double = 200, elementHeight: Double = 200,var elementX:Double, var elementY:Double, paint:Color) extends Rectangle {
 
   def canEqual(other: Any) = other.isInstanceOf[RectangleCell]
 
   def getX = elementX;
   def getY = elementY;
   def getWidth = elementWidth;
-  def gethHeight = elementHeight;
+  def getHeight = elementHeight;
+  def setX(newX: Double) = {
+    elementX = newX
+  }
+  def setY(newY: Double) = {
+    elementY = newY
+  }
 
   override def equals(other:Any) :Boolean = other match {
     case that : RectangleCell => {
@@ -32,12 +37,15 @@ class RectangleCell (top: Boolean, right: Boolean, bottom: Boolean, left: Boolea
   }
 
 
+  def show(): Unit = {
+    print("ciaoooo " + top);
+  }
+
   super.width_=(elementWidth);
   super.height_=(elementHeight);
   super.x_=(elementX);
   super.y_=(elementY);
   super.fill_=(paint);
-
 
   def createImage(url: String, rotation: Double): Unit = {
     val iv = new ImageView(new Image( url));
