@@ -27,45 +27,46 @@ class map (var _controller : MapController) {
 }
 
   val _pane = new Pane {
-  children = _controller.list
-  for(el <- _controller.getAllEnemies ) {
-  children.append(el.icon)
-}
-}
+    children = _controller.list
+    maxHeight = 800
+    for(el <- _controller.getAllEnemies ) {
+      children.append(el.icon)
+    }
+  }
+
+  val bottomPane = new HBox() {
+    layoutX = 10
+    layoutY = 580
+    children = List()
+
+    var addList = _controller.createBottomCard
+    children = addList
+  }
 
   val _bpane = new BorderPane {
-  center = _pane
-  bottom = new HBox() {
-  layoutX = 10
-  layoutY = 580
-  children = List()
-
-  var addList = _controller.createBottomCard
-  children = addList
-}
-}
+    center = _pane
+    bottom = bottomPane
+  }
   def pane = _pane
   def bpane = _bpane
 
   _controller.view_(this)
 
-  def setPaneChildren(listTmp :ListBuffer[Rectangle]): Unit = {
-  pane.children =(listTmp)
-}
+  def setPaneChildren(list :ListBuffer[RectangleCell], tmpRect : Option[RectangleCell]): Unit = {
+    val listTmp = new ListBuffer[Rectangle]()
+    for (el <- list) yield {
+      listTmp.append(el);
+      if(el.enemy.isDefined) { val tmp = el.enemy.get; tmp.icon.fill_=(new ImagePattern(new Image(tmp.url))); listTmp.append(tmp.icon); }
+    }
+    if(tmpRect.isDefined) listTmp.append(tmpRect.get)
+
+    pane.children =listTmp
+  }
   def setBPane(): Unit = {
-  _bpane.bottom = new HBox() {
+    var addList = _controller.createBottomCard
+    bottomPane.children = addList
+  }
 
-  layoutX = 10
-  layoutY = 580
-  id = "pane"
-  children = List()
-
-
-
-  var addList = _controller.createBottomCard
-  children = addList
-}
-}
 
   val stage = new PrimaryStage {
   title = "Cardbattle"

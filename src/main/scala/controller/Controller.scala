@@ -19,12 +19,6 @@ class Controller() {
     screenMap.remove(name)
   }
 
-  /*
-  def activate(name: String) :Unit = {
-    stage.setRoot( screenMap.get(name) );
-  }
-  */
-
   def stage_(stage : PrimaryStage): Unit = {
     _stage = stage
   }

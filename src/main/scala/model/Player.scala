@@ -1,12 +1,12 @@
 package model
 
 import javafx.scene.paint.ImagePattern
-import scalafx.scene.image.Image
-import scalafx.scene.paint.Color
-import scalafx.scene.shape.{Circle, Rectangle}
 import scalafx.Includes._
+import scalafx.scene.image.Image
+import scalafx.scene.shape.Rectangle
 
-class Player (var _position : RectangleCell) {
+class Player (var _position : RectangleCell, var _url :  String) {
+
   private var _icon:Rectangle = new Rectangle() {
     x=_position.getX+_position.getWidth/2 -30
     y=(_position.getY+_position.getHeight/2)-70
@@ -16,13 +16,13 @@ class Player (var _position : RectangleCell) {
 
   def icon = _icon;
 
-
-
-  def image_(url: String) = {
-    var im = new Image( url);
-    _icon.fill_=(new ImagePattern(im))
+  def setFill(): Unit = {
+    icon.fill_=(new ImagePattern(new Image(url)))
   }
-  image_("bot.png")
+
+
+  def url = _url
+  def url_(str : String) = _url = str
 
 
 
@@ -30,9 +30,8 @@ class Player (var _position : RectangleCell) {
   def position = _position;
   def position_ (value:RectangleCell, url: String) :Unit = {
     _position = value;
-    println("New player position: (" + _position.getX + ", "+ _position.getY+ ")")
+    //println("New player position: (" + _position.getX + ", "+ _position.getY+ ")")
 
-
-    image_(url)
+    _url = url
   }
 }
