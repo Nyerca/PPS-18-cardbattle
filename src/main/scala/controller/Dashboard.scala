@@ -9,7 +9,7 @@ import scalafx.util.Duration
 
 import scala.collection.mutable.ListBuffer
 
-class Dashboard (var cells: ListBuffer[RectangleCell], player: Player, bpane:BorderPane) {
+class Dashboard (var cells: ListBuffer[RectangleCell], player: Player) {
 
   def addCell(cell : RectangleCell): Unit = {
     cells.append(cell)
@@ -21,12 +21,14 @@ class Dashboard (var cells: ListBuffer[RectangleCell], player: Player, bpane:Bor
 
   var anim = new TranslateTransition {
     duration = Duration(200.0)
-    node = bpane.center.apply()
     interpolator = Interpolator.Linear
     // autoReverse = true
     // cycleCount = Timeline.Indefinite
   }
 
+  def setAnimationNode (bpane : BorderPane): Unit = {
+    anim.node = bpane.center.apply()
+  }
 
   /*
     def searchPosition(newX : Double, newY : Double): Option[RectangleCell] = {

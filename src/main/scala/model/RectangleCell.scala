@@ -8,8 +8,12 @@ import scalafx.scene.shape.{Circle, Rectangle}
 import scalafx.Includes._
 
 import scala.collection.mutable.ListBuffer
+import scala.util.Random
 
-class RectangleCell (top: Boolean, right: Boolean, bottom: Boolean, left: Boolean, elementWidth: Double = 200, elementHeight: Double = 200,var elementX:Double, var elementY:Double, paint:Color) extends Rectangle {
+class RectangleCell (top: Boolean, right: Boolean, bottom: Boolean, left: Boolean, elementWidth: Double = 200, elementHeight: Double = 200,var elementX:Double, var elementY:Double, paint:Color) extends Rectangle with Cell with java.io.Serializable  {
+  var _enemy: Option[Enemy] = Option.empty
+  def enemy = _enemy
+  def enemy_(enemy : Enemy) = {_enemy = Option(enemy)}
 
   def canEqual(other: Any) = other.isInstanceOf[RectangleCell]
 
@@ -109,5 +113,48 @@ class RectangleCell (top: Boolean, right: Boolean, bottom: Boolean, left: Boolea
       false
     }
   }
+
+}
+
+object RectangleCell {
+  def generateRandom(excludedValues : Map[Int,ListBuffer[Int]]) : RectangleCell = {
+    var rngX = 800
+    var rngY = 400
+    while(excludedValues.contains(rngX) && excludedValues.get(rngX).get.contains(rngY)) {
+      rngX = Random.nextInt(8) * 200;
+      rngY = Random.nextInt(4) * 200
+    }
+    var top:Boolean = false
+    var right:Boolean = false
+    var bottom:Boolean = false
+    var left:Boolean = false
+    while(top == false && right == false && bottom == false && left == false) {
+      top = math.random()>0.5
+      right = math.random()>0.5
+      bottom = math.random()>0.5
+      left = math.random()>0.5
+    }
+    println("Rectangle ("+rngX + ", " +rngY+") T: " + top + " R: " + right + " B: " + bottom + " L: " + left)
+    val rectcell=  new RectangleCell(top, right, bottom, left, elementX= rngX, elementY=rngY, paint=Color.Grey)
+    var probEnemy = 0.1
+    if(excludedValues.size == 1) probEnemy = 1
+    if( math.random()<=probEnemy) rectcell.enemy_(new Enemy(rectcell))
+    rectcell
+  }
+  def generateRandomCard() : RectangleCell = {
+    var top:Boolean = false
+    var right:Boolean = false
+    var bottom:Boolean = false
+    var left:Boolean = false
+    while(top == false && right == false && bottom == false && left == false) {
+      top = math.random()>0.5
+      right = math.random()>0.5
+      bottom = math.random()>0.5
+      left = math.random()>0.5
+    }
+    new RectangleCell(top, right, bottom, left, elementX= 0, elementY=0, paint=Color.Grey)
+  }
+
+
 
 }
