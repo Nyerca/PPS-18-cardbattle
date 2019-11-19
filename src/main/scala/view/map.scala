@@ -1,3 +1,5 @@
+package view
+
 import controller.Dashboard
 import javafx.scene.paint.ImagePattern
 import model.{Bottom, Enemy, Left, Player, RectangleCell, Right, Top}
@@ -19,6 +21,7 @@ import scala.util.Random
 
 object test extends JFXApp {
   var selected:Option[RectangleCell] = Option.empty;
+  val enemies = new ListBuffer[Enemy];
 
   def generateRandom(excludedValues : Map[Int,ListBuffer[Int]]) : RectangleCell = {
     var rngX = 800
@@ -31,21 +34,25 @@ object test extends JFXApp {
     var right:Boolean = false
     var bottom:Boolean = false
     var left:Boolean = false
-    while(!top && !right && !bottom && !left) {
+    while(top == false && right == false && bottom == false && left == false) {
       top = math.random()>0.5
       right = math.random()>0.5
       bottom = math.random()>0.5
       left = math.random()>0.5
     }
     println("Rectangle ("+rngX + ", " +rngY+") T: " + top + " R: " + right + " B: " + bottom + " L: " + left)
-    new RectangleCell(top, right, bottom, left, elementX= rngX, elementY=rngY, paint=Color.Grey)
+    val rectcell=  new RectangleCell(top, right, bottom, left, elementX= rngX, elementY=rngY, paint=Color.Grey)
+    var probEnemy = 0.1
+    if(excludedValues.size == 1) probEnemy = 1
+    if( math.random()<=probEnemy) enemies.append(new Enemy(rectcell))
+    rectcell
   }
   def generateRandomCard() : RectangleCell = {
     var top:Boolean = false
     var right:Boolean = false
     var bottom:Boolean = false
     var left:Boolean = false
-    while(!top && !right && !bottom && !left) {
+    while(top == false && right == false && bottom == false && left == false) {
       top = math.random()>0.5
       right = math.random()>0.5
       bottom = math.random()>0.5
@@ -110,10 +117,11 @@ object test extends JFXApp {
     }
   }
 
-  val player2 = new Enemy(startingCell);
   val pane = new Pane {
     children = list
-    children.add(player2.icon)
+    for(el <- enemies ) {
+      children.append(el.icon)
+    }
   }
 
   def createBottomCard(): ListBuffer[Button] = {
@@ -187,7 +195,9 @@ object test extends JFXApp {
           val listTmp = new ListBuffer[Rectangle]()
           for(el <- list) yield { listTmp.append(el); }
           listTmp.append(tmpRect)
-          listTmp.append(player2.icon)
+          for(el <- enemies ) {
+            listTmp.append(el.icon)
+          }
           pane.children =(listTmp)
 
 
