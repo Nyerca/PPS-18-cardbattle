@@ -46,6 +46,7 @@ class MapController {
     _view = view
     println("VIEW: " + _view)
     dashboard.setAnimationNode(_view.bpane)
+    _view.setMenu()
   }
 
   val _player = new Player(startingCell, "bot.png");
