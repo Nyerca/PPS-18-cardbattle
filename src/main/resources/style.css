@@ -1,0 +1,27 @@
+.common {
+   -fx-pref-width: 1200px;
+   -fx-pref-height: 800px;
+}
+
+
+
+/************MAIN STAGE STYLE ********************/
+
+#mainPane {
+    -fx-background-image: url("images/mainBackground.jpg");
+    -fx-background-size: 1200 800;
+    -fx-background-repeat: stretch;
+}
+
+#title {
+   -fx-text-fill: "white";
+   -fx-font-size: 100px;
+   -fx-font-family: "Helvetica";
+}
+
+#playButton {
+  -fx-pref-width: 150px;
+  -fx-pref-height: 60px;
+  -fx-opacity: 0;
+  -fx-cursor: hand
+}
