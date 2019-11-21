@@ -4,7 +4,7 @@ import controller.{Controller, Dashboard, MapController}
 import model.{Player, RectangleCell, RectangleWithCell}
 import scalafx.application.JFXApp
 import scalafx.scene.shape.Rectangle
-import view.map
+import view.{cards, map, shop, shop2}
 
 import scala.collection.mutable.ListBuffer
 import javafx.scene.paint.ImagePattern
@@ -29,7 +29,12 @@ object App extends JFXApp {
 
   val mapController =  new MapController()
   val map = new map(mapController)
-  c.stage_(map.getStage())
+
+  //val cards = new cards()
+  //val shop = new shop()
+  val shop2 = new shop2()
+
+  c.stage_(shop2.getStage())
   c.show()
 
   import javafx.scene.control.Alert.AlertType
