@@ -1,12 +1,13 @@
 package view
 
 import controller.{Controller, MapController}
+import javafx.scene.control.Alert.AlertType
 import javafx.scene.paint.ImagePattern
 import model._
 import scalafx.Includes._
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
-import scalafx.scene.Scene
+import scalafx.scene.{Node, Scene}
 import scalafx.scene.control._
 import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.input.{KeyCode, KeyEvent}
@@ -17,6 +18,7 @@ import scalafx.scene.shape.Rectangle
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
 import javafx.scene.input.MouseEvent
+import scalafx.scene.text.Text
 
 
 /** Main class for the "Hello World" style example. */
@@ -32,10 +34,13 @@ class map (var _controller : MapController) {
     children = _controller.list
     maxHeight = 800
     for(el <- _controller.getAllEnemies ) {
-      children.append(el.icon)
+      val cell = Player.createPlayerCell(el.position, el.url)
+      cell.setFill()
+      children.append(cell.icon)
     }
-  }
 
+
+  }
 
 
   var menu = new VBox {
@@ -48,10 +53,15 @@ class map (var _controller : MapController) {
       onAction = () => println("shop clicked")
     }
     val save = new Button("Save"){
-      onAction = () => println("save clicked")
+      onAction = () => _controller.handleSave()
     }
     val quit = new Button("Quit"){
-      onAction = () => println("quit clicked")
+      onAction = () => {  val alert = new Alert(AlertType.INFORMATION)
+        alert.setTitle("Item Obtained")
+        alert.setGraphic(new ImageView(new Image("vamp.png")))
+        alert.setHeaderText("You obtained a new item!")
+        alert.setContentText("ITEM")
+        alert.showAndWait();}
     }
     toolbar.getItems().add(card);
     toolbar.getItems().add(new Separator());
@@ -115,13 +125,15 @@ _bpane.top = new VBox {
 
   _controller.view_(this)
 
-  def setPaneChildren(list :ListBuffer[RectangleCell], tmpRect : Option[RectangleCell]): Unit = {
+  def setPaneChildren(list :ListBuffer[RectangleWithCell], tmpRect : Option[RectangleCell]): Unit = {
     val listTmp = new ListBuffer[Rectangle]()
     for (el <- list) yield {
       listTmp.append(el);
-      if(el.enemy.isDefined) { val tmp = el.enemy.get; tmp.icon.fill_=(new ImagePattern(new Image(tmp.url))); listTmp.append(tmp.icon); }
+      if(el.rectCell.enemy.isDefined) { val tmp = el.rectCell.enemy.get; var cell = Player.createPlayerCell(tmp.position, tmp.url); cell.icon.fill_=(new ImagePattern(new Image(tmp.url))); listTmp.append(cell.icon); }
     }
-    if(tmpRect.isDefined) listTmp.append(tmpRect.get)
+    if(tmpRect.isDefined) listTmp.append(new RectangleWithCell(tmpRect.get.getWidth, tmpRect.get.getHeight, tmpRect.get.getX, tmpRect.get.getY,tmpRect.get) {
+      fill = (RectangleCell.createImage(tmpRect.get.url, tmpRect.get.rotation))
+    })
 
     pane.children =listTmp
   }

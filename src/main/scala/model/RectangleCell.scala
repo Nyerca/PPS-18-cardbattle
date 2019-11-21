@@ -11,8 +11,8 @@ import scalafx.scene.shape.Rectangle
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
 
-@SerialVersionUID(123L)
-class RectangleCell (top: Boolean, right: Boolean, bottom: Boolean, left: Boolean, elementWidth: Double = 200, elementHeight: Double = 200,var elementX:Double, var elementY:Double) extends Rectangle with Cell with java.io.Serializable  {
+
+class RectangleCell (top: Boolean, right: Boolean, bottom: Boolean, left: Boolean, elementWidth: Double = 200, elementHeight: Double = 200,var elementX:Double, var elementY:Double) extends Serializable with Cell  {
   var _enemy: Option[Player] = Option.empty
 
   def enemy = _enemy
@@ -52,10 +52,6 @@ class RectangleCell (top: Boolean, right: Boolean, bottom: Boolean, left: Boolea
     print("ciaoooo " + top);
   }
 
-  super.width_=(elementWidth);
-  super.height_=(elementHeight);
-  super.x_=(elementX);
-  super.y_=(elementY);
 
   private var _image : Image = null ;
   def image = _image
@@ -159,7 +155,7 @@ object RectangleCell {
     val rectcell=  new RectangleCell(top, right, bottom, left, elementX= rngX, elementY=rngY)
     var probEnemy = 0.1
     if(excludedValues.size == 1) probEnemy = 1
-    if( math.random()<=probEnemy) {val enemy = new Player(rectcell, "vamp.png"); enemy.icon.fill_=(new ImagePattern(new Image(enemy.url))); rectcell.enemy_(enemy) }
+    if( math.random()<=probEnemy) {val enemy = new Player(rectcell, "vamp.png");  rectcell.enemy_(enemy) }
 
     rectcell
   }
@@ -186,4 +182,13 @@ object RectangleCell {
     new ImagePattern(image)
   }
 
+  def createRectangle(rectangleCell: RectangleCell): Rectangle = {
+    val rect:Rectangle = new Rectangle()
+    rect.fill_=(RectangleCell.createImage(rectangleCell.url, rectangleCell.rotation))
+    rect.width_=(rectangleCell.getWidth)
+    rect.height_=(rectangleCell.getHeight);
+    rect.x_=(rectangleCell.getX);
+    rect.y_=(rectangleCell.getY);
+    rect
+  }
 }

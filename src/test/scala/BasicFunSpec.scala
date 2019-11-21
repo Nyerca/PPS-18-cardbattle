@@ -1,3 +1,4 @@
+import model.{IllegalSizeException, NoMovementException, RectangleCell}
 import org.junit.runner.RunWith
 import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{FlatSpec, FunSpec, FunSuite, Matchers}
@@ -5,6 +6,7 @@ import org.scalatest.{FlatSpec, FunSpec, FunSuite, Matchers}
 
 @RunWith(classOf[JUnitRunner])
 class BasicFunSpec extends FunSpec with Matchers  {
+  var rect : RectangleCell = _
 
 
   describe(" A Set ") {
@@ -27,5 +29,28 @@ class BasicFunSpec extends FunSpec with Matchers  {
     }
   }
 
-  
+  describe("A rectangle cant have all connections to false") {
+    it(" should raise NoMovementException") {
+      assertThrows[NoMovementException] {
+        val rect = new RectangleCell(false, false, false, false, 10, 10, 0, 0)
+      }
+    }
+  }
+
+
+  describe("A rectangle cant have height = 0") {
+    it(" should raise IllegalSizeException") {
+      assertThrows[IllegalSizeException] {
+        val r = new RectangleCell(false, false, true, false, 10, 0, 0, 0)
+      }
+    }
+  }
+
+  describe("A rectangle cant have width = 0") {
+    it(" should raise IllegalSizeException") {
+      assertThrows[IllegalSizeException] {
+        val r = new RectangleCell(false, false, true, false, 0, 10, 0, 0)
+      }
+    }
+  }
 }
