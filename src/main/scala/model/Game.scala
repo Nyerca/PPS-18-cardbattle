@@ -39,10 +39,10 @@ class GameImpl(override val user: Player, override val enemy: Player) extends Ga
       (Option(user), Option(enemy))
     case TypeCheckResult.AttackDefense =>
       calculateDamage(card1.value, if (card1.family._2 == card2.family._2) card2.value else 0, user)
-      (Option(user), None)
+      (None, Some(enemy))
     case TypeCheckResult.DefenseAttack =>
       calculateDamage(card2.value, if (card1.family._2 == card2.family._2) card1.value else 0, enemy)
-      (None, Option(enemy))
+      (Option(user), None)
     case _ => (None, None)
   }
 
@@ -53,7 +53,7 @@ class GameImpl(override val user: Player, override val enemy: Player) extends Ga
 
   private def calculateDamage(val1: Double, val2: Double, player: Player): Unit = player match {
     case _: User => healthPointPlayer2 -= (val1 - val2)
-    case _ => healthPointPlayer1 -= (val2 - val1)
+    case _ => healthPointPlayer1 -= (val1 - val2)
   }
 
   private def typeCheck(card1: Card, card2: Card): TypeCheckResult = (card1.family._1, card2.family._1) match {

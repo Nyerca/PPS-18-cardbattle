@@ -1,16 +1,14 @@
 package view.scenes
 
-import scalafx.scene.Scene
 import scalafx.scene.control.{Button}
 import scalafx.scene.layout.BorderPane
 import scalafx.stage.Stage
 import scalafx.Includes._
 import scalafx.scene.Scene
 
-class MainScene(val parentStage: Stage) extends Scene{
+class MainScene(val parentStage: Stage) extends Scene {
 
   stylesheets.add("style.css")
-
   root = new BorderPane {
     styleClass.add("common")
     id = "mainPane"
@@ -19,7 +17,7 @@ class MainScene(val parentStage: Stage) extends Scene{
       translateX = 530
       translateY = -45
       onAction = handle {
-        
+        parentStage.scene = BattleScene(parentStage)
       }
     }
   }
