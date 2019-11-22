@@ -1,7 +1,7 @@
 import java.io._
 
 import controller.{Controller, Dashboard, MapController}
-import model.{Player, RectangleCell, RectangleWithCell}
+import model.{PlayerRepresentation, RectangleCell, RectangleWithCell}
 import scalafx.application.JFXApp
 import scalafx.scene.shape.Rectangle
 import view.{cards, map, shop, shop2}
@@ -25,17 +25,17 @@ import scala.util.Random
 import javafx.scene.input.MouseEvent
 
 object App extends JFXApp {
-  val c =  new Controller()
+ // val c =  new Controller()
 
   val mapController =  new MapController()
-  val map = new map(mapController)
+ // val map = new map(mapController)
 
   //val cards = new cards()
   //val shop = new shop()
   val shop2 = new shop2()
 
-  c.stage_(shop2.getStage())
-  c.show()
+ // c.stage_(shop2.getStage())
+ // c.show()
 
   import javafx.scene.control.Alert.AlertType
 
@@ -59,7 +59,7 @@ object App extends JFXApp {
   def read(): Unit = {
     val input = new ObjectInputStream(new FileInputStream("./src/main/saves/save2.txt"))
     val list  : ListBuffer[RectangleCell] = input.readObject().asInstanceOf[ListBuffer[RectangleCell]]
-    val player : Player = input.readObject().asInstanceOf[Player]
+    val player : PlayerRepresentation = input.readObject().asInstanceOf[PlayerRepresentation]
 
     input.close()
 
@@ -72,7 +72,8 @@ object App extends JFXApp {
         fill = (RectangleCell.createImage(tmpRect.url, tmpRect.rotation))
       } )
     }
-    val pl : PlayerWithCell = Player.createPlayerCell(player.position, player.url)
+
+    val pl : PlayerWithCell = PlayerRepresentation.createPlayerCell(player.position, player.url)
     val mapController =  new MapController(lis, Option(pl.player.position))
   }
 
@@ -88,7 +89,7 @@ object App extends JFXApp {
   def save(): Unit = {
     val rectangleCell = RectangleCell.generateRandomCard()
     val dashboard = new Dashboard(null, null)
-    val player = new Player(rectangleCell, "bot.png")
+    val player = new PlayerRepresentation(rectangleCell, "bot.png")
 
     val output = new ObjectOutputStream(new FileOutputStream("./src/main/saves/save2.txt"))
     output.writeObject(rectangleCell)

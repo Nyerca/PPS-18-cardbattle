@@ -3,7 +3,7 @@ package controller
 import java.io.{File, FileOutputStream, ObjectOutputStream, PrintWriter}
 
 import javafx.animation.Animation.Status
-import model.{Bottom, Cell, DoubleCellException, DoubleEnemyException, DoubleMovementException, EnemyCell, Left, MissingCellException, NoMovementException, Player, PlayerWithCell, RectangleCell, RectangleWithCell, Right, Top}
+import model.{Bottom, Cell, DoubleCellException, DoubleEnemyException, DoubleMovementException, EnemyCell, Left, MissingCellException, NoMovementException, Player, PlayerRepresentation, PlayerWithCell, RectangleCell, RectangleWithCell, Right, Top}
 import scalafx.scene.control.{Button, Separator, ToolBar}
 import scalafx.scene.input.KeyCode
 import scalafx.scene.paint.Color
@@ -31,8 +31,8 @@ class MapController (_list:ListBuffer[RectangleWithCell], startingDefined : Opti
   def selected = _selected
   def selected_(selected : Option[Cell]) = { _selected = selected}
 
-  def getAllEnemies(): ListBuffer[Player] = {
-    val outList = new ListBuffer[Player]
+  def getAllEnemies(): ListBuffer[PlayerRepresentation] = {
+    val outList = new ListBuffer[PlayerRepresentation]
     for (el <- list) yield {
       if(el.rectCell.enemy.isDefined) outList.append(el.rectCell.enemy.get)
     }
@@ -74,10 +74,46 @@ class MapController (_list:ListBuffer[RectangleWithCell], startingDefined : Opti
 
   def handleKey(keyCode : KeyCode): Unit = {
     keyCode.getName match {
-      case "Up" => if(checkAnimationEnd("top")) dashboard.move(Top, () => {player.setFill();});
-      case "Left" => if(checkAnimationEnd("left")) dashboard.move(Left,() => {player.setFill();});
-      case "Down" => if(checkAnimationEnd("bot")) dashboard.move(Bottom,() => {player.setFill();});
-      case "Right" => if(checkAnimationEnd("right")) dashboard.move(Right,() => {player.setFill();});
+      case "Up" => if(checkAnimationEnd("top")) {
+        dashboard.printCells()
+        dashboard.move(Top, () => {player.setFill();
+        println("--------------------------------")
+        println(player._position.enemy)
+        if(player._position.enemy.isDefined) {
+          _view.changeScene()
+        }
+          dashboard.printCells()
+      }) ;
+
+      }
+      case "Left" => if(checkAnimationEnd("left")){ dashboard.move(Left,() => {player.setFill();
+        println("--------------------------------")
+        println(player._position.enemy)
+        if(player._position.enemy.isDefined) {
+          _view.changeScene()
+        }
+      }) ;
+
+    }
+      case "Down" => if(checkAnimationEnd("bot")) { dashboard.move(Bottom,() => {player.setFill();
+        println("--------------------------------")
+        println(player._position.enemy)
+        if(player._position.enemy.isDefined) {
+          _view.changeScene()
+        }
+
+      }) ;
+
+      }
+      case "Right" => if(checkAnimationEnd("right")) { dashboard.move(Right,() => {player.setFill();
+        println("--------------------------------")
+        println(player._position.enemy)
+        if(player._position.enemy.isDefined) {
+          _view.changeScene()
+        }
+      });
+
+      }
       case _ => {}
     }
   }
@@ -160,7 +196,7 @@ class MapController (_list:ListBuffer[RectangleWithCell], startingDefined : Opti
 
           val rect = dashboard.searchPosition(e.x - dashboard.traslationX, e.y - dashboard.traslationY).get
           if(!rect.enemy.isDefined) {
-            rect.enemy_(new Player(dashboard.searchPosition(e.x - dashboard.traslationX, e.y - dashboard.traslationY).get, "vamp.png"))
+            rect.enemy_(new PlayerRepresentation(dashboard.searchPosition(e.x - dashboard.traslationX, e.y - dashboard.traslationY).get, "vamp.png"))
 
             _view.setPaneChildren(list, Option.empty)
             _selected = Option.empty

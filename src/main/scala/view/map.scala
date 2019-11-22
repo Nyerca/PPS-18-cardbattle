@@ -19,10 +19,12 @@ import scala.collection.mutable.ListBuffer
 import scala.util.Random
 import javafx.scene.input.MouseEvent
 import scalafx.scene.text.Text
+import scalafx.stage.Stage
+import view.scenes.BattleScene
 
 
 /** Main class for the "Hello World" style example. */
-class map (var _controller : MapController) {
+class map (parentStage: Stage, var _controller : MapController) {
 
   def setController(controller : MapController): Unit = {
     _controller = controller
@@ -34,7 +36,7 @@ class map (var _controller : MapController) {
     children = _controller.list
     maxHeight = 800
     for(el <- _controller.getAllEnemies ) {
-      val cell = Player.createPlayerCell(el.position, el.url)
+      val cell = PlayerRepresentation.createPlayerCell(el.position, el.url)
       cell.setFill()
       children.append(cell.icon)
     }
@@ -129,7 +131,7 @@ _bpane.top = new VBox {
     val listTmp = new ListBuffer[Rectangle]()
     for (el <- list) yield {
       listTmp.append(el);
-      if(el.rectCell.enemy.isDefined) { val tmp = el.rectCell.enemy.get; var cell = Player.createPlayerCell(tmp.position, tmp.url); cell.icon.fill_=(new ImagePattern(new Image(tmp.url))); listTmp.append(cell.icon); }
+      if(el.rectCell.enemy.isDefined) { val tmp = el.rectCell.enemy.get; var cell = PlayerRepresentation.createPlayerCell(tmp.position, tmp.url); cell.icon.fill_=(new ImagePattern(new Image(tmp.url))); listTmp.append(cell.icon); }
     }
     if(tmpRect.isDefined) listTmp.append(new RectangleWithCell(tmpRect.get.getWidth, tmpRect.get.getHeight, tmpRect.get.getX, tmpRect.get.getY,tmpRect.get) {
       fill = (RectangleCell.createImage(tmpRect.get.url, tmpRect.get.rotation))
@@ -142,53 +144,55 @@ _bpane.top = new VBox {
     bottomPane.children = addList
   }
 
-  val stage = new PrimaryStage {
-    title = "Cardbattle"
-    scene = new Scene(1200, 800) {
+  val scene = new Scene(1200, 800) {
 
-      fill = (new ImagePattern(new Image( "noroad.png"), 0, 0, 200, 200, false));
-      content = _bpane
-      content.add(_controller.player.icon);
+    fill = (new ImagePattern(new Image( "noroad.png"), 0, 0, 200, 200, false));
+    content = _bpane
+    content.add(_controller.player.icon);
 
-      onKeyPressed = (ke : KeyEvent) =>  {
-        try {
-          _controller.handleKey(ke.code)
-        } catch {
-          case e : DoubleMovementException => {
-            println("You can't move while the previus movement is still executing.")
-          }case e : MissingCellException => {
-            println("You can't move on a missing cell.")
-          }case e : NoMovementException => {
-            println("You can't move in that direction because your cell doesn't allow that.")
-          }
+    onKeyPressed = (ke : KeyEvent) =>  {
+      try {
+        _controller.handleKey(ke.code)
+      } catch {
+        case e : DoubleMovementException => {
+          println("You can't move while the previus movement is still executing.")
+        }case e : MissingCellException => {
+          println("You can't move on a missing cell.")
+        }case e : NoMovementException => {
+          println("You can't move in that direction because your cell doesn't allow that.")
         }
-
       }
-      onMouseClicked = (e: MouseEvent) => {
-        try {
-          _controller.handleMouseClicked(e)
-        } catch {
-          case e : DoubleCellException => {
-            println("You can't place a cell on top of another cell.")
-          }case e : MissingCellException => {
-            println("You can't place an enemy on a missing cell.")
-          }case e : DoubleEnemyException => {
-            println("You can't place an enemy on top of another enemy.")
-          }
+
+    }
+    onMouseClicked = (e: MouseEvent) => {
+      try {
+        _controller.handleMouseClicked(e)
+      } catch {
+        case e : DoubleCellException => {
+          println("You can't place a cell on top of another cell.")
+        }case e : MissingCellException => {
+          println("You can't place an enemy on a missing cell.")
+        }case e : DoubleEnemyException => {
+          println("You can't place an enemy on top of another enemy.")
         }
       }
     }
   }
 
-  def getStage(): PrimaryStage = {
-    stage
+  def getScene(): Scene = {
+    scene
   }
 
   //stage.resizable = false
   //stage.fullScreen = true
 
-
+  def changeScene(): Unit = {
+    parentStage.scene_=(BattleScene(parentStage))
+  }
 
 
 }
 
+object map {
+  def apply(parentStage: Stage): map = new map(parentStage, new MapController())
+}

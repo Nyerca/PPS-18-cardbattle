@@ -7,7 +7,7 @@ import scalafx.scene.shape.Rectangle
 
 class PlayerWithCell (var _position : RectangleCell, var _url :  String) {
 
-  private var _player = new Player(_position, _url)
+  private var _player = new PlayerRepresentation(_position, _url)
   def player = _player
 
   private var _icon:Rectangle = new Rectangle() {

@@ -13,10 +13,10 @@ import scala.util.Random
 
 
 class RectangleCell (top: Boolean, right: Boolean, bottom: Boolean, left: Boolean, elementWidth: Double = 200, elementHeight: Double = 200,var elementX:Double, var elementY:Double) extends Serializable with Cell  {
-  var _enemy: Option[Player] = Option.empty
+  var _enemy: Option[PlayerRepresentation] = Option.empty
 
   def enemy = _enemy
-  def enemy_(enemy : Player) = {_enemy = Option(enemy)}
+  def enemy_(enemy : PlayerRepresentation) = {_enemy = Option(enemy)}
 
   def canEqual(other: Any) = other.isInstanceOf[RectangleCell]
 
@@ -155,7 +155,7 @@ object RectangleCell {
     val rectcell=  new RectangleCell(top, right, bottom, left, elementX= rngX, elementY=rngY)
     var probEnemy = 0.1
     if(excludedValues.size == 1) probEnemy = 1
-    if( math.random()<=probEnemy) {val enemy = new Player(rectcell, "vamp.png");  rectcell.enemy_(enemy) }
+    if( math.random()<=probEnemy) {val enemy = new PlayerRepresentation(rectcell, "vamp.png");  rectcell.enemy_(enemy) }
 
     rectcell
   }

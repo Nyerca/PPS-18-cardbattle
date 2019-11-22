@@ -6,25 +6,16 @@ import scalafx.application.JFXApp.PrimaryStage
 import scalafx.scene.layout._
 import java.util.HashMap
 
+import scalafx.scene.Scene
 
-class Controller() {
-  private var screenMap :HashMap[String, Pane] = new HashMap()
-  private var _stage: PrimaryStage = null
 
-  def addScreen(name: String, pane: Pane): Unit = {
-    screenMap.put(name, pane)
+class Controller(_stage: PrimaryStage) {
+
+  def setScene(scene : Scene): Unit = {
+    _stage.scene_=(scene)
   }
 
-  def removeScreen(name: String) :Unit = {
-    screenMap.remove(name)
-  }
-
-  def stage_(stage : PrimaryStage): Unit = {
-    _stage = stage
-  }
-  def show() = {
-    _stage.show()
-  }
+  def stage = _stage
 
 
 

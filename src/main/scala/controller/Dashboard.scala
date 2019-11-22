@@ -93,7 +93,10 @@ class Dashboard (var cells: ListBuffer[RectangleWithCell], player: PlayerWithCel
           setAnim(newRectangle,incrementX,incrementY,stringUrl + "1.png",() => fun)
           anim.setOnFinished(e => {
             setAnim(newRectangle,incrementX,incrementY,stringUrl + ".png",() => fun)
-            anim.setOnFinished(e => {printInfos })
+            anim.setOnFinished(e => {
+              printInfos
+
+            })
             anim.play();})
           anim.play();})
         anim.play();})
@@ -127,6 +130,13 @@ class Dashboard (var cells: ListBuffer[RectangleWithCell], player: PlayerWithCel
       }
     } else {
       throw new NoMovementException
+    }
+  }
+
+  def printCells(): Unit = {
+    println("ANY ENEMY?")
+    for(el <- cells) {
+      println(el.rectCell.enemy)
     }
   }
 

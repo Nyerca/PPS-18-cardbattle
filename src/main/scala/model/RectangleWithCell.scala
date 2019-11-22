@@ -12,5 +12,6 @@ class RectangleWithCell(elementWidth: Double = 200, elementHeight: Double = 200,
 
   def rectCell = _rectCell
   def rectCell_ (newRectCell : RectangleCell) :Unit = {_rectCell = newRectCell}
+
 }
 

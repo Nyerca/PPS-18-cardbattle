@@ -1,33 +1,33 @@
 package model
 
-import javafx.scene.paint.ImagePattern
-import scalafx.Includes._
-import scalafx.scene.image.Image
-import scalafx.scene.shape.Rectangle
+trait Player {
+  def name: String
+  def level: Int
+  def image: String
+  def battleDeck: List[Card]
+  def healthPoint: Int
+}
 
-class Player (var _position : RectangleCell, var _url :  String) extends Serializable {
+class User(override val name: String, override val image: String, var level: Int,  var missingExperience: Double, var battleDeck: List[Card], var allCards: List[Card], var healthPoint: Int) extends Player {
 
-  def url = _url
-  def url_(str : String) = _url = str
-
-
-
-
-  def position = _position;
-  def position_ (value:RectangleCell, url: String) :Unit = {
-    _position = value;
-    //println("New player position: (" + _position.getX + ", "+ _position.getY+ ")")
-
-    _url = url
+  def addExperience(exp: Int): Unit = missingExperience - exp match {
+    case 0 =>
+      level += 1
+      missingExperience = 5 * level - (exp - missingExperience)
+      healthPoint += 5
+    case _ => missingExperience -= exp
   }
 
-  override def toString: String = {
-    "Url: " + _url + " Position: " + _position
+  def gainCard(card: Card): Unit = allCards.find(c => c.name == card.name) match {
+    case Some(c) => c.incrementCardNumber()
+    case _ => allCards = card :: allCards
   }
 }
+
+case class Enemy(override val name: String, override val level: Int, override val image: String, override val battleDeck: List[Card], override val healthPoint: Int) extends Player
 
 object Player {
-  def createPlayerCell( position : RectangleCell, url : String): PlayerWithCell = {
-    new PlayerWithCell(position, url)
-  }
+  def userFactory(name: String, image: String, allCards: List[Card] = List(), battleDeck: List[Card] = List(), level: Int = 1, healthPoint: Int = 30, missingExperience: Double = 4): User = new User(name, image, level, missingExperience, battleDeck, allCards, healthPoint)
+  def enemyFactory(name: String, image: String, battleDeck: List[Card], level: Int = 1, healthPoint: Int = 30): Enemy = Enemy(name, level, image, battleDeck, healthPoint)
 }
+
