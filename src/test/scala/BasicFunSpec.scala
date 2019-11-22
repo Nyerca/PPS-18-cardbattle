@@ -1,7 +1,14 @@
-import model.{IllegalSizeException, NoMovementException, RectangleCell}
+import java.util.concurrent.CountDownLatch
+
+import controller.Dashboard
+import model.{IllegalSizeException, NoMovementException, Player, RectangleCell}
 import org.junit.runner.RunWith
 import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{FlatSpec, FunSpec, FunSuite, Matchers}
+import model._
+
+import scala.collection.mutable.ListBuffer
+
 
 
 @RunWith(classOf[JUnitRunner])
@@ -52,5 +59,40 @@ class BasicFunSpec extends FunSpec with Matchers  {
         val r = new RectangleCell(false, false, true, false, 0, 10, 0, 0)
       }
     }
+  }
+
+  describe("A movement") {
+    it(" should raise MissingCellException if done on a missing cell") {
+      assertThrows[MissingCellException] {
+        val list = new ListBuffer[RectangleWithCell]
+        var re = new RectangleCell(true, true, true, true, 200,200,0,0)
+        var re2 = new RectangleCell(true, true, true, true, 200,200,0,200)
+        val recell = new RectangleWithCell(re.getWidth, re.getHeight, re.getX, re.getY,re)
+        val recell2 = new RectangleWithCell(re2.getWidth, re2.getHeight, re2.getX, re2.getY,re)
+        list.append(recell)
+        list.append(recell2)
+        val p = new PlayerWithCell(re, "bot.png")
+        val dash = new Dashboard(list ,p)
+        println(p._position)
+        dash.move(Right,()=>{})
+      }
+    }
+
+    it(" should raise NoMovementException if done on a cell that doesn't allow that movement") {
+      assertThrows[NoMovementException] {
+        val list = new ListBuffer[RectangleWithCell]
+        var re = new RectangleCell(true, false, true, true, 200,200,0,0)
+        var re2 = new RectangleCell(true, true, true, true, 200,200,0,200)
+        val recell = new RectangleWithCell(re.getWidth, re.getHeight, re.getX, re.getY,re)
+        val recell2 = new RectangleWithCell(re2.getWidth, re2.getHeight, re2.getX, re2.getY,re)
+        list.append(recell)
+        list.append(recell2)
+        val p = new PlayerWithCell(re, "bot.png")
+        val dash = new Dashboard(list ,p)
+        println(p._position)
+        dash.move(Right,()=>{})
+      }
+    }
+
   }
 }
