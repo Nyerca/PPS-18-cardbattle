@@ -2,14 +2,15 @@ package view.scenes
 
 import controller.{BattleController, PlayerType}
 import javafx.event.{ActionEvent, EventHandler}
-import model.{Card, Category, Game, Player, Type}
-import scalafx.scene.{Node, Scene}
-import scalafx.scene.control.{Button, Label, ProgressBar}
-import scalafx.scene.layout.{BorderPane, Pane, StackPane}
-import scalafx.stage.Stage
+import model._
 import scalafx.Includes._
 import scalafx.animation.{FadeTransition, Transition}
+import scalafx.scene.control.Button
+import scalafx.scene.layout.Pane
+import scalafx.scene.{Node, Scene}
+import scalafx.stage.Stage
 import scalafx.util.Duration
+import view.scenes.component.BattlePlayerRepresentation
 
 trait BattleScene extends Scene{
   def parentStage: Stage
@@ -36,86 +37,28 @@ class BattleSceneImpl(override val parentStage: Stage) extends BattleScene {
 
   /****************************CARD**************************/
 
-  val userDeck: Button = new Button {
-    styleClass.addAll("card", "deck")
-    text = "USER DECK"
-    translateX = 45
-    translateY = 50
-    onAction = handle {
-      bc.drawCard(PlayerType.User)
-    }
-  }
+  val userDeck: Button = cardFactory(45, 50, "USER DECK", false, handle {
+    bc.drawCard(PlayerType.User)
+  }, "card", "deck")
 
-  val cpuDeck: Button = new Button {
-    styleClass.addAll("card", "deck")
-    text = "CPU DECK"
-    translateX = 1005
-    translateY = 50
-    mouseTransparent = true
-  }
+  val cpuDeck: Button = cardFactory(1005, 50, "CPU DECK", true, DEFAULT_ON_FINISHED, "card", "deck")
 
-  val cpuCardIndicators: Button = new Button {
-    styleClass.add("cardIndicator")
-    translateX = 1005
-    translateY = 450
-    mouseTransparent = true
-  }
+  val cpuCardIndicator: Button = cardFactory(1005, 450, "", true, DEFAULT_ON_FINISHED, "cardIndicator")
 
-  val cpuHandCard: Button = new Button {
-    styleClass.add("card")
-    translateX = 1005
-    translateY = 450
-    mouseTransparent = true
-    onAction = handle {
-      fadeTransitionFactory(Duration(300), this, -1, 1).play()
-    }
-  }
+  val cpuHandCard: Button = cardFactory(1005, 450, "", true, handle {
+    fadeTransitionFactory(Duration(300), cpuHandCard, -1, 1).play()
+  }, "card")
 
-  val userCardIndicators: List[Button] = cardGenerator("cardIndicator")
+  val userCardIndicators: List[Button] = multipleCardFactory("cardIndicator")
 
-  val userHandCard: List[Button] = cardGenerator("card")
+  val userHandCard: List[Button] = multipleCardFactory("card")
 
   /*****************************************************/
   /******************BATTLE FIELD ******************/
 
-  val userRepresentation: BorderPane = new BorderPane {
-    translateX = 10
-    translateY = 200
-    top = new StackPane {
-      children = List(new ProgressBar {
-        progress = 1
-        styleClass.add("life")
-      }, new Label{
-        styleClass.add("title")
-        text = bc.game.user.name
-      })
-    }
-    center = new Button {
-      styleClass.add("image")
-      mouseTransparent = true
-      style = "-fx-background-image: url(" + bc.game.user.image + ")"
-    }
-  }
+  val userRepresentation: BattlePlayerRepresentation = BattlePlayerRepresentation(10,200, bc.game.user)
 
-
-  val enemyRepresentation: BorderPane = new BorderPane {
-    translateX = 500
-    translateY = 200
-    top = new StackPane {
-      children = List(new ProgressBar {
-        progress = 1
-        styleClass.add("life")
-      }, new Label{
-        styleClass.add("title")
-        text = bc.game.enemy.name
-      })
-    }
-    center = new Button {
-      styleClass.add("image")
-      mouseTransparent = true
-      style = "-fx-background-image: url(" + bc.game.enemy.image + ")"
-    }
-  }
+  val enemyRepresentation: BattlePlayerRepresentation = BattlePlayerRepresentation(500,200, bc.game.enemy)
 
   val battleField: Pane = new Pane {
     id = "battleField"
@@ -129,7 +72,7 @@ class BattleSceneImpl(override val parentStage: Stage) extends BattleScene {
   root = new Pane {
     styleClass.add("common")
     id = "battleScene"
-    children = userCardIndicators ++ userHandCard :+ userDeck :+ cpuDeck :+ battleField :+ cpuCardIndicators :+ cpuHandCard
+    children = userCardIndicators ++ userHandCard :+ userDeck :+ cpuDeck :+ battleField :+ cpuCardIndicator :+ cpuHandCard
   }
   initUserHandCard()
   bc.drawCard(PlayerType.EnemyType)
@@ -142,16 +85,12 @@ class BattleSceneImpl(override val parentStage: Stage) extends BattleScene {
     case _ => setCardInformation(cpuHandCard)(card)
   }
 
-  override def updateHealthPoint(playerType: PlayerType, hp: Double): Unit = {
-    type ProgressBar = javafx.scene.control.ProgressBar
-    type StackPane = javafx.scene.layout.StackPane
-    playerType match {
-      case PlayerType.User => userRepresentation.top.value.asInstanceOf[StackPane].getChildren.find(n => n.isInstanceOf[ProgressBar]).get.asInstanceOf[ProgressBar].progress = hp
-      case _ => enemyRepresentation.top.value.asInstanceOf[StackPane].getChildren.find(n => n.isInstanceOf[ProgressBar]).get.asInstanceOf[ProgressBar].progress = hp
-    }
+  override def updateHealthPoint(playerType: PlayerType, hp: Double): Unit = playerType match {
+    case PlayerType.User => userRepresentation.updateHP(hp)
+    case _ => enemyRepresentation.updateHP(hp)
   }
 
-  override def isDrawingAllowed: Boolean = userHandCard.find(btn => btn.opacity.value == 0 || btn.text.value == "").isDefined
+  override def isDrawingAllowed: Boolean = userHandCard.exists(btn => btn.opacity.value == 0 || btn.text.value == "")
 
 
   private def setCardInformation(btn: Button)(card: Card):Unit = {
@@ -159,22 +98,25 @@ class BattleSceneImpl(override val parentStage: Stage) extends BattleScene {
     btn.opacity = 1
   }
 
-
-  private def cardGenerator(name: String): List[Button] = for (
-    n <- 1 until 4 toList
-  ) yield new Button {
-    styleClass.add(name)
-    translateX = 45 + (n * 245)
-    translateY = 50
-    mouseTransparent = true
-    onAction = handle {
-      cpuHandCard.fire()
-      fadeTransitionFactory(Duration(300), this, -1, 1, handle {
-        mouseTransparent = true
-        bc.fight(text.value, cpuHandCard.text.value)
-      }).play()
-    }
+  private def cardFactory(marginX: Double, marginY: Double, description: String, mouseTransparency: Boolean, action: EventHandler[ActionEvent], classes: String*): Button = new Button {
+    classes.foreach(c => styleClass.add(c))
+    translateX = marginX
+    translateY = marginY
+    text = description
+    mouseTransparent = mouseTransparency
+    onAction = action
   }
+
+  private def multipleCardFactory(name: String): List[Button] = for (
+    n <- 1 until 4 toList
+  ) yield cardFactory(45 + (n * 245), 50, "",true, handle {
+    cpuHandCard.fire()
+    fadeTransitionFactory(Duration(300), userHandCard(n - 1), -1, 1, handle {
+      userHandCard(n - 1).mouseTransparent = true
+      bc.fight(userHandCard(n - 1).text.value, cpuHandCard.text.value)
+    }).play()
+
+  }, name)
 
   private def fadeTransitionFactory(duration: Duration, node: Node, byVal: Double, cycles: Int, action: EventHandler[ActionEvent] = DEFAULT_ON_FINISHED): Transition = new FadeTransition(duration, node) {
     byValue = byVal

@@ -21,14 +21,14 @@ trait BattleController {
 
   def fight(nameUserCard: String, nameEnemyCard: String): Unit = game.fight(findCardFromName(nameUserCard)(game.user), findCardFromName(nameEnemyCard)(game.enemy)) match {
     case (Some(_), Some(_)) =>
-      battleScene.updateHealthPoint(PlayerType.User, game.healthPointPlayer1 / game.user.healthPoint)
-      battleScene.updateHealthPoint(PlayerType.EnemyType, game.healthPointPlayer2 / game.enemy.healthPoint)
+      battleScene.updateHealthPoint(PlayerType.User, game.healthPointPlayer1)
+      battleScene.updateHealthPoint(PlayerType.EnemyType, game.healthPointPlayer2)
       drawCard(PlayerType.EnemyType)
     case (Some(_), None) =>
-      battleScene.updateHealthPoint(PlayerType.User, game.healthPointPlayer1 / game.user.healthPoint)
+      battleScene.updateHealthPoint(PlayerType.User, game.healthPointPlayer1)
       drawCard(PlayerType.EnemyType)
     case (None, Some(_)) =>
-      battleScene.updateHealthPoint(PlayerType.EnemyType, game.healthPointPlayer2 / game.enemy.healthPoint)
+      battleScene.updateHealthPoint(PlayerType.EnemyType, game.healthPointPlayer2)
       drawCard(PlayerType.EnemyType)
     case (_,_) => drawCard(PlayerType.EnemyType)
 
