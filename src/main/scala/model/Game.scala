@@ -3,15 +3,6 @@ package model
 import scala.language.postfixOps
 import scala.util.Random
 
-trait TypeCheckResult
-
-object TypeCheckResult {
-  case object AttackAttack extends TypeCheckResult
-  case object AttackDefense extends TypeCheckResult
-  case object DefenseAttack extends TypeCheckResult
-  case object DefenseDefense extends TypeCheckResult
-}
-
 trait Game {
   def user: Player
   def enemy: Player
@@ -33,15 +24,15 @@ class GameImpl(override val user: Player, override val enemy: Player) extends Ga
   }
 
   override def fight(card1: Card, card2: Card): (Option[Player], Option[Player]) = typeCheck(card1, card2) match {
-    case TypeCheckResult.AttackAttack =>
-      calculateDamage(card2.value, 0, enemy)
-      calculateDamage(card1.value, 0, user)
+    case (Some(p1),Some(p2)) =>
+      calculateDamage(card2.value, 0, p2)
+      calculateDamage(card1.value, 0, p1)
       (Option(user), Option(enemy))
-    case TypeCheckResult.AttackDefense =>
-      calculateDamage(card1.value, if (card1.family._2 == card2.family._2) card2.value else 0, user)
+    case (Some(p1),None) =>
+      calculateDamage(card1.value, if (card1.family._2 == card2.family._2) card2.value else 0, p1)
       (None, Some(enemy))
-    case TypeCheckResult.DefenseAttack =>
-      calculateDamage(card2.value, if (card1.family._2 == card2.family._2) card1.value else 0, enemy)
+    case (None, Some(p2)) =>
+      calculateDamage(card2.value, if (card1.family._2 == card2.family._2) card1.value else 0, p2)
       (Option(user), None)
     case _ => (None, None)
   }
@@ -56,11 +47,11 @@ class GameImpl(override val user: Player, override val enemy: Player) extends Ga
     case _ => healthPointPlayer1 -= (val1 - val2)
   }
 
-  private def typeCheck(card1: Card, card2: Card): TypeCheckResult = (card1.family._1, card2.family._1) match {
-    case (Category.Attack, Category.Attack) => TypeCheckResult.AttackAttack
-    case (Category.Attack, Category.Defense) => TypeCheckResult.AttackDefense
-    case (Category.Defense, Category.Attack) => TypeCheckResult.DefenseAttack
-    case _ => TypeCheckResult.DefenseDefense
+  private def typeCheck(card1: Card, card2: Card): (Option[Player],Option[Player]) = (card1.family._1, card2.family._1) match {
+    case (Category.Attack, Category.Attack) => (Some(user),Some(enemy))
+    case (Category.Attack, Category.Defense) => (Some(user),None)
+    case (Category.Defense, Category.Attack) => (None,Some(user))
+    case _ => (None,None)
   }
 }
 
