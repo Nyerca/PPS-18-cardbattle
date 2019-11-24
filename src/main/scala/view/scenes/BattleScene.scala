@@ -7,13 +7,12 @@ import scalafx.Includes._
 import scalafx.animation.{FadeTransition, Transition}
 import scalafx.scene.control.Button
 import scalafx.scene.layout.Pane
-import scalafx.scene.{Node, Scene}
+import scalafx.scene.Node
 import scalafx.stage.Stage
 import scalafx.util.Duration
 import view.scenes.component.BattlePlayerRepresentation
 
-trait BattleScene extends Scene{
-  def parentStage: Stage
+trait BattleScene extends BaseScene {
   def drawCard(playerType: PlayerType)(card: Card): Unit
   def updateHealthPoint(playerType: PlayerType, value: Double): Unit
   def isDrawingAllowed: Boolean
@@ -30,24 +29,22 @@ class BattleSceneImpl(override val parentStage: Stage) extends BattleScene {
     Card("Ariete", "ariete.png", (Category.Attack,Type.Physic)),
     Card("Magic shield", "magicShield.png", (Category.Defense,Type.Magic)),
     Card("Physic shield", "physicShield.png", (Category.Defense,Type.Physic)))
-  val bc = BattleController(Game(Player.userFactory("player1", "images/user.png", deck, deck),Player.enemyFactory("enemy", "images/enemy.png", deck)), this)
+  val user: Player = Player.userFactory("player1", "images/user.png", deck, deck)
+  val enemy: Player = Player.enemyFactory("enemy", "images/enemy.png", deck)
+  val bc = BattleController(Game(user, enemy), this)
 
   /**************************************************************************************************/
 
 
   /****************************CARD**************************/
 
-  val userDeck: Button = cardFactory(45, 50, "USER DECK", false, handle {
-    bc.drawCard(PlayerType.User)
-  }, "card", "deck")
+  val userDeck: Button = cardFactory(45, 50, "USER DECK", false, handle(bc.drawCard(PlayerType.User)), "card", "deck")
 
   val cpuDeck: Button = cardFactory(1005, 50, "CPU DECK", true, DEFAULT_ON_FINISHED, "card", "deck")
 
   val cpuCardIndicator: Button = cardFactory(1005, 450, "", true, DEFAULT_ON_FINISHED, "cardIndicator")
 
-  val cpuHandCard: Button = cardFactory(1005, 450, "", true, handle {
-    fadeTransitionFactory(Duration(300), cpuHandCard, -1, 1).play()
-  }, "card")
+  val cpuHandCard: Button = cardFactory(1005, 450, "", true, handle(fadeTransitionFactory(Duration(300), cpuHandCard, -1, 1).play()), "card")
 
   val userCardIndicators: List[Button] = multipleCardFactory("cardIndicator")
 
@@ -74,7 +71,7 @@ class BattleSceneImpl(override val parentStage: Stage) extends BattleScene {
     id = "battleScene"
     children = userCardIndicators ++ userHandCard :+ userDeck :+ cpuDeck :+ battleField :+ cpuCardIndicator :+ cpuHandCard
   }
-  initUserHandCard()
+  userHandCard foreach(_ => bc.drawCard(PlayerType.User))
   bc.drawCard(PlayerType.EnemyType)
 
   override def drawCard(playerType: PlayerType)(card: Card): Unit = playerType match {
@@ -123,9 +120,6 @@ class BattleSceneImpl(override val parentStage: Stage) extends BattleScene {
     cycleCount = cycles
     onFinished = action
   }
-
-  private def initUserHandCard(): Unit = userHandCard foreach(_ => bc.drawCard(PlayerType.User))
-
 }
 
 object BattleScene {

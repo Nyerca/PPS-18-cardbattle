@@ -1,7 +1,5 @@
 package model
 
-import controller.PlayerType.User
-
 trait Player {
   def name: String
   def level: Int
