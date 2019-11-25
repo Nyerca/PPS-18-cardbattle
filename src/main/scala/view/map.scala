@@ -20,11 +20,11 @@ import scala.util.Random
 import javafx.scene.input.MouseEvent
 import scalafx.scene.text.Text
 import scalafx.stage.Stage
-import view.scenes.BattleScene
+import view.scenes.{BaseScene, BattleScene}
 
 
 /** Main class for the "Hello World" style example. */
-class map (parentStage: Stage, var _controller : MapController) {
+class map (override val parentStage: Stage, var _controller : MapController) extends BaseScene{
 
   def setController(controller : MapController): Unit = {
     _controller = controller

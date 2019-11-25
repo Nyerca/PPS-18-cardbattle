@@ -4,10 +4,10 @@ import scalafx.scene.control.Button
 import scalafx.scene.layout.BorderPane
 import scalafx.stage.Stage
 import scalafx.Includes._
-import scalafx.scene.Scene
 import view.map
 
-class MainScene(val parentStage: Stage) extends Scene {
+
+class MainScene(override val parentStage: Stage) extends BaseScene {
 
   stylesheets.add("style.css")
   root = new BorderPane {
@@ -18,10 +18,11 @@ class MainScene(val parentStage: Stage) extends Scene {
       translateX = 530
       translateY = -45
       onAction = handle {
-        parentStage.scene = map(parentStage).getScene()
+        changeScene(map(parentStage).getScene())
       }
     }
   }
+
 }
 
 object MainScene {

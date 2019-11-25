@@ -31,7 +31,9 @@
 
 /**********BATTLE STAGE STYLE ***************/
 #battleScene {
-   -fx-background-color: "black";
+   -fx-background-image: url("images/battleBackground.jpg");
+   -fx-background-size: 1200 800;
+   -fx-background-repeat: stretch;
 }
 
 .card {
@@ -40,12 +42,11 @@
    -fx-pref-height:200;
    -fx-background-color: "white";
     -fx-cursor: hand
-
 }
 
 .cardIndicator {
-    -fx-background-color: "black";
-    -fx-border-color: white ;
+    -fx-background-color: transparent;
+    -fx-border-color: black ;
     -fx-border-width: 5 ;
     -fx-font-size: 16px;
     -fx-text-fill: "white";
@@ -53,22 +54,28 @@
     -fx-background-size: 150 200;
     -fx-pref-width:150;
     -fx-pref-height:200;
+    -fx-opacity: 0.4;
 }
 
 #battleField {
   -fx-pref-width: 820px;
-  -fx-pref-height: 450px;
-  -fx-background-color: "white";
+  -fx-pref-height: 500px;
 }
 
 .life {
-  -fx-pref-width: 200;
-  -fx-accent: green
+  -fx-pref-width: 250;
+  -fx-pref-height: 27;
+  -fx-accent: green;
 }
 
 .image {
-   -fx-pref-width: 200;
-   -fx-pref-height: 200;
-   -fx-background-size: 200 200;
-   -fx-background-color: "white";
+   -fx-pref-width: 300;
+   -fx-pref-height: 300;
+   -fx-background-size: 300 300;
+   -fx-background-color:transparent;
+}
+
+.title {
+    -fx-text-fill: "black";
+    -fx-font-size: 18px;
 }
