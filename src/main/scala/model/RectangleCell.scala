@@ -44,7 +44,7 @@ class RectangleCell (top: Boolean, right: Boolean, bottom: Boolean, left: Boolea
   }
 
   override def toString :String = {
-    "Rectangle ("+elementX + ", " +elementY+") T: " + top + " R: " + right + " B: " + bottom + " L: " + left
+    "Rectangle ("+elementX + ", " +elementY+") T: " + top + " R: " + right + " B: " + bottom + " L: " + left + " enemy: " + enemy.isDefined
   }
 
 
@@ -109,19 +109,15 @@ class RectangleCell (top: Boolean, right: Boolean, bottom: Boolean, left: Boolea
 
   def isMoveAllowed(movement : Move): Boolean =movement match {
     case Top => {
-      println("Its top, im:" + top)
       if(top) true
       else false
     } case Right => {
-      println("Its right, im:" + right)
       if(right) true
       else false
     } case Bottom => {
-      println("Its bottom, im:" + bottom)
       if(bottom) true
       else false
     } case Left  => {
-      println("Its left, im:" + left)
       if(left) true
       else false
     } case _  => {

@@ -90,9 +90,9 @@ class Dashboard (var cells: ListBuffer[RectangleWithCell], player: PlayerWithCel
       anim.setOnFinished(e => {
         setAnim(newRectangle,incrementX,incrementY,stringUrl + ".png",fun)
         anim.setOnFinished(e => {
-          setAnim(newRectangle,incrementX,incrementY,stringUrl + "1.png",() => fun)
+          setAnim(newRectangle,incrementX,incrementY,stringUrl + "1.png",fun)
           anim.setOnFinished(e => {
-            setAnim(newRectangle,incrementX,incrementY,stringUrl + ".png",() => fun)
+            setAnim(newRectangle,incrementX,incrementY,stringUrl + ".png",fun)
             anim.setOnFinished(e => {
               printInfos
 

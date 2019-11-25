@@ -75,21 +75,20 @@ class MapController (_list:ListBuffer[RectangleWithCell], startingDefined : Opti
   def handleKey(keyCode : KeyCode): Unit = {
     keyCode.getName match {
       case "Up" => if(checkAnimationEnd("top")) {
-        dashboard.printCells()
         dashboard.move(Top, () => {player.setFill();
         println("--------------------------------")
-        println(player._position.enemy)
-        if(player._position.enemy.isDefined) {
+          println(player.player._position)
+        if(player.player._position.enemy.isDefined) {
           _view.changeScene()
         }
-          dashboard.printCells()
+
       }) ;
 
       }
       case "Left" => if(checkAnimationEnd("left")){ dashboard.move(Left,() => {player.setFill();
         println("--------------------------------")
-        println(player._position.enemy)
-        if(player._position.enemy.isDefined) {
+        println(player.player._position)
+        if(player.player._position.enemy.isDefined) {
           _view.changeScene()
         }
       }) ;
@@ -97,8 +96,8 @@ class MapController (_list:ListBuffer[RectangleWithCell], startingDefined : Opti
     }
       case "Down" => if(checkAnimationEnd("bot")) { dashboard.move(Bottom,() => {player.setFill();
         println("--------------------------------")
-        println(player._position.enemy)
-        if(player._position.enemy.isDefined) {
+        println(player.player._position)
+        if(player.player._position.enemy.isDefined) {
           _view.changeScene()
         }
 
@@ -107,8 +106,8 @@ class MapController (_list:ListBuffer[RectangleWithCell], startingDefined : Opti
       }
       case "Right" => if(checkAnimationEnd("right")) { dashboard.move(Right,() => {player.setFill();
         println("--------------------------------")
-        println(player._position.enemy)
-        if(player._position.enemy.isDefined) {
+        println(player.player._position)
+        if(player.player._position.enemy.isDefined) {
           _view.changeScene()
         }
       });
@@ -175,13 +174,12 @@ class MapController (_list:ListBuffer[RectangleWithCell], startingDefined : Opti
           dashboard.showMap
           tmpRect.setX(e.x - dashboard.traslationX - e.x % 200)
           tmpRect.setY(e.y - dashboard.traslationY - e.y % 200)
-          println("SELECTED: " + _selected);
+          //println("SELECTED: " + _selected);
 
 
           _view.setPaneChildren(list, Option(tmpRect))
 
 
-          println("------")
           dashboard.addCell(new RectangleWithCell(tmpRect.getWidth, tmpRect.getHeight, tmpRect.getX, tmpRect.getY,tmpRect) {
             fill = (RectangleCell.createImage(tmpRect.url, tmpRect.rotation))
           })
@@ -210,7 +208,7 @@ class MapController (_list:ListBuffer[RectangleWithCell], startingDefined : Opti
         }
       }
     }
-    println(dashboard.searchPosition(e.x - dashboard.traslationX, e.y - dashboard.traslationY))
+    //println(dashboard.searchPosition(e.x - dashboard.traslationX, e.y - dashboard.traslationY))
 
   }
 
@@ -240,7 +238,7 @@ object MapController {
         excludedValues.get(rect.getX.toInt).get.append(rect.getY.toInt)
       }
       //excludedValues += (rect.getX.toInt -> rect.getY.toInt)
-      println(excludedValues)
+      //println(excludedValues)
     }
 
     for(el <- list ) {
