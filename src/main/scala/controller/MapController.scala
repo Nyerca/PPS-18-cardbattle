@@ -2,8 +2,10 @@ package controller
 
 import java.io.{File, FileOutputStream, ObjectOutputStream, PrintWriter}
 
+import exception.{DoubleCellException, DoubleEnemyException, DoubleMovementException, MissingCellException}
 import javafx.animation.Animation.Status
-import model.{Bottom, Cell, DoubleCellException, DoubleEnemyException, DoubleMovementException, EnemyCell, Left, MissingCellException, NoMovementException, Player, PlayerRepresentation, PlayerWithCell, RectangleCell, RectangleWithCell, Right, Top}
+import model.{Bottom, Cell, EnemyCell, Left, Player, PlayerRepresentation, PlayerWithCell, RectangleCell, RectangleWithCell, Right, Top}
+import exception._
 import scalafx.scene.control.{Button, Separator, ToolBar}
 import scalafx.scene.input.KeyCode
 import scalafx.scene.paint.Color
@@ -27,9 +29,80 @@ import scala.collection.mutable.ListBuffer
 import scala.util.Random
 
 class MapController (_list:ListBuffer[RectangleWithCell], startingDefined : Option[RectangleCell]) {
+
+  def this() {this(MapController.setup(),Option.empty)}
+
   var _selected:Option[Cell] = Option.empty;
   def selected = _selected
   def selected_(selected : Option[Cell]) = { _selected = selected}
+
+
+  def list = _list
+  var startingCell:RectangleCell = _
+  if(!startingDefined.isDefined) startingCell= list.apply(0).rectCell
+  else  startingCell=startingDefined.get
+
+  val _player = new PlayerWithCell(startingCell, "bot.png");
+  _player.setFill()
+  def player = _player
+
+  val dashboard = new Dashboard(list, _player);
+
+  var _view : map  =null
+  def view_ (view : map) = {
+    _view = view
+    println("VIEW: " + _view)
+    MovementAnimation.setAnimationNode(_view.bpane)
+    _view.setMenu()
+  }
+
+
+  def checkAnimationEnd(url: String):Boolean = {
+    if(MovementAnimation.checkAnimationEnd()) {
+      player.player.url_(url + ".png")
+      player.setFill()
+      true
+    }
+    else throw new DoubleMovementException
+  }
+
+  def afterMovement(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean) = {
+    if(isEnded) {
+      player.player.position_(newRectangle, stringUrl);
+      player.setFill();
+      println("--------------------------------")
+      println(player.player._position)
+      if(player.player._position.enemy.isDefined) {
+        _view.changeScene()
+      }
+    } else {
+      player.player.url_(stringUrl)
+      player.setFill();
+    }
+
+  }
+
+
+  def handleKey(keyCode : KeyCode): Unit = {
+    keyCode.getName match {
+      case "Up" => if(checkAnimationEnd("top")) {
+        dashboard.move(Top, afterMovement) ;
+
+      }
+      case "Left" => if(checkAnimationEnd("left")){
+        dashboard.move(Left, afterMovement) ;
+    }
+      case "Down" => if(checkAnimationEnd("bot")) {
+        dashboard.move(Bottom, afterMovement)
+
+      }
+      case "Right" => if(checkAnimationEnd("right")) {
+        dashboard.move(Right, afterMovement) ;
+
+      }
+      case _ => {}
+    }
+  }
 
   def getAllEnemies(): ListBuffer[PlayerRepresentation] = {
     val outList = new ListBuffer[PlayerRepresentation]
@@ -39,89 +112,11 @@ class MapController (_list:ListBuffer[RectangleWithCell], startingDefined : Opti
     outList
   }
 
-  def this()
-  {
-    this(MapController.setup(),Option.empty)
-  }
-  def list = _list
-  var startingCell:RectangleCell = _
-  if(!startingDefined.isDefined) startingCell= list.apply(0).rectCell
-  else  startingCell=startingDefined.get
-  var _view : map  =null
-  def view_ (view : map) = {
-    _view = view
-    println("VIEW: " + _view)
-    dashboard.setAnimationNode(_view.bpane)
-    _view.setMenu()
-  }
-
-  val _player = new PlayerWithCell(startingCell, "bot.png");
-  _player.setFill()
-  def player = _player
-
-  val dashboard = new Dashboard(list, _player);
-
-
-  def checkAnimationEnd(url: String):Boolean = {
-    if(dashboard.checkAnimationEnd()) {
-      player.player.url_(url + ".png")
-      player.setFill()
-      true
-    }
-    else throw new DoubleMovementException
-  }
-
-
-  def handleKey(keyCode : KeyCode): Unit = {
-    keyCode.getName match {
-      case "Up" => if(checkAnimationEnd("top")) {
-        dashboard.move(Top, () => {player.setFill();
-        println("--------------------------------")
-          println(player.player._position)
-        if(player.player._position.enemy.isDefined) {
-          _view.changeScene()
-        }
-
-      }) ;
-
-      }
-      case "Left" => if(checkAnimationEnd("left")){ dashboard.move(Left,() => {player.setFill();
-        println("--------------------------------")
-        println(player.player._position)
-        if(player.player._position.enemy.isDefined) {
-          _view.changeScene()
-        }
-      }) ;
-
-    }
-      case "Down" => if(checkAnimationEnd("bot")) { dashboard.move(Bottom,() => {player.setFill();
-        println("--------------------------------")
-        println(player.player._position)
-        if(player.player._position.enemy.isDefined) {
-          _view.changeScene()
-        }
-
-      }) ;
-
-      }
-      case "Right" => if(checkAnimationEnd("right")) { dashboard.move(Right,() => {player.setFill();
-        println("--------------------------------")
-        println(player.player._position)
-        if(player.player._position.enemy.isDefined) {
-          _view.changeScene()
-        }
-      });
-
-      }
-      case _ => {}
-    }
-  }
-
   def handleSave(): Unit = {
     val output = new ObjectOutputStream(new FileOutputStream("./src/main/saves/save2.txt"))
 
     val outList = new ListBuffer[RectangleCell]
-    for(el <- list) {
+    for(el <-list) {
       outList.append(el.rectCell)
 
     }
@@ -129,8 +124,6 @@ class MapController (_list:ListBuffer[RectangleWithCell], startingDefined : Opti
     output.writeObject(player.player)
     output.close()
   }
-
-
 
 
   def createBottomCard(): ListBuffer[Button] = {
@@ -179,10 +172,12 @@ class MapController (_list:ListBuffer[RectangleWithCell], startingDefined : Opti
 
           _view.setPaneChildren(list, Option(tmpRect))
 
-
-          dashboard.addCell(new RectangleWithCell(tmpRect.getWidth, tmpRect.getHeight, tmpRect.getX, tmpRect.getY,tmpRect) {
+          val rect = new RectangleWithCell(tmpRect.getWidth, tmpRect.getHeight, tmpRect.getX, tmpRect.getY,tmpRect) {
             fill = (RectangleCell.createImage(tmpRect.url, tmpRect.rotation))
-          })
+          }
+          _list.append(rect)
+          dashboard.setCells(_list)
+
           dashboard.showMap
           _selected = Option.empty
           _view.setBPane()

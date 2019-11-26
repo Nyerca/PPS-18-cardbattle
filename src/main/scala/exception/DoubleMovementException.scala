@@ -1,4 +1,4 @@
-package model
+package exception
 
 class DoubleMovementException extends Exception{
 

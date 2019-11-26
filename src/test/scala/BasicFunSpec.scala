@@ -1,7 +1,8 @@
 import java.util.concurrent.CountDownLatch
 
 import controller.Dashboard
-import model.{IllegalSizeException, NoMovementException, Player, RectangleCell}
+import exception.{IllegalSizeException, MissingCellException, NoMovementException}
+import model.{Player, RectangleCell}
 import org.junit.runner.RunWith
 import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{FlatSpec, FunSpec, FunSuite, Matchers}
@@ -74,7 +75,7 @@ class BasicFunSpec extends FunSpec with Matchers  {
         val p = new PlayerWithCell(re, "bot.png")
         val dash = new Dashboard(list ,p)
         println(p._position)
-        dash.move(Right,()=>{})
+        dash.move(Right,(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean)=>{})
       }
     }
 
@@ -90,7 +91,7 @@ class BasicFunSpec extends FunSpec with Matchers  {
         val p = new PlayerWithCell(re, "bot.png")
         val dash = new Dashboard(list ,p)
         println(p._position)
-        dash.move(Right,()=>{})
+        dash.move(Right,(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean)=>{})
       }
     }
 

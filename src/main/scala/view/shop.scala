@@ -34,9 +34,11 @@ import javafx.scene.input.MouseEvent
 import scalafx.geometry.{HPos, Pos}
 import scalafx.scene.text.Text
 import javafx.scene.layout.Background
+import scalafx.stage.Stage
+import view.scenes.{BaseScene, BattleScene}
 
 
-class shop {
+class shop (override val parentStage: Stage) extends BaseScene{
 
   def createCard(valX:Double, valY:Double): ListBuffer[Node] = {
     val list = new ListBuffer[Node]
@@ -133,15 +135,16 @@ class shop {
   val background2 = new Background(bimg);
   bpane.background_=(background2)
 
-  val stage = new PrimaryStage {
-    title = "Cardbattle"
-    scene = new Scene(bpane,1200, 800) {
+  val scene = new Scene(bpane,1200, 800)
 
-    }
-
+  def getScene(): Scene = {
+    scene
   }
 
-  def getStage(): PrimaryStage = {
-    stage
-  }
+  //stage.resizable = false
+  //stage.fullScreen = true
+
+}
+object shop {
+  def apply(parentStage: Stage): shop = new shop(parentStage)
 }
