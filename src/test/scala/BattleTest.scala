@@ -1,5 +1,5 @@
 
-import controller.{BattleController, PlayerType}
+
 
 import scala.language.postfixOps
 import model.{Card, Category, Enemy, Game, Player, Type, User}

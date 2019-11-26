@@ -31,4 +31,3 @@ object Player {
   def enemyFactory(name: String, image: String, battleDeck: List[Card], level: Int = 1, healthPoint: Int = 30): Enemy = Enemy(name, level, image, battleDeck, healthPoint)
 }
 
-

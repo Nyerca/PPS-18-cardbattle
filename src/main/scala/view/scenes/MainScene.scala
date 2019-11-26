@@ -4,6 +4,8 @@ import scalafx.scene.control.Button
 import scalafx.scene.layout.BorderPane
 import scalafx.stage.Stage
 import scalafx.Includes._
+import view.map
+
 
 class MainScene(override val parentStage: Stage) extends BaseScene {
 
@@ -16,7 +18,7 @@ class MainScene(override val parentStage: Stage) extends BaseScene {
       translateX = 530
       translateY = -45
       onAction = handle {
-        changeScene(BattleScene(parentStage))
+        changeScene(map(parentStage).getScene())
       }
     }
   }
