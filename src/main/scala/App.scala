@@ -1,6 +1,6 @@
 import java.io._
 
-import controller.{Controller, Dashboard, MapController}
+import controller.{GameController, Dashboard, MapController}
 import model.{PlayerRepresentation, RectangleCell, RectangleWithCell}
 import scalafx.application.JFXApp
 import scalafx.scene.shape.Rectangle

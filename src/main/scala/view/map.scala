@@ -1,6 +1,6 @@
 package view
 
-import controller.{Controller, MapController}
+import controller.{GameController, MapController}
 import javafx.scene.control.Alert.AlertType
 import javafx.scene.paint.ImagePattern
 import model._

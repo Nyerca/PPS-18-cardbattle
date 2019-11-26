@@ -11,7 +11,7 @@ import scalafx.scene.input.KeyEvent
 import scalafx.scene.layout.VBox
 import scalafx.scene.shape.Rectangle
 import scalafx.scene.text.{Text, TextFlow}
-import controller.{Controller, MapController}
+import controller.{GameController, MapController}
 import javafx.scene.control.Alert.AlertType
 import javafx.scene.paint.ImagePattern
 import model._
