@@ -13,7 +13,7 @@ import scalafx.scene.shape.Rectangle
 import scalafx.scene.text.Text
 
 import scala.collection.mutable.ListBuffer
-import controller.{Controller, MapController}
+import controller.{GameController, MapController}
 import javafx.scene.control.Alert.AlertType
 import javafx.scene.paint.ImagePattern
 import model._
