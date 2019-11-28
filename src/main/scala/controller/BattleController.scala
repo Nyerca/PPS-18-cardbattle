@@ -12,32 +12,19 @@ object PlayerType {
 
 trait BattleController {
   def game: Game
+
   def battleScene: BattleScene
 
   def drawCard(playerType: PlayerType): Unit = playerType match {
-    case PlayerType.User => conditionalDraw(playerType)
+    case PlayerType.User => battleScene.drawCard(playerType)(getCardAndReinsert(game.user))
     case _ => battleScene.drawCard(playerType)(getCardAndReinsert(game.enemy))
   }
 
-  def fight(nameUserCard: String, nameEnemyCard: String): Unit = game.fight(findCardFromName(nameUserCard)(game.user), findCardFromName(nameEnemyCard)(game.enemy)) match {
-    case (Some(_), Some(_)) =>
-      battleScene.updateHealthPoint(PlayerType.User, game.healthPointPlayer1)
-      battleScene.updateHealthPoint(PlayerType.EnemyType, game.healthPointPlayer2)
-      drawCard(PlayerType.EnemyType)
-    case (Some(_), None) =>
-      battleScene.updateHealthPoint(PlayerType.User, game.healthPointPlayer1)
-      drawCard(PlayerType.EnemyType)
-    case (None, Some(_)) =>
-      battleScene.updateHealthPoint(PlayerType.EnemyType, game.healthPointPlayer2)
-      drawCard(PlayerType.EnemyType)
-    case (_,_) => drawCard(PlayerType.EnemyType)
-
+  def fight(userCard: Card, enemyCard: Card): Unit = {
+    game.fight(userCard, enemyCard)
+    battleScene.playFightAnimation(userCard.family._1, PlayerType.User, game.healthPointPlayer2)
+    battleScene.playFightAnimation(enemyCard.family._1, PlayerType.EnemyType, game.healthPointPlayer1)
   }
-
-  private def conditionalDraw(playerType: PlayerType): Unit = if(battleScene.isDrawingAllowed) {
-    battleScene.drawCard(playerType)(getCardAndReinsert(game.user))
-  }
-
 
   private def getCardAndReinsert(player: Player): Card = {
     val card = findDeck(player).head
@@ -49,8 +36,6 @@ trait BattleController {
     case _: User => game.deckPlayer1
     case _ => game.deckPlayer2
   }
-
-  private def findCardFromName(name: String)(player: Player): Card = findDeck(player).find(card => card.name == name).get
 }
 
 case class BattleControllerImpl(override val game: Game, override val battleScene: BattleScene) extends BattleController
