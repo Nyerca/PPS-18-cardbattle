@@ -1,12 +1,12 @@
 package model
 
+import exception.{IllegalSizeException, NoMovementException}
 import javafx.scene.paint.ImagePattern
 import scalafx.Includes._
 import scalafx.scene.SnapshotParameters
 import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.paint.Color
 import scalafx.scene.shape.Rectangle
-
 
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
@@ -131,8 +131,8 @@ class RectangleCell (top: Boolean, right: Boolean, bottom: Boolean, left: Boolea
 
 object RectangleCell {
   def generateRandom(excludedValues : Map[Int,ListBuffer[Int]]) : RectangleCell = {
-    var rngX = 800
-    var rngY = 400
+    var rngX = 400
+    var rngY = 200
     while(excludedValues.contains(rngX) && excludedValues.get(rngX).get.contains(rngY)) {
       rngX = Random.nextInt(8) * 200;
       rngY = Random.nextInt(4) * 200

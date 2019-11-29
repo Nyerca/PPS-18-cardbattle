@@ -1,6 +1,10 @@
 package view
 
+
+
+import exception._
 import controller.{GameController, MapController}
+
 import javafx.scene.control.Alert.AlertType
 import javafx.scene.paint.ImagePattern
 import model._
@@ -18,19 +22,19 @@ import scalafx.scene.shape.Rectangle
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
 import javafx.scene.input.MouseEvent
+import scalafx.animation.{Interpolator, TranslateTransition}
 import scalafx.scene.text.Text
 import scalafx.stage.Stage
+import scalafx.util.Duration
 import view.scenes.{BaseScene, BattleScene}
+import view.{shop, shop2}
 
 
 /** Main class for the "Hello World" style example. */
-class map (override val parentStage: Stage, var _controller : MapController) extends BaseScene{
+class map (override val parentStage: Stage, var _controller : MapController, var gameC :GameController) extends BaseScene{
 
-  def setController(controller : MapController): Unit = {
-    _controller = controller
-    _controller.view_(
-      this)
-  }
+  _controller.setGameController(gameC)
+
 
   val _pane = new Pane {
     children = _controller.list
@@ -48,11 +52,11 @@ class map (override val parentStage: Stage, var _controller : MapController) ext
   var menu = new VBox {
     val toolbar = new ToolBar()
     val card = new Button("Cards"){
-      onAction = () => println("cards clicked")
+      onAction = () => parentStage.scene_=(shop2(parentStage).getScene())
       layoutX = 110
     }
     val shop = new Button("Shop"){
-      onAction = () => println("shop clicked")
+      onAction = () => parentStage.scene_=(view.shop(parentStage).getScene())
     }
     val save = new Button("Save"){
       onAction = () => _controller.handleSave()
@@ -64,6 +68,8 @@ class map (override val parentStage: Stage, var _controller : MapController) ext
         alert.setHeaderText("You obtained a new item!")
         alert.setContentText("ITEM")
         alert.showAndWait();}
+
+
     }
     toolbar.getItems().add(card);
     toolbar.getItems().add(new Separator());
@@ -73,7 +79,7 @@ class map (override val parentStage: Stage, var _controller : MapController) ext
     toolbar.getItems().add(new Separator());
     toolbar.getItems().add(quit);
     children = toolbar
-    minWidth = 800
+    minWidth = 1200
   }
 
 
@@ -194,5 +200,5 @@ _bpane.top = new VBox {
 }
 
 object map {
-  def apply(parentStage: Stage): map = new map(parentStage, new MapController())
+  def apply(parentStage: Stage, gameC : GameController): map = new map(parentStage, new MapController(),gameC)
 }

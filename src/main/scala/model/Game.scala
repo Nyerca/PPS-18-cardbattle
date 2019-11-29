@@ -11,7 +11,7 @@ trait Game {
   var deckPlayer1: List[Card] = Random.shuffle(user battleDeck)
   var deckPlayer2: List[Card] = Random.shuffle(enemy battleDeck)
   def checkWinner(): Option[Player]
-  def fight(card1: Card, card2: Card): (Option[Player],Option[Player])
+  def fight(userCard: Card, enemyCard: Card): (Option[Player],Option[Player])
   def reinsertCard(player: Player, card: Card): Unit
 }
 
@@ -23,18 +23,18 @@ class GameImpl(override val user: Player, override val enemy: Player) extends Ga
     case (_,_) => None
   }
 
-  override def fight(card1: Card, card2: Card): (Option[Player], Option[Player]) = typeCheck(card1, card2) match {
-    case (Some(p1),Some(p2)) =>
-      calculateDamage(card2.value, 0, p2)
-      calculateDamage(card1.value, 0, p1)
+  override def fight(userCard: Card, enemyCard: Card): (Option[Player], Option[Player]) = (userCard.family._1, enemyCard.family._1) match {
+    case (Category.Attack, Category.Attack) =>
+      healthPointPlayer1 -= enemyCard.value
+      healthPointPlayer2 -= userCard.value
       (Option(user), Option(enemy))
-    case (Some(p1),None) =>
-      calculateDamage(card1.value, if (card1.family._2 == card2.family._2) card2.value else 0, p1)
+    case (Category.Defense, Category.Defense) => (None, None)
+    case (Category.Attack, Category.Defense) =>
+      calculateDamage(userCard, enemyCard, enemy)
       (None, Some(enemy))
-    case (None, Some(p2)) =>
-      calculateDamage(card2.value, if (card1.family._2 == card2.family._2) card1.value else 0, p2)
+    case (_,_) =>
+      calculateDamage(userCard, enemyCard, user)
       (Option(user), None)
-    case _ => (None, None)
   }
 
   override def reinsertCard(player: Player, card: Card): Unit = player match {
@@ -42,16 +42,16 @@ class GameImpl(override val user: Player, override val enemy: Player) extends Ga
     case _ => deckPlayer2 = deckPlayer2.filter(cardNotToMove => cardNotToMove != card) :+ card
   }
 
-  private def calculateDamage(val1: Double, val2: Double, player: Player): Unit = player match {
-    case _: User => healthPointPlayer2 -= (val1 - val2)
-    case _ => healthPointPlayer1 -= (val1 - val2)
+  private def calculateDamage(card1: Card, card2: Card, player: Player): Unit = {
+    if (card1.family._2 == card2.family._2) {
+      hitPlayer(player, Math.abs(card1.value - card2.value))
+    } else {
+      hitPlayer(player, Math.abs(card1.value))
+    }
   }
-
-  private def typeCheck(card1: Card, card2: Card): (Option[Player],Option[Player]) = (card1.family._1, card2.family._1) match {
-    case (Category.Attack, Category.Attack) => (Some(user),Some(enemy))
-    case (Category.Attack, Category.Defense) => (Some(user),None)
-    case (Category.Defense, Category.Attack) => (None,Some(user))
-    case _ => (None,None)
+  private def hitPlayer(player: Player, damage: Double): Unit = player match {
+    case _: User => healthPointPlayer1 -= damage
+    case _ => healthPointPlayer2 -= damage
   }
 }
 

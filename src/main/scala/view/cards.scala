@@ -32,8 +32,10 @@ import javafx.scene.input.MouseEvent
 import scalafx.geometry.{HPos, Pos}
 import scalafx.scene.control.ScrollPane.ScrollBarPolicy
 import scalafx.scene.text.Text
+import scalafx.stage.Stage
+import view.scenes.BaseScene
 
-class cards {
+class cards (override val parentStage: Stage) extends BaseScene{
 
   def createCardPane(valX:Double, valY:Double): Pane = {
     val re = new Rectangle() {
@@ -106,4 +108,8 @@ class cards {
   def getStage(): PrimaryStage = {
     stage
   }
+}
+
+object cards {
+  def apply(parentStage: Stage): cards = new cards(parentStage)
 }

@@ -7,17 +7,20 @@ import javafx.scene.paint.ImagePattern
 import scalafx.Includes._
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.geometry.Pos
+import scalafx.scene.control.ScrollPane.ScrollBarPolicy
 import scalafx.scene.control._
 import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.layout._
 import scalafx.scene.shape.Rectangle
 import scalafx.scene.text.Text
 import scalafx.scene.{Node, Scene}
+import scalafx.stage.Stage
+import view.scenes.BaseScene
 
 import scala.collection.mutable.ListBuffer
 
 
-class shop2 {
+class shop2 (override val parentStage: Stage) extends BaseScene{
 
   def createCard(valX:Double, valY:Double): ListBuffer[Node] = {
     val list = new ListBuffer[Node]
@@ -52,6 +55,8 @@ class shop2 {
     }
     val btn = new Button() {
       graphic = new ImageView(new Image("card2.png"))
+      onAction = () => println("Clicked")
+      styleClass.add("cardIndicator");
     }
     val t = new Text(valX + 20,valY + 30,"Fireball")
     val t2 = new Text(valX + 90,valY + 184,"MAGIC")
@@ -88,13 +93,13 @@ class shop2 {
     }
   }
 
-  gridPane.setHgap(200);
+  gridPane.setHgap(80);
   gridPane.setVgap(200);
   gridPane.setAlignment(Pos.Center)
   val l = createCardPane(0,0)
 
 
-  addCard(gridPane, 5)
+  addCard(gridPane, 12)
 
   val toolbar = new ToolBar()
   val imagep = new ImageView(new Image("cardSprite.png"))
@@ -105,6 +110,11 @@ class shop2 {
   toolbar.getItems().add(text2);
   toolbar.getItems().add(text3);
   toolbar.getItems().add(imagep);
+
+  val back = new Button() {
+     //onAction = () => parentStage.scene_=(map(parentStage).getScene())
+  }
+  toolbar.getItems().add(back);
 
   val bpane = new BorderPane() {
     top = toolbar
@@ -121,15 +131,21 @@ class shop2 {
   val background2 = new Background(bimg);
   bpane.background_=(background2)
 
-  val stage = new PrimaryStage {
-    title = "Cardbattle"
-    scene = new Scene(bpane,1200, 800) {
-
-    }
-
+  val scrollPane = new ScrollPane() {
+    hbarPolicy = ScrollBarPolicy.Never
+    vbarPolicy = ScrollBarPolicy.AsNeeded
+    maxWidth = 1200
   }
+  scrollPane.setContent(bpane);
+  scrollPane.pannableProperty().set(true);
 
-  def getStage(): PrimaryStage = {
-    stage
+  val scene = new Scene(scrollPane,1200, 800)
+
+
+  def getScene(): Scene = {
+    scene
   }
+}
+object shop2 {
+  def apply(parentStage: Stage): shop2 = new shop2(parentStage)
 }
