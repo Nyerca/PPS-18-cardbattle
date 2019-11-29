@@ -29,8 +29,8 @@ class BattleSceneImpl(override val parentStage: Stage) extends BattleScene {
     Card("Ariete", "ariete.png", (Category.Attack,Type.Physic)),
     Card("Magic shield", "magicShield.png", (Category.Defense,Type.Magic)),
     Card("Physic shield", "physicShield.png", (Category.Defense,Type.Physic)))
-  val user: Player = Player.userFactory("player1", "images/user.png", deck, deck)
-  val enemy: Player = Player.enemyFactory("enemy", "images/enemy.png", deck)
+  val user: Player = Player.userFactory("player1", "images/user.png", deck)
+  val enemy: Player = Player.enemyFactory("enemy", "images/sphinx.png", deck, 1, 30)
   val bc = BattleController(Game(user, enemy), this)
 
   /**************************************************************************************************/

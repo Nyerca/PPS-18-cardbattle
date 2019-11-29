@@ -16,11 +16,11 @@ object Type {
 
 
 trait Card {
+  var level: Int
+  var value: Int
   def name: String
   def image: String
-  def level: Int
   def family: (Category, Type)
-  def value: Int
   def cardMissingForNextLevel: Int
   def incrementCardNumber(): Unit
 }
