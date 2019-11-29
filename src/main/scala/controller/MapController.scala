@@ -38,6 +38,10 @@ class MapController (_list:ListBuffer[RectangleWithCell], startingDefined : Opti
 
 
   def list = _list
+  def addToList(rect: RectangleWithCell): Unit = {
+    _list.append(rect)
+    dashboard.setCells(_list)
+  }
   var startingCell:RectangleCell = _
   if(!startingDefined.isDefined) startingCell= list.apply(0).rectCell
   else  startingCell=startingDefined.get
@@ -159,49 +163,30 @@ class MapController (_list:ListBuffer[RectangleWithCell], startingDefined : Opti
     tmpList
   }
 
+def postInsert(): Unit = {
+  _view.setPaneChildren(list, Option.empty)
+  _selected = Option.empty
+  _view.setBPane()
+}
+
+  import model.Placeable._;
+
   def handleMouseClicked(e:MouseEvent) = {
     if(_selected.isDefined) {
+      val cell = dashboard.searchPosition(e.x - dashboard.traslationX, e.y - dashboard.traslationY)
+
       if(_selected.get.isInstanceOf[RectangleCell]) {
-        if(!dashboard.searchPosition(e.x - dashboard.traslationX, e.y - dashboard.traslationY).isDefined) {
-          val tmpRect = _selected.get.asInstanceOf[RectangleCell]
-          dashboard.showMap
-          tmpRect.setX(e.x - dashboard.traslationX - e.x % 200)
-          tmpRect.setY(e.y - dashboard.traslationY - e.y % 200)
-          //println("SELECTED: " + _selected);
+        val tmpRect = _selected.get.asInstanceOf[RectangleCell]
+        tmpRect.setX(e.x - dashboard.traslationX - e.x % 200)
+        tmpRect.setY(e.y - dashboard.traslationY - e.y % 200)
+        place(tmpRect,cell,this)
 
-
-          _view.setPaneChildren(list, Option(tmpRect))
-
-          val rect = new RectangleWithCell(tmpRect.getWidth, tmpRect.getHeight, tmpRect.getX, tmpRect.getY,tmpRect) {
-            fill = (RectangleCell.createImage(tmpRect.url, tmpRect.rotation))
-          }
-          _list.append(rect)
-          dashboard.setCells(_list)
-
-          dashboard.showMap
-          _selected = Option.empty
-          _view.setBPane()
-        } else {
-          throw new DoubleCellException
-        }
       } else {
-        if(dashboard.searchPosition(e.x - dashboard.traslationX, e.y - dashboard.traslationY).isDefined) {
-
-          val rect = dashboard.searchPosition(e.x - dashboard.traslationX, e.y - dashboard.traslationY).get
-          if(!rect.enemy.isDefined) {
-            rect.enemy_(new PlayerRepresentation(dashboard.searchPosition(e.x - dashboard.traslationX, e.y - dashboard.traslationY).get, "vamp.png"))
-
-            _view.setPaneChildren(list, Option.empty)
-            _selected = Option.empty
-            _view.setBPane()
-          } else {
-            throw new DoubleEnemyException
-          }
-
-        } else {
-          throw new MissingCellException
-        }
+        val tmpRect = _selected.get.asInstanceOf[EnemyCell]
+        place(tmpRect,cell,this)
       }
+
+
     }
     //println(dashboard.searchPosition(e.x - dashboard.traslationX, e.y - dashboard.traslationY))
 
