@@ -108,7 +108,7 @@ object Placeable {
 
         val rect = cell.get
         if(!rect.enemy.isDefined) {
-          rect.enemy_(new PlayerRepresentation(rect, "vamp.png"))
+          rect.enemy_(new PlayerRepresentation(rect, selected.enemy.image))
           controller.postInsert()
         } else {
           throw new DoubleEnemyException

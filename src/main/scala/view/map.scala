@@ -31,7 +31,10 @@ import view.{shop, shop2}
 
 
 /** Main class for the "Hello World" style example. */
-class map (override val parentStage: Stage, var _controller : MapController) extends BaseScene{
+class map (override val parentStage: Stage, var _controller : MapController, var gameC :GameController) extends BaseScene{
+
+  _controller.setGameController(gameC)
+
 
   val _pane = new Pane {
     children = _controller.list
@@ -197,5 +200,5 @@ _bpane.top = new VBox {
 }
 
 object map {
-  def apply(parentStage: Stage): map = new map(parentStage, new MapController())
+  def apply(parentStage: Stage, gameC : GameController): map = new map(parentStage, new MapController(),gameC)
 }

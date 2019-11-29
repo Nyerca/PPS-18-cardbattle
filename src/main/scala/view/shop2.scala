@@ -112,7 +112,7 @@ class shop2 (override val parentStage: Stage) extends BaseScene{
   toolbar.getItems().add(imagep);
 
   val back = new Button() {
-    onAction = () => parentStage.scene_=(map(parentStage).getScene())
+     //onAction = () => parentStage.scene_=(map(parentStage).getScene())
   }
   toolbar.getItems().add(back);
 

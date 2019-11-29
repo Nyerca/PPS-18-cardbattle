@@ -30,6 +30,11 @@ import scala.util.Random
 
 class MapController (_list:ListBuffer[RectangleWithCell], startingDefined : Option[RectangleCell]) {
 
+  var gameController :  GameController = _
+  def setGameController(gameC : GameController) {
+    gameController = gameC
+  }
+
   def this() {this(MapController.setup(),Option.empty)}
 
   var _selected:Option[Cell] = Option.empty;
@@ -77,6 +82,7 @@ class MapController (_list:ListBuffer[RectangleWithCell], startingDefined : Opti
       println("--------------------------------")
       println(player.player._position)
       if(player.player._position.enemy.isDefined) {
+        //_view.changeScene(gameController.user, player.player._position.enemy.get)
         _view.changeScene()
       }
     } else {
@@ -149,7 +155,8 @@ class MapController (_list:ListBuffer[RectangleWithCell], startingDefined : Opti
           val tmpRect = re.asInstanceOf[RectangleCell]
           graphic = new ImageView((RectangleCell.createImage(tmpRect.url, tmpRect.rotation)).getImage)
         } else {
-          re = new EnemyCell()
+
+          re = new EnemyCell(gameController.spawnEnemy(0))
           graphic = new ImageView(re.image)
         }
         onAction = () => _selected = Option(re)
