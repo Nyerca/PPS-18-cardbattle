@@ -25,7 +25,7 @@ import scalafx.scene.shape.Rectangle
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
 import javafx.scene.input.MouseEvent
-
+/*
 object App extends JFXApp {
  // val c =  new Controller()
 
@@ -103,3 +103,4 @@ read()
   }
 
 }
+*/

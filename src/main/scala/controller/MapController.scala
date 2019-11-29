@@ -28,14 +28,10 @@ import view.map
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
 
-class MapController (_list:ListBuffer[RectangleWithCell], startingDefined : Option[RectangleCell]) {
+class MapController (gameC : GameController, _list:ListBuffer[RectangleWithCell], startingDefined : Option[RectangleCell]) {
 
-  var gameController :  GameController = _
-  def setGameController(gameC : GameController) {
-    gameController = gameC
-  }
 
-  def this() {this(MapController.setup(),Option.empty)}
+  def this(gameC : GameController) {this(gameC,MapController.setup(gameC),Option.empty)}
 
   var _selected:Option[Cell] = Option.empty;
   def selected = _selected
@@ -81,9 +77,9 @@ class MapController (_list:ListBuffer[RectangleWithCell], startingDefined : Opti
       player.setFill();
       println("--------------------------------")
       println(player.player._position)
-      if(player.player._position.enemy.isDefined) {
-        //_view.changeScene(gameController.user, player.player._position.enemy.get)
-        _view.changeScene()
+      if(player.player._position.enemy._2.isDefined) {
+        _view.changeScene(gameC.user, player.player._position.enemy._1.get)
+       // _view.changeScene()
       }
     } else {
       player.player.url_(stringUrl)
@@ -117,7 +113,7 @@ class MapController (_list:ListBuffer[RectangleWithCell], startingDefined : Opti
   def getAllEnemies(): ListBuffer[PlayerRepresentation] = {
     val outList = new ListBuffer[PlayerRepresentation]
     for (el <- list) yield {
-      if(el.rectCell.enemy.isDefined) outList.append(el.rectCell.enemy.get)
+      if(el.rectCell.enemy._2.isDefined) outList.append(el.rectCell.enemy._2.get)
     }
     outList
   }
@@ -156,7 +152,7 @@ class MapController (_list:ListBuffer[RectangleWithCell], startingDefined : Opti
           graphic = new ImageView((RectangleCell.createImage(tmpRect.url, tmpRect.rotation)).getImage)
         } else {
 
-          re = new EnemyCell(gameController.spawnEnemy(0))
+          re = new EnemyCell(gameC.spawnEnemy(4))
           graphic = new ImageView(re.image)
         }
         onAction = () => _selected = Option(re)
@@ -189,7 +185,7 @@ def postInsert(): Unit = {
         place(tmpRect,cell,this)
 
       } else {
-        val tmpRect = _selected.get.asInstanceOf[EnemyCell]
+        val tmpRect = _selected.get
         place(tmpRect,cell,this)
       }
 
@@ -203,7 +199,7 @@ def postInsert(): Unit = {
 }
 
 object MapController {
-  def setup(): ListBuffer[RectangleWithCell] = {
+  def setup(gameC: GameController): ListBuffer[RectangleWithCell] = {
     val list = new ListBuffer[RectangleWithCell]()
 
     val tmp = Random.nextInt(10) + 2;
@@ -212,7 +208,7 @@ object MapController {
     val tmplist = new ListBuffer[Int]();
 
     for(i<-0 until tmp) {
-      val rect = RectangleCell.generateRandom(excludedValues)
+      val rect = RectangleCell.generateRandom(gameC,excludedValues)
 
       list.append(new RectangleWithCell(rect.getWidth, rect.getHeight, rect.getX, rect.getY, rect) {
         fill = (RectangleCell.createImage(rect.url, rect.rotation))

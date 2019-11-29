@@ -1,5 +1,6 @@
 package model
 
+import controller.GameController
 import exception.{IllegalSizeException, NoMovementException}
 import javafx.scene.paint.ImagePattern
 import scalafx.Includes._
@@ -13,10 +14,10 @@ import scala.util.Random
 
 
 class RectangleCell (top: Boolean, right: Boolean, bottom: Boolean, left: Boolean, elementWidth: Double = 200, elementHeight: Double = 200,var elementX:Double, var elementY:Double) extends Serializable with Cell  {
-  var _enemy: Option[PlayerRepresentation] = Option.empty
+  var _enemy: (Option[Enemy],Option[PlayerRepresentation]) = (Option.empty, Option.empty)
 
   def enemy = _enemy
-  def enemy_(enemy : PlayerRepresentation) = {_enemy = Option(enemy)}
+  def enemy_(enemy: Enemy, representation : PlayerRepresentation) = {_enemy = (Option(enemy), Option(representation)) }
 
   def canEqual(other: Any) = other.isInstanceOf[RectangleCell]
 
@@ -44,7 +45,7 @@ class RectangleCell (top: Boolean, right: Boolean, bottom: Boolean, left: Boolea
   }
 
   override def toString :String = {
-    "Rectangle ("+elementX + ", " +elementY+") T: " + top + " R: " + right + " B: " + bottom + " L: " + left + " enemy: " + enemy.isDefined
+    "Rectangle ("+elementX + ", " +elementY+") T: " + top + " R: " + right + " B: " + bottom + " L: " + left + " enemy: " + enemy._2.isDefined
   }
 
 
@@ -130,7 +131,7 @@ class RectangleCell (top: Boolean, right: Boolean, bottom: Boolean, left: Boolea
 }
 
 object RectangleCell {
-  def generateRandom(excludedValues : Map[Int,ListBuffer[Int]]) : RectangleCell = {
+  def generateRandom(gameC: GameController, excludedValues : Map[Int,ListBuffer[Int]]) : RectangleCell = {
     var rngX = 400
     var rngY = 200
     while(excludedValues.contains(rngX) && excludedValues.get(rngX).get.contains(rngY)) {
@@ -151,7 +152,7 @@ object RectangleCell {
     val rectcell=  new RectangleCell(top, right, bottom, left, elementX= rngX, elementY=rngY)
     var probEnemy = 0.1
     if(excludedValues.size == 1) probEnemy = 1
-    if( math.random()<=probEnemy) {val enemy = new PlayerRepresentation(rectcell, "vamp.png");  rectcell.enemy_(enemy) }
+    if( math.random()<=probEnemy) {val enem = gameC.spawnEnemy(4); val enemy = new PlayerRepresentation(rectcell, enem.image);  rectcell.enemy_(enem,enemy) }
 
     rectcell
   }

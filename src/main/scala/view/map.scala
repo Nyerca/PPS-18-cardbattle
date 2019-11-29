@@ -33,7 +33,6 @@ import view.{shop, shop2}
 /** Main class for the "Hello World" style example. */
 class map (override val parentStage: Stage, var _controller : MapController, var gameC :GameController) extends BaseScene{
 
-  _controller.setGameController(gameC)
 
 
   val _pane = new Pane {
@@ -137,7 +136,7 @@ _bpane.top = new VBox {
     val listTmp = new ListBuffer[Rectangle]()
     for (el <- list) yield {
       listTmp.append(el);
-      if(el.rectCell.enemy.isDefined) { val tmp = el.rectCell.enemy.get; var cell = PlayerRepresentation.createPlayerCell(tmp.position, tmp.url); cell.icon.fill_=(new ImagePattern(new Image(tmp.url))); listTmp.append(cell.icon); }
+      if(el.rectCell.enemy._2.isDefined) { val tmp = el.rectCell.enemy._2.get; var cell = PlayerRepresentation.createPlayerCell(tmp.position, tmp.url); cell.icon.fill_=(new ImagePattern(new Image(tmp.url))); listTmp.append(cell.icon); }
     }
     if(tmpRect.isDefined) listTmp.append(new RectangleWithCell(tmpRect.get.getWidth, tmpRect.get.getHeight, tmpRect.get.getX, tmpRect.get.getY,tmpRect.get) {
       fill = (RectangleCell.createImage(tmpRect.get.url, tmpRect.get.rotation))
@@ -192,13 +191,13 @@ _bpane.top = new VBox {
   //stage.resizable = false
   //stage.fullScreen = true
 
-  def changeScene(): Unit = {
-    parentStage.scene_=(BattleScene(parentStage))
+  def changeScene(user:User, enemy:Enemy): Unit = {
+    parentStage.scene_=(BattleScene(parentStage, user,enemy))
   }
 
 
 }
 
 object map {
-  def apply(parentStage: Stage, gameC : GameController): map = new map(parentStage, new MapController(),gameC)
+  def apply(parentStage: Stage, gameC : GameController): map = new map(parentStage, new MapController(gameC),gameC)
 }

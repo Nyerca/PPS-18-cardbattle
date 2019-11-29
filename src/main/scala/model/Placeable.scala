@@ -60,7 +60,7 @@ object Placeable {
 
 */
 
-trait Placeable[A] {
+trait Placeable[A <: Cell] {
   def place(a: A, cell:Option[RectangleCell],controller:MapController ): Unit
 }
 
@@ -71,11 +71,11 @@ object Placeable {
 
 
   //Apply
-  def apply[A](implicit pleaceable: Placeable[A ]): Placeable[A] = pleaceable
-  def place[A: Placeable](a: A, cell:Option[RectangleCell], controller:MapController) = Placeable[A].place(a, cell, controller)
+  def apply[A <: Cell](implicit pleaceable: Placeable[A ]): Placeable[A] = pleaceable
+  def place[A <: Cell :Placeable](a: A, cell:Option[RectangleCell], controller:MapController) = Placeable[A].place(a, cell, controller)
 
 
-  def instance[A](func: (A, Option[RectangleCell], MapController) => Unit): Placeable[A] =
+  def instance[A <: Cell](func: (A, Option[RectangleCell], MapController) => Unit): Placeable[A] =
     new Placeable[A] {
       def place(a: A, cell:Option[RectangleCell] , controller: MapController): Unit = func(a, cell, controller)
     }
@@ -107,8 +107,8 @@ object Placeable {
       if(cell.isDefined) {
 
         val rect = cell.get
-        if(!rect.enemy.isDefined) {
-          rect.enemy_(new PlayerRepresentation(rect, selected.enemy.image))
+        if(!rect.enemy._2.isDefined) {
+          rect.enemy_(selected.enemy,new PlayerRepresentation(rect, selected.enemy.image))
           controller.postInsert()
         } else {
           throw new DoubleEnemyException
