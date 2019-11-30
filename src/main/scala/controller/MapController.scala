@@ -152,7 +152,7 @@ class MapController (gameC : GameController, _list:ListBuffer[RectangleWithCell]
           graphic = new ImageView((RectangleCell.createImage(tmpRect.url, tmpRect.rotation)).getImage)
         } else {
 
-          re = new EnemyCell(gameC.spawnEnemy(4))
+          re = new EnemyCell(gameC.spawnEnemy(Random.nextInt(4)))
           graphic = new ImageView(re.image)
         }
         onAction = () => _selected = Option(re)
@@ -185,7 +185,7 @@ def postInsert(): Unit = {
         place(tmpRect,cell,this)
 
       } else {
-        val tmpRect = _selected.get
+        val tmpRect = _selected.get.asInstanceOf[EnemyCell]
         place(tmpRect,cell,this)
       }
 

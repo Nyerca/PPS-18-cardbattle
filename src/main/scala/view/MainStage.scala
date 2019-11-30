@@ -1,7 +1,7 @@
 package view
 
 import scalafx.application.JFXApp
-import view.scenes.{BattleScene, MainScene}
+import view.scenes.MainScene
 
 
 trait MainStage extends JFXApp.PrimaryStage
