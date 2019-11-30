@@ -88,13 +88,15 @@ class BattleSceneImpl(override val parentStage: Stage) extends BattleScene {
   }
 
   override def playFightAnimation(category: Category, player: PlayerType, healthPoint: Double): Unit = (category, player) match {
-    case (Category.Attack, PlayerType.User) => userRepresentation.attack(90, handle(enemyRepresentation.updateHP(healthPoint)))
+    case (Category.Attack, PlayerType.User) => userRepresentation.attack(90, handle(userRepresentation.updateHP(healthPoint)))
     case (Category.Attack, PlayerType.EnemyType) => enemyRepresentation.attack(-90, handle {
-      userRepresentation.updateHP(healthPoint)
+      enemyRepresentation.updateHP(healthPoint)
       bc.drawCard(PlayerType.EnemyType)
     })
     case (Category.Defense, PlayerType.EnemyType) =>
-    case _ => userRepresentation.updateHP(healthPoint); enemyRepresentation.updateHP(healthPoint)
+      bc.drawCard(PlayerType.EnemyType)
+      enemyRepresentation.updateHP(healthPoint)
+    case _ => userRepresentation.updateHP(healthPoint)
   }
 
   private def singleButtonFactory(marginX: Double, marginY: Double, description: String, mouseTransparency: Boolean, action: EventHandler[ActionEvent], classes: String*): Button = new Button {

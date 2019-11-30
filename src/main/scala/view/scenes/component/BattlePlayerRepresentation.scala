@@ -3,7 +3,7 @@ package view.scenes.component
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.event.{ActionEvent, EventHandler}
 import model.Player
-import scalafx.animation.{FadeTransition, RotateTransition, TranslateTransition}
+import scalafx.animation.{RotateTransition, TranslateTransition}
 import scalafx.scene.control.{Button, Label, ProgressBar}
 import scalafx.scene.layout.{BorderPane, StackPane}
 import scalafx.util.Duration

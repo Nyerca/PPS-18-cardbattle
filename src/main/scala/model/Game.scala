@@ -50,8 +50,8 @@ class GameImpl(override val user: Player, override val enemy: Player) extends Ga
     }
   }
   private def hitPlayer(player: Player, damage: Double): Unit = player match {
-    case _: User => healthPointPlayer1 -= damage
-    case _ => healthPointPlayer2 -= damage
+    case _: User => println("user " + damage); healthPointPlayer1 -= damage
+    case _ => println("enemy " + damage); healthPointPlayer2 -= damage
   }
 }
 
