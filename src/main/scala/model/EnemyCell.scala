@@ -11,9 +11,9 @@ class EnemyCell(var _enemy: Enemy) extends Cell{
 
   def image(): Image = {
     println("IMAGE: " + enemy.image)
-    val iv = new ImageView(new Image( enemy.image));
-    var params = new SnapshotParameters();
-    params.setFill(Color.Transparent);
-    iv.snapshot(params, null);
+    val iv = new ImageView(new Image( enemy.image))
+    var params = new SnapshotParameters()
+    params.setFill(Color.Transparent)
+    iv.snapshot(params, null)
   }
 }

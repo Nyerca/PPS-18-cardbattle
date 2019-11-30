@@ -40,7 +40,7 @@ class BasicFunSpec extends FunSpec with Matchers  {
   describe("A rectangle cant have all connections to false") {
     it(" should raise NoMovementException") {
       assertThrows[NoMovementException] {
-        val rect = new RectangleCell(false, false, false, false, 10, 10, 0, 0)
+        val rect = new RectangleCellImpl(false, false, false, false, 10, 10, 0, 0)
       }
     }
   }
@@ -49,7 +49,7 @@ class BasicFunSpec extends FunSpec with Matchers  {
   describe("A rectangle cant have height = 0") {
     it(" should raise IllegalSizeException") {
       assertThrows[IllegalSizeException] {
-        val r = new RectangleCell(false, false, true, false, 10, 0, 0, 0)
+        val r = new RectangleCellImpl(false, false, true, false, 10, 0, 0, 0)
       }
     }
   }
@@ -57,7 +57,7 @@ class BasicFunSpec extends FunSpec with Matchers  {
   describe("A rectangle cant have width = 0") {
     it(" should raise IllegalSizeException") {
       assertThrows[IllegalSizeException] {
-        val r = new RectangleCell(false, false, true, false, 0, 10, 0, 0)
+        val r = new RectangleCellImpl(false, false, true, false, 0, 10, 0, 0)
       }
     }
   }
@@ -66,10 +66,10 @@ class BasicFunSpec extends FunSpec with Matchers  {
     it(" should raise MissingCellException if done on a missing cell") {
       assertThrows[MissingCellException] {
         val list = new ListBuffer[RectangleWithCell]
-        var re = new RectangleCell(true, true, true, true, 200,200,0,0)
-        var re2 = new RectangleCell(true, true, true, true, 200,200,0,200)
-        val recell = new RectangleWithCell(re.getWidth, re.getHeight, re.getX, re.getY,re)
-        val recell2 = new RectangleWithCell(re2.getWidth, re2.getHeight, re2.getX, re2.getY,re)
+        var re = new RectangleCellImpl(true, true, true, true, 200,200,0,0)
+        var re2 = new RectangleCellImpl(true, true, true, true, 200,200,0,200)
+        val recell = new RectangleWithCell(re.getWidth, re.getHeight, re.x, re.getY,re)
+        val recell2 = new RectangleWithCell(re2.getWidth, re2.getHeight, re2.x, re2.getY,re)
         list.append(recell)
         list.append(recell2)
         val p = new PlayerWithCell(re, "bot.png")
@@ -82,10 +82,10 @@ class BasicFunSpec extends FunSpec with Matchers  {
     it(" should raise NoMovementException if done on a cell that doesn't allow that movement") {
       assertThrows[NoMovementException] {
         val list = new ListBuffer[RectangleWithCell]
-        var re = new RectangleCell(true, false, true, true, 200,200,0,0)
-        var re2 = new RectangleCell(true, true, true, true, 200,200,0,200)
-        val recell = new RectangleWithCell(re.getWidth, re.getHeight, re.getX, re.getY,re)
-        val recell2 = new RectangleWithCell(re2.getWidth, re2.getHeight, re2.getX, re2.getY,re)
+        var re = new RectangleCellImpl(true, false, true, true, 200,200,0,0)
+        var re2 = new RectangleCellImpl(true, true, true, true, 200,200,0,200)
+        val recell = new RectangleWithCell(re.getWidth, re.getHeight, re.x, re.getY,re)
+        val recell2 = new RectangleWithCell(re2.getWidth, re2.getHeight, re2.x, re2.getY,re)
         list.append(recell)
         list.append(recell2)
         val p = new PlayerWithCell(re, "bot.png")

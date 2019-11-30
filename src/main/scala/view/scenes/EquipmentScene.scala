@@ -1,11 +1,8 @@
-package view
-
-import java.io.File
+package view.scenes
 
 import javafx.scene.layout.Background
 import javafx.scene.paint.ImagePattern
 import scalafx.Includes._
-import scalafx.application.JFXApp.PrimaryStage
 import scalafx.geometry.Pos
 import scalafx.scene.control.ScrollPane.ScrollBarPolicy
 import scalafx.scene.control._
@@ -15,36 +12,13 @@ import scalafx.scene.shape.Rectangle
 import scalafx.scene.text.Text
 import scalafx.scene.{Node, Scene}
 import scalafx.stage.Stage
-import view.scenes.BaseScene
 
 import scala.collection.mutable.ListBuffer
 
 
-class shop2 (override val parentStage: Stage) extends BaseScene{
+class EquipmentScene(override val parentStage: Stage) extends BaseScene{
 
-  def createCard(valX:Double, valY:Double): ListBuffer[Node] = {
-    val list = new ListBuffer[Node]
-    val re = new Rectangle() {
-      x=valX
-      y=valY
-      width = 220
-      height = 300
-      fill = new ImagePattern(new Image("card2.png"))
-    }
-    val t = new Text(valX + 20,valY + 30,"Fireball")
-    val t2 = new Text(valX + 90,valY + 184,"MAGIC")
-    val t3 = new Text(valX + 60,valY + 240,"DMG:     3x")
-    val t4 = new ImageView(new Image("mdmg.png")) {
-      x=valX + 120
-      y=valY + 210
-    }
-    list.append(re)
-    list.append(t)
-    list.append(t2)
-    list.append(t3)
-    list.append(t4)
-    list
-  }
+
   def createCardPane(valX:Double, valY:Double): Pane = {
     val re = new Rectangle() {
       x=valX
@@ -83,8 +57,9 @@ class shop2 (override val parentStage: Stage) extends BaseScene{
   var gridPane = new GridPane() {
     layoutX = 400
     layoutY = 50
-
-
+    hgap = 80
+    vgap = 200
+    alignment = Pos.Center
   }
 
   def addCard(gridPane: GridPane, num : Integer): Unit = {
@@ -93,10 +68,9 @@ class shop2 (override val parentStage: Stage) extends BaseScene{
     }
   }
 
-  gridPane.setHgap(80);
-  gridPane.setVgap(200);
-  gridPane.setAlignment(Pos.Center)
-  val l = createCardPane(0,0)
+  //gridPane.setHgap(80);
+  //gridPane.setVgap(200);
+  //gridPane.setAlignment(Pos.Center)
 
 
   addCard(gridPane, 12)
@@ -110,9 +84,8 @@ class shop2 (override val parentStage: Stage) extends BaseScene{
   toolbar.getItems().add(text2);
   toolbar.getItems().add(text3);
   toolbar.getItems().add(imagep);
-
   val back = new Button() {
-     //onAction = () => parentStage.scene_=(map(parentStage).getScene())
+     //onAction = () => parentStage.scene_=(MapScene(parentStage).getScene())
   }
   toolbar.getItems().add(back);
 
@@ -123,11 +96,7 @@ class shop2 (override val parentStage: Stage) extends BaseScene{
 
   var image =  new Image("shop.jpg")
   val bSize = new BackgroundSize(BackgroundSize.Auto, BackgroundSize.Auto, false, false, true, true);
-  val bimg = new BackgroundImage(image,
-    BackgroundRepeat.NoRepeat,
-    BackgroundRepeat.NoRepeat,
-    BackgroundPosition.Center,
-    bSize)
+  val bimg = new BackgroundImage(image, BackgroundRepeat.NoRepeat, BackgroundRepeat.NoRepeat, BackgroundPosition.Center, bSize)
   val background2 = new Background(bimg);
   bpane.background_=(background2)
 
@@ -135,17 +104,15 @@ class shop2 (override val parentStage: Stage) extends BaseScene{
     hbarPolicy = ScrollBarPolicy.Never
     vbarPolicy = ScrollBarPolicy.AsNeeded
     maxWidth = 1200
+    minWidth = 1200
+    maxHeight = 800
   }
   scrollPane.setContent(bpane);
   scrollPane.pannableProperty().set(true);
 
-  val scene = new Scene(scrollPane,1200, 800)
+  root = scrollPane
 
-
-  def getScene(): Scene = {
-    scene
-  }
 }
-object shop2 {
-  def apply(parentStage: Stage): shop2 = new shop2(parentStage)
+object EquipmentScene {
+  def apply(parentStage: Stage): EquipmentScene = new EquipmentScene(parentStage)
 }

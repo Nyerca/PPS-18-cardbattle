@@ -6,7 +6,7 @@ import controller.{GameController, Dashboard, MapController}
 import model.{PlayerRepresentation, RectangleCell, RectangleWithCell}
 import scalafx.application.JFXApp
 import scalafx.scene.shape.Rectangle
-import view.{cards, map, shop, shop2}
+import view.cards
 
 import scala.collection.mutable.ListBuffer
 import javafx.scene.paint.ImagePattern

@@ -5,7 +5,6 @@ import scalafx.Includes._
 import scalafx.scene.control.Button
 import scalafx.scene.layout.BorderPane
 import scalafx.stage.Stage
-import view.map
 
 
 class MainScene(override val parentStage: Stage) extends BaseScene {

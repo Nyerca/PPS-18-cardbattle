@@ -21,7 +21,7 @@ import scala.collection.mutable.ListBuffer
 import scala.util.Random
 import javafx.scene.input.MouseEvent
 import javafx.scene.paint.ImagePattern
-import view.map
+
 
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
@@ -84,14 +84,13 @@ object Placeable {
   implicit def cellToRectangleCell(cell: Cell): RectangleCell = cell.asInstanceOf[RectangleCell];
 
 
-
   implicit val rectanglePlaceable: Placeable[RectangleCell] =
     instance((selected, cell, controller) => {
       //val selectedElement = selected.asInstanceOf[RectangleCell]
 
       if(!cell.isDefined) {
 
-        val rect = new RectangleWithCell(selected.getWidth, selected.getHeight, selected.getX, selected.getY,selected) {
+        val rect = new RectangleWithCell(selected.getWidth, selected.getHeight, selected.x, selected.getY,selected) {
           fill = (RectangleCell.createImage(selected.url, selected.rotation))
         }
         controller.addToList(rect)

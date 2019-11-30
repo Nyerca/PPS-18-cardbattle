@@ -33,7 +33,7 @@ class Dashboard (var cells: ListBuffer[RectangleWithCell], player: PlayerWithCel
 
 
   def printInfos(): Unit = {
-    println("Player position: (" + player.player.position.getX + ", " + player.player.position.getY + ")")
+    println("Player position: (" + player.player.position.x + ", " + player.player.position.getY + ")")
     println("Translation: (" + _traslationX + ", " +_traslationY + ")")
   }
 
@@ -41,7 +41,7 @@ class Dashboard (var cells: ListBuffer[RectangleWithCell], player: PlayerWithCel
   def move(url : String, movement:Move, incX : Double, incY : Double, fun:(RectangleCell, String, Boolean) => Unit): Unit = {
     MovementAnimation.setAnimation(traslationX, traslationX + incX.toInt * (-5), traslationY, traslationY + incY.toInt * (-5))
     //printInfos
-    val newRectangle = this.searchPosition(player.player.position.getX + incX.toInt * (-5), player.player.position.getY + incY.toInt * (-5), movement.opposite)
+    val newRectangle = this.searchPosition(player.player.position.x + incX.toInt * (-5), player.player.position.getY + incY.toInt * (-5), movement.opposite)
 
     if(player.player.position.isMoveAllowed(movement)) {
       if(newRectangle.isDefined) {

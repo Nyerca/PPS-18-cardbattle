@@ -4,8 +4,7 @@ import Utility.GameObjectFactory.createCards
 import Utility.GameObjectFactory
 import model.{Card, Enemy, Player, User}
 import scalafx.stage.Stage
-import view.scenes.BaseScene
-import view.map
+import view.scenes.{BaseScene, MapScene}
 
 import scala.util.Random
 
@@ -35,7 +34,7 @@ object Difficulty {
 }
 
 trait GameController {
-  var gameMap: map // = map(mainScene.parentStage)
+  var gameMap: MapScene // = map(mainScene.parentStage)
   val allCards: List[Card] = GameObjectFactory.createCards(1)
   //def mainScene: BaseScene
   def difficulty: Difficulty
@@ -48,7 +47,7 @@ trait GameController {
 
 class GameControllerImpl(parentStage: Stage, override val difficulty: Difficulty = Difficulty.Medium) extends GameController {
   private var enemyCount: Map[EnemyType, Int] = Map(EnemyType.Sphinx -> 0, EnemyType.Cobra -> 0, EnemyType.EgyptWarrior -> 0, EnemyType.Griffin -> 0, EnemyType.YellowBlob -> 0)
-  var gameMap: map = _
+  var gameMap: MapScene = _
   override def setMapScene(): Unit = parentStage.scene_=(gameMap.getScene())
 
   override def setUserInformation(operationType: OperationType): Unit = operationType match {
@@ -56,7 +55,7 @@ class GameControllerImpl(parentStage: Stage, override val difficulty: Difficulty
       println("START")
       user = Player.userFactory("Player 1", "images/user.png", Random.shuffle(allCards).take(8))
       println(user)
-      gameMap = map(parentStage, this)
+      gameMap = MapScene(parentStage, this)
     }
     case _ => loadData
   }
