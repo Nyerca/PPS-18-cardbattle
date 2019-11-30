@@ -1,6 +1,10 @@
 package view
 
+
+
+import exception._
 import controller.{GameController, MapController}
+
 import javafx.scene.control.Alert.AlertType
 import javafx.scene.paint.ImagePattern
 import model._
@@ -18,19 +22,18 @@ import scalafx.scene.shape.Rectangle
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
 import javafx.scene.input.MouseEvent
+import scalafx.animation.{Interpolator, TranslateTransition}
 import scalafx.scene.text.Text
 import scalafx.stage.Stage
+import scalafx.util.Duration
 import view.scenes.{BaseScene, BattleScene}
+import view.{shop, shop2}
 
 
 /** Main class for the "Hello World" style example. */
-class map (override val parentStage: Stage, var _controller : MapController) extends BaseScene{
+class map (override val parentStage: Stage, var _controller : MapController, var gameC :GameController) extends BaseScene{
 
-  def setController(controller : MapController): Unit = {
-    _controller = controller
-    _controller.view_(
-      this)
-  }
+
 
   val _pane = new Pane {
     children = _controller.list
@@ -48,11 +51,11 @@ class map (override val parentStage: Stage, var _controller : MapController) ext
   var menu = new VBox {
     val toolbar = new ToolBar()
     val card = new Button("Cards"){
-      onAction = () => println("cards clicked")
+      onAction = () => parentStage.scene_=(shop2(parentStage).getScene())
       layoutX = 110
     }
     val shop = new Button("Shop"){
-      onAction = () => println("shop clicked")
+      onAction = () => parentStage.scene_=(view.shop(parentStage).getScene())
     }
     val save = new Button("Save"){
       onAction = () => _controller.handleSave()
@@ -64,6 +67,8 @@ class map (override val parentStage: Stage, var _controller : MapController) ext
         alert.setHeaderText("You obtained a new item!")
         alert.setContentText("ITEM")
         alert.showAndWait();}
+
+
     }
     toolbar.getItems().add(card);
     toolbar.getItems().add(new Separator());
@@ -73,7 +78,7 @@ class map (override val parentStage: Stage, var _controller : MapController) ext
     toolbar.getItems().add(new Separator());
     toolbar.getItems().add(quit);
     children = toolbar
-    minWidth = 800
+    minWidth = 1200
   }
 
 
@@ -131,7 +136,7 @@ _bpane.top = new VBox {
     val listTmp = new ListBuffer[Rectangle]()
     for (el <- list) yield {
       listTmp.append(el);
-      if(el.rectCell.enemy.isDefined) { val tmp = el.rectCell.enemy.get; var cell = PlayerRepresentation.createPlayerCell(tmp.position, tmp.url); cell.icon.fill_=(new ImagePattern(new Image(tmp.url))); listTmp.append(cell.icon); }
+      if(el.rectCell.enemy._2.isDefined) { val tmp = el.rectCell.enemy._2.get; var cell = PlayerRepresentation.createPlayerCell(tmp.position, tmp.url); cell.icon.fill_=(new ImagePattern(new Image(tmp.url))); listTmp.append(cell.icon); }
     }
     if(tmpRect.isDefined) listTmp.append(new RectangleWithCell(tmpRect.get.getWidth, tmpRect.get.getHeight, tmpRect.get.getX, tmpRect.get.getY,tmpRect.get) {
       fill = (RectangleCell.createImage(tmpRect.get.url, tmpRect.get.rotation))
@@ -186,13 +191,13 @@ _bpane.top = new VBox {
   //stage.resizable = false
   //stage.fullScreen = true
 
-  def changeScene(): Unit = {
-    parentStage.scene_=(BattleScene(parentStage))
+  def changeScene(user:User, enemy:Enemy): Unit = {
+    parentStage.scene_=(BattleScene(parentStage, user,enemy))
   }
 
 
 }
 
 object map {
-  def apply(parentStage: Stage): map = new map(parentStage, new MapController())
+  def apply(parentStage: Stage, gameC : GameController): map = new map(parentStage, new MapController(gameC),gameC)
 }

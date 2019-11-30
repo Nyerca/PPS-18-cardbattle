@@ -1,6 +1,8 @@
 import java.io._
 
+
 import controller.{GameController, Dashboard, MapController}
+
 import model.{PlayerRepresentation, RectangleCell, RectangleWithCell}
 import scalafx.application.JFXApp
 import scalafx.scene.shape.Rectangle
@@ -23,19 +25,17 @@ import scalafx.scene.shape.Rectangle
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
 import javafx.scene.input.MouseEvent
-
+/*
 object App extends JFXApp {
  // val c =  new Controller()
 
   val mapController =  new MapController()
  // val map = new map(mapController)
 
-  //val cards = new cards()
-  //val shop = new shop()
-  val shop2 = new shop2()
 
- // c.stage_(shop2.getStage())
- // c.show()
+read()
+
+
 
   import javafx.scene.control.Alert.AlertType
 
@@ -74,6 +74,8 @@ object App extends JFXApp {
     }
 
     val pl : PlayerWithCell = PlayerRepresentation.createPlayerCell(player.position, player.url)
+    println("---")
+    println(pl.player)
     val mapController =  new MapController(lis, Option(pl.player.position))
   }
 
@@ -88,7 +90,6 @@ object App extends JFXApp {
 
   def save(): Unit = {
     val rectangleCell = RectangleCell.generateRandomCard()
-    val dashboard = new Dashboard(null, null)
     val player = new PlayerRepresentation(rectangleCell, "bot.png")
 
     val output = new ObjectOutputStream(new FileOutputStream("./src/main/saves/save2.txt"))
@@ -102,3 +103,4 @@ object App extends JFXApp {
   }
 
 }
+*/

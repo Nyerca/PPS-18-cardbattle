@@ -15,20 +15,23 @@ trait BattleScene extends BaseScene {
   def playFightAnimation(category: Category, player: PlayerType, healthPoint: Double): Unit
 }
 
-class BattleSceneImpl(override val parentStage: Stage) extends BattleScene {
+class BattleSceneImpl(override val parentStage: Stage, user:User, enemy:Enemy) extends BattleScene {
   private val DEFAULT_ON_FINISHED = null
   stylesheets.add("style.css")
 
   /**************************************CONTROLLER********************************************/
-
+/*
   val deck = List(Card("Fireball", "images/attack.png", (Category.Attack,Type.Magic)),
     Card("Iceball", "images/attack.png", (Category.Attack,Type.Magic)),
     Card("Ariete", "images/attack.png", (Category.Attack,Type.Physic)),
     Card("Magic shield", "images/defense.png", (Category.Defense,Type.Magic)),
     Card("Physic shield", "images/defense.png", (Category.Defense,Type.Physic)))
+
   val user: Player = Player.userFactory("player1", "images/user.png", deck)
   val enemy: Player = Player.enemyFactory("enemy", "images/sphinx.png", deck, 1, 30)
-  val bc = BattleController(Game(user, enemy), this)
+
+  */
+val bc = BattleController(Game(user, enemy), this)
 
   /**************************************************************************************************/
 
@@ -110,5 +113,5 @@ class BattleSceneImpl(override val parentStage: Stage) extends BattleScene {
 }
 
 object BattleScene {
-  def apply(parentStage: Stage): BattleScene = new BattleSceneImpl(parentStage)
+  def apply(parentStage: Stage, user:User, enemy:Enemy): BattleScene = new BattleSceneImpl(parentStage, user, enemy)
 }
