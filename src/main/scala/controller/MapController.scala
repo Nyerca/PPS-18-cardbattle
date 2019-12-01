@@ -11,6 +11,7 @@ import scalafx.scene.input.KeyCode
 import view.scenes.MapScene
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
+import model.Placeable._
 
 trait MapController {
   def gameC: GameController
@@ -48,13 +49,12 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
   startingDefined match {
     case Some(rect: RectangleCell) => _player = new PlayerWithCell(rect, "bot.png")
     case _ => _player = new PlayerWithCell(list.head.rectCell, "bot.png")
-
   }
   _player.setFill()
   override def player: PlayerWithCell = _player
 
 
-  val dashboard = new Dashboard(list, _player)
+  val dashboard = new DashboardImpl(list, _player)
 
   var view: MapScene = _
   override def view_ (newView : MapScene): Unit = {
@@ -74,8 +74,8 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
     else throw new DoubleMovementException
   }
 
-  def afterMovement(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean): Unit = {
-    if(isEnded) {
+  def afterMovement(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean): Unit = isEnded match {
+    case true =>
       player.player.position_(newRectangle, stringUrl)
       player.setFill()
       println("--------------------------------")
@@ -84,36 +84,26 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
         view.changeScene(gameC.user, player.player._position.enemy._1.get)
        // _view.changeScene()
       }
-    } else {
+    case _ =>
       player.player.url_(stringUrl)
       player.setFill()
-    }
+
   }
 
 
   override def handleKey(keyCode : KeyCode): Unit = {
     keyCode.getName match {
-      case "Up" => if(checkAnimationEnd("top")) {
-        dashboard.move(Top, afterMovement) ;
-      }
-      case "Left" => if(checkAnimationEnd("left")){
-        dashboard.move(Left, afterMovement) ;
-      }
-      case "Down" => if(checkAnimationEnd("bot")) {
-        dashboard.move(Bottom, afterMovement)
-      }
-      case "Right" => if(checkAnimationEnd("right")) {
-        dashboard.move(Right, afterMovement) ;
-      }
+      case "Up" => if(checkAnimationEnd("top")) dashboard.move(Top, afterMovement) ;
+      case "Left" => if(checkAnimationEnd("left")) dashboard.move(Left, afterMovement) ;
+      case "Down" => if(checkAnimationEnd("bot")) dashboard.move(Bottom, afterMovement)
+      case "Right" => if(checkAnimationEnd("right")) dashboard.move(Right, afterMovement) ;
       case _ => {}
     }
   }
 
   override def getAllEnemies(): ListBuffer[PlayerRepresentation] = {
     val outList = new ListBuffer[PlayerRepresentation]
-    for (el <- list) yield {
-      if(el.rectCell.enemy._2.isDefined) outList.append(el.rectCell.enemy._2.get)
-    }
+    for { el <- list; element = el.rectCell.enemy._2; if element.isDefined} yield outList.append(element.get)
     outList
   }
 
@@ -121,10 +111,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
     val output = new ObjectOutputStream(new FileOutputStream("./src/main/saves/save2.txt"))
 
     val outList = new ListBuffer[RectangleCell]
-    for(el <-list) {
-      outList.append(el.rectCell)
-
-    }
+    for(el <-list)  outList.append(el.rectCell)
     output.writeObject(outList)
     output.writeObject(player.player)
     output.close()
@@ -142,26 +129,20 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
     tmpList.append(btn)
 
     for(i<-0 until 4) {
-      //
       val btn_tmp: Button = new Button {
         var re: Cell = _
         if(math.random() <= 0.8) {
           re = RectangleCell.generateRandomCard()
-          val tmpRect = re.asInstanceOf[RectangleCell]
-          graphic = new ImageView(RectangleCell.createImage(tmpRect.url, tmpRect.rotation).getImage)
+          graphic = new ImageView(RectangleCell.createImage(re.url, re.rotation).getImage)
         } else {
-
           re = new EnemyCell(gameC.spawnEnemy(4))
           graphic = new ImageView(re.image)
         }
         onAction = () => selected = Option(re)
         defaultButton = true
-
       }
       tmpList.append(btn_tmp)
-
     }
-
     tmpList
   }
 
@@ -171,20 +152,19 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
     view.setBPane()
   }
 
-  import model.Placeable._
+  import model.Monoid._
 
   override def handleMouseClicked(e:MouseEvent): Unit = {
-    if(selected.isDefined) {
-      val cell = dashboard.searchPosition(e.x - dashboard.traslationX, e.y - dashboard.traslationY)
-      selected match {
-        case Some(rc:RectangleCell) =>
-          rc.x_(e.x - dashboard.traslationX - e.x % 200)
-          rc.setY(e.y - dashboard.traslationY - e.y % 200)
-          place(rc,cell,this)
-
+    val cell = dashboard.searchPosition(e.x - dashboard.traslationX, e.y - dashboard.traslationY)
+    selected match {
+      case Some(rc:RectangleCell) =>
+        rc.x_(sum(e.x, dashboard.traslationX))
+        rc.setY(sum(e.y, dashboard.traslationY))
+        //rc.x_(e.x - dashboard.traslationX - e.x % 200)
+        //rc.setY(e.y - dashboard.traslationY - e.y % 200)
+        place(rc,cell,this)
       case Some(ec:EnemyCell) => place(ec,cell,this)
-        case _ => //some default action
-      }
+      case _ => //some default action
     }
   }
 }
@@ -198,7 +178,7 @@ object MapController {
     var excludedValues: Map[Int,ListBuffer[Int]] = Map()
     val tmplist = new ListBuffer[Int]()
 
-    for(i<-0 until tmp) {
+    for(_<-0 until tmp) {
       val rect = RectangleCell.generateRandom(gameC,excludedValues)
 
       list.append(new RectangleWithCell(rect.getWidth, rect.getHeight, rect.x, rect.getY, rect) {
@@ -215,9 +195,7 @@ object MapController {
       //println(excludedValues)
     }
 
-    for(el <- list ) {
-      println(el)
-    }
+    for(el <- list ) println(el)
     list
   }
 }

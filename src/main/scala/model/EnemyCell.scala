@@ -6,7 +6,7 @@ import scalafx.scene.paint.Color
 
 class EnemyCell(var _enemy: Enemy) extends Cell{
 
-  val enemy = _enemy
+  val enemy: Enemy = _enemy
 
 
   def image(): Image = {

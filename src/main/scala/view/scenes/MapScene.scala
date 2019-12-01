@@ -30,34 +30,28 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     }
   }
 
+  def addToToolbar(toolbar: ToolBar, btn: Button, isLast:Boolean): Unit = {
+    toolbar.getItems.add(btn)
+    if(!isLast) toolbar.getItems.add(new Separator())
+  }
+
   var menu: VBox = new VBox {
     val toolbar = new ToolBar()
-    val card: Button = new Button("Cards"){
+    addToToolbar(toolbar, new Button("Cards"){
       onAction = () => parentStage.scene_=(EquipmentScene(parentStage))
       layoutX = 110
-    }
-    val shop: Button = new Button("Shop"){
-      onAction = () => parentStage.scene_=(ShopScene(parentStage))
-    }
-    val save: Button = new Button("Save"){
-      onAction = () => _controller.handleSave()
-    }
-    val quit: Button = new Button("Quit"){
+    }, false)
+    addToToolbar(toolbar, new Button("Shop"){onAction = () => parentStage.scene_=(ShopScene(parentStage))}, false)
+    addToToolbar(toolbar, new Button("Save"){onAction = () => _controller.handleSave()}, false)
+    addToToolbar(toolbar, new Button("Quit"){
       onAction = () => {  val alert = new Alert(AlertType.INFORMATION)
         alert.setTitle("Item Obtained")
         alert.setGraphic(new ImageView(new Image("vamp.png")))
         alert.setHeaderText("You obtained a new item!")
         alert.setContentText("ITEM")
         alert.showAndWait();}
-    }
+    }, true)
 
-    toolbar.getItems.add(card)
-    toolbar.getItems.add(new Separator())
-    toolbar.getItems.add(shop)
-    toolbar.getItems.add(new Separator())
-    toolbar.getItems.add(save)
-    toolbar.getItems.add(new Separator())
-    toolbar.getItems.add(quit)
     children = toolbar
     minWidth = 1200
   }
