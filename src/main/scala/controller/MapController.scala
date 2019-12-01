@@ -121,6 +121,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
   override def createBottomCard(): ListBuffer[Button] = {
     val tmpList = ListBuffer[Button]()
     val btn: Button = new Button {
+      id="bottomButton"
       val re = new RectangleCellImpl(true, true, true, true, _x= 0.0, elementY=0.0)
       onAction = () => selected = Option(re)
       defaultButton = true

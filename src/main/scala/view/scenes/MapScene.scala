@@ -19,8 +19,10 @@ import scala.collection.mutable.ListBuffer
 
 
 class MapScene (override val parentStage: Stage, var _controller : MapController, var gameC :GameController) extends BaseScene{
+  stylesheets.add("mapStyle.css")
 
   val _pane = new Pane {
+    id = "map"
     children = _controller.list
     maxHeight = 800
     for(el <- _controller.getAllEnemies() ) {
@@ -63,6 +65,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
   }
 
   val bottomPane: HBox = new HBox() {
+    id="bottomPane"
     layoutX = 10
     layoutY = 580
     children = List()

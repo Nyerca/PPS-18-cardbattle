@@ -1,0 +1,15 @@
+
+#map {
+     -fx-pref-height: 1800px;
+}
+
+#bottomPane {
+    padding-top: 580px;
+    padding-left: 10px;
+    -fx-background-color:"red";
+}
+#bottomButton {
+-fx-pref-height: 500px;
+-fx-pref-width: 200px;
+-fx-background-color:"red";
+}
