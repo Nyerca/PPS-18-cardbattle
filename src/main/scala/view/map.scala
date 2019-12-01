@@ -192,7 +192,7 @@ _bpane.top = new VBox {
   //stage.fullScreen = true
 
   def changeScene(user:User, enemy:Enemy): Unit = {
-    parentStage.scene_=(BattleScene(parentStage, user,enemy))
+    parentStage.scene_=(BattleScene(parentStage, user,enemy, gameC))
   }
 
 

@@ -14,10 +14,7 @@ trait BattlePlayerRepresentation extends Pane {
   def marginX: Double
   def marginY: Double
   def player: Player
-  //def updateHP(hp: Double): Unit
   def playAnimation(byVal: Double = 0, category: Category, healthPoint: Double): Unit
-  //def attack(byVal: Double, action: EventHandler[ActionEvent]): Unit
-  //def defense(action: EventHandler[ActionEvent]): Unit
 }
 
 class BattlePlayerRepresentationImpl(override val marginX: Double, override val marginY: Double, override val player: Player) extends BattlePlayerRepresentation {

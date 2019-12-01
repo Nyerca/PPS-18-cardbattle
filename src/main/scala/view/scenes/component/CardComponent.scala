@@ -1,6 +1,5 @@
 package view.scenes.component
 
-import controller.BattleController
 import javafx.event.{ActionEvent, EventHandler}
 import model.{Card, Category, Type}
 import scalafx.animation.{FadeTransition, Transition}
@@ -11,7 +10,6 @@ import scalafx.util.Duration
 trait CardComponent {
   val DEFAULT_ON_FINISHED = null
   var card: Card = _
-  def battleController: BattleController
   def clickableCard: Button
   def cardName: Label
   def cardDamage: Label
@@ -20,7 +18,7 @@ trait CardComponent {
   def fadeOutAll(action: EventHandler[ActionEvent] = DEFAULT_ON_FINISHED ): Unit
 }
 
-class CardComponentImpl(override val battleController: BattleController, marginX: Double, marginY: Double, mouseTransparency: Boolean, action: EventHandler[ActionEvent]) extends CardComponent {
+class CardComponentImpl(marginX: Double, marginY: Double, mouseTransparency: Boolean, action: EventHandler[ActionEvent]) extends CardComponent {
 
   override val clickableCard: Button = new Button {
     styleClass.add("card")
@@ -91,5 +89,5 @@ class CardComponentImpl(override val battleController: BattleController, marginX
 
 
 object CardComponent {
-  def apply(battleController: BattleController, marginX: Double, marginY: Double, mouseTransparency: Boolean, action: EventHandler[ActionEvent]): CardComponent = new CardComponentImpl(battleController, marginX, marginY, mouseTransparency, action)
+  def apply(marginX: Double, marginY: Double, mouseTransparency: Boolean, action: EventHandler[ActionEvent]): CardComponent = new CardComponentImpl(marginX, marginY, mouseTransparency, action)
 }

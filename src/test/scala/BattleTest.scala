@@ -61,7 +61,7 @@ class BattleTest extends FunSpec with Matchers {
       Card("physicShield", "", (Category.Defense, Type.Physic)))
     it("two attack type cards should decrement life points of the two players") {
       val baseUser: User = Player.userFactory("user", "", deck)
-      val baseEnemy: Enemy = Player.enemyFactory("enemy", "", deck, 1, 30)
+      val baseEnemy: Enemy = Player.enemyFactory("enemy", "", deck, 1, 30, 2)
       val game: Game = Game(baseUser, baseEnemy)
       assert(game.fight(deck(0), deck(1)) == (Some(baseUser), Some(baseEnemy)))
       assert(game.healthPointPlayer2 == baseEnemy.healthPoint - deck(0).value)
@@ -69,7 +69,7 @@ class BattleTest extends FunSpec with Matchers {
     }
     it("magic/physic type card vs defense one should result in the difference betweend their values") {
       val baseUser: User = Player.userFactory("user", "", deck)
-      val baseEnemy: Enemy = Player.enemyFactory("enemy", "", deck, 1, 30)
+      val baseEnemy: Enemy = Player.enemyFactory("enemy", "", deck, 1, 30,2)
       val game: Game = Game(baseUser, baseEnemy)
       assert(game.fight(deck(0), deck(3)) == (None, Some(baseEnemy)))
       assert(game.healthPointPlayer2 == baseEnemy.healthPoint - (deck(0).value - deck(3).value))
