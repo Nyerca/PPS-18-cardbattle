@@ -56,7 +56,7 @@ class BattlePlayerRepresentationImpl(override val marginX: Double, override val 
   private def updateHP(hp: Double): Unit = {
     if(hp / player.healthPoint != observableHealthPoint.value) {
       damage()
-      observableHealthPoint.set(hp / player.healthPoint)
+      observableHealthPoint.set(if(hp / player.healthPoint > 0) hp / player.healthPoint else 0)
     }
   }
 
