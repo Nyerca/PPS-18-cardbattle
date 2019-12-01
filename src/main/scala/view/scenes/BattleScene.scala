@@ -1,6 +1,6 @@
 package view.scenes
 
-import controller.{BattleController, PlayerType}
+import controller.{BattleController, GameController, PlayerType}
 import javafx.event.{ActionEvent, EventHandler}
 import model._
 import scalafx.Includes._
@@ -10,33 +10,18 @@ import scalafx.stage.Stage
 import view.scenes.component.{BattlePlayerRepresentation, CardComponent}
 
 trait BattleScene extends BaseScene {
+
   def drawCard(playerType: PlayerType)(card: Card): Unit
-  //def updateHealthPoint(playerType: PlayerType, value: Double): Unit
+
   def playFightAnimation(category: Category, player: PlayerType, healthPoint: Double): Unit
 }
 
-class BattleSceneImpl(override val parentStage: Stage, user:User, enemy:Enemy) extends BattleScene {
+class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy, gameController: GameController) extends BattleScene {
   private val DEFAULT_ON_FINISHED = null
+
   stylesheets.add("style.css")
 
-  /**************************************CONTROLLER********************************************/
-/*
-  val deck = List(Card("Fireball", "images/attack.png", (Category.Attack,Type.Magic)),
-    Card("Iceball", "images/attack.png", (Category.Attack,Type.Magic)),
-    Card("Ariete", "images/attack.png", (Category.Attack,Type.Physic)),
-    Card("Magic shield", "images/defense.png", (Category.Defense,Type.Magic)),
-    Card("Physic shield", "images/defense.png", (Category.Defense,Type.Physic)))
-
-  val user: Player = Player.userFactory("player1", "images/user.png", deck)
-  val enemy: Player = Player.enemyFactory("enemy", "images/sphinx.png", deck, 1, 30)
-
-  */
-val bc = BattleController(Game(user, enemy), this)
-
-  /**************************************************************************************************/
-
-
-  /****************************CARD**************************/
+  val bc = BattleController(Game(user, enemy), this)
 
   val userDeck: Button = singleButtonFactory(35, 50, "USER DECK", false, handle(bc.drawCard(PlayerType.User)), "card", "deck")
 
@@ -44,7 +29,7 @@ val bc = BattleController(Game(user, enemy), this)
 
   val cpuCardIndicator: Button = singleButtonFactory(995, 450, "", true, DEFAULT_ON_FINISHED, "cardIndicator")
 
-  val cpuHandCard: CardComponent = CardComponent(bc, 995, 450, true, handle(cpuHandCard.fadeOutAll()))
+  val cpuHandCard: CardComponent = CardComponent(995, 450, true, handle(cpuHandCard.fadeOutAll()))
 
   val userCardIndicators: List[Button] = for (
     n <- 1 until 4 toList
@@ -52,17 +37,13 @@ val bc = BattleController(Game(user, enemy), this)
 
   val userHandCard: List[CardComponent] = for(
     n <- 1 until 4 toList
-  ) yield CardComponent(bc, 35 + n * 240, 50, false, handle {
+  ) yield CardComponent(35 + n * 240, 50, false, handle {
     cpuHandCard.clickableCard.fire()
     userHandCard(n - 1).fadeOutAll(handle {
       userHandCard(n - 1).clickableCard.mouseTransparent = true
       bc.fight(userHandCard(n - 1).card, cpuHandCard.card)
-      //bc.drawCard(PlayerType.EnemyType)
     })
   })
-
-  /**************************************************************/
-  /******************BATTLE FIELD ******************/
 
   val userRepresentation: BattlePlayerRepresentation = BattlePlayerRepresentation(10,200, bc.game.user)
 
@@ -75,14 +56,14 @@ val bc = BattleController(Game(user, enemy), this)
     children = List(userRepresentation,enemyRepresentation)
   }
 
-  /*********************************************************/
-
   root = new Pane {
     styleClass.add("common")
-    id = "battleScene"
+    styleClass.add("battleScene")
     children = userCardIndicators  ++ userHandCard.map(x => x.clickableCard) ++ userHandCard.map(x => x.cardLevel)++ userHandCard.map(x => x.cardName) ++ userHandCard.map(x => x.cardDamage) ++ List(cpuCardIndicator, userDeck, cpuDeck, cpuHandCard.clickableCard, cpuHandCard.cardName, cpuHandCard.cardDamage, cpuHandCard.cardLevel, battleField)
   }
+
   bc.drawCard(PlayerType.Enemy)
+
   userHandCard foreach(_ => bc.drawCard(PlayerType.User))
 
   override def drawCard(playerType: PlayerType)(card: Card): Unit = playerType match {
@@ -111,5 +92,5 @@ val bc = BattleController(Game(user, enemy), this)
 }
 
 object BattleScene {
-  def apply(parentStage: Stage, user:User, enemy:Enemy): BattleScene = new BattleSceneImpl(parentStage, user, enemy)
+  def apply(parentStage: Stage, user: User, enemy: Enemy, gameController: GameController): BattleScene = new BattleSceneImpl(parentStage, user, enemy, gameController)
 }
