@@ -1,45 +1,23 @@
-package view
+package view.scenes
 
-import javafx.scene.input.MouseEvent
+import javafx.scene.layout.Background
 import javafx.scene.paint.ImagePattern
-import model._
-import scalafx.application.JFXApp.PrimaryStage
-import scalafx.scene.control.{Label, SplitPane}
-import scalafx.scene.{Node, Scene}
-import scalafx.scene.image.{Image, ImageView}
-import scalafx.scene.input.KeyEvent
-import scalafx.scene.layout.VBox
-import scalafx.scene.shape.Rectangle
-import scalafx.scene.text.Text
-
-import scala.collection.mutable.ListBuffer
-import controller.{GameController, MapController}
-import javafx.scene.control.Alert.AlertType
-import javafx.scene.paint.ImagePattern
-import model._
 import scalafx.Includes._
-import scalafx.application.JFXApp
-import scalafx.application.JFXApp.PrimaryStage
-import scalafx.scene.{Node, Scene}
+import scalafx.geometry.Pos
 import scalafx.scene.control._
 import scalafx.scene.image.{Image, ImageView}
-import scalafx.scene.input.{KeyCode, KeyEvent}
 import scalafx.scene.layout._
-import scalafx.scene.paint.Color
 import scalafx.scene.shape.Rectangle
+import scalafx.scene.text.Text
+import scalafx.scene.{Node, Scene}
+import scalafx.stage.Stage
 
 import scala.collection.mutable.ListBuffer
-import scala.util.Random
-import javafx.scene.input.MouseEvent
-import scalafx.geometry.{HPos, Pos}
-import scalafx.scene.text.Text
-import javafx.scene.layout.Background
-import scalafx.stage.Stage
-import view.scenes.{BaseScene, BattleScene}
 
 
-class shop (override val parentStage: Stage) extends BaseScene{
+class ShopScene(override val parentStage: Stage) extends BaseScene{
 
+  /*
   def createCard(valX:Double, valY:Double): ListBuffer[Node] = {
     val list = new ListBuffer[Node]
     val re = new Rectangle() {
@@ -63,6 +41,8 @@ class shop (override val parentStage: Stage) extends BaseScene{
     list.append(t4)
     list
   }
+*/
+
   def createCardPane(valX:Double, valY:Double): Pane = {
     val re = new Rectangle() {
       x=valX
@@ -91,7 +71,6 @@ class shop (override val parentStage: Stage) extends BaseScene{
       children.append(t2)
       children.append(t3)
       children.append(t4)
-
     }
     pane
   }
@@ -99,14 +78,15 @@ class shop (override val parentStage: Stage) extends BaseScene{
   var gridPane = new GridPane() {
     layoutX = 400
     layoutY = 50
-
-
+    hgap = 200
+    vgap = 200
+    alignment = Pos.Center
   }
 
-  gridPane.setHgap(200);
-  gridPane.setVgap(200);
-  gridPane.setAlignment(Pos.Center)
-  val l = createCardPane(0,0)
+  //gridPane.setHgap(200);
+  //gridPane.setVgap(200);
+  //gridPane.setAlignment(Pos.Center)
+
   gridPane.add(createCardPane(0,0), 0, 0);
   gridPane.add(createCardPane(0,0), 1, 0);
   gridPane.add(createCardPane(0,0), 2, 0);
@@ -120,31 +100,24 @@ class shop (override val parentStage: Stage) extends BaseScene{
   toolbar.getItems().add(text);
   toolbar.getItems().add(imagep);
 
+
   val bpane = new BorderPane() {
     top = toolbar
     center = gridPane
   }
-
+  bpane.minWidth_=(1200)
+  bpane.minHeight_=(800)
+  bpane.maxHeight_=(800)
   var image =  new Image("shop.jpg")
   val bSize = new BackgroundSize(BackgroundSize.Auto, BackgroundSize.Auto, false, false, true, true);
-  val bimg = new BackgroundImage(image,
-    BackgroundRepeat.NoRepeat,
-    BackgroundRepeat.NoRepeat,
-    BackgroundPosition.Center,
-    bSize)
+  val bimg = new BackgroundImage(image, BackgroundRepeat.NoRepeat, BackgroundRepeat.NoRepeat, BackgroundPosition.Center, bSize)
   val background2 = new Background(bimg);
   bpane.background_=(background2)
 
-  val scene = new Scene(bpane,1200, 800)
 
-  def getScene(): Scene = {
-    scene
-  }
-
-  //stage.resizable = false
-  //stage.fullScreen = true
-
+  root = bpane
 }
-object shop {
-  def apply(parentStage: Stage): shop = new shop(parentStage)
+
+object ShopScene {
+  def apply(parentStage: Stage): ShopScene = new ShopScene(parentStage)
 }

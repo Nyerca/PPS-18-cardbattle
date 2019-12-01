@@ -12,56 +12,72 @@ import scalafx.scene.shape.Rectangle
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
 
+trait RectangleCell extends Serializable with Cell {
+  def top: Boolean
+  def right: Boolean
+  def bottom: Boolean
+  def left: Boolean
+  def elementWidth: Double
+  def elementHeight: Double
+  def _x: Double
+  def x: Double
+  def elementY: Double
 
-class RectangleCell (top: Boolean, right: Boolean, bottom: Boolean, left: Boolean, elementWidth: Double = 200, elementHeight: Double = 200,var elementX:Double, var elementY:Double) extends Serializable with Cell  {
+  def canEqual(other: Any): Boolean
+  def url: String
+  def rotation: Int
+
+  def getY: Double
+  def getWidth: Double
+  def getHeight: Double
+
+  def x_(newX: Double): Unit
+  def setY(newY: Double): Unit
+
+  def enemy:(Option[Enemy], Option[PlayerRepresentation])
+  def enemy_(enemy: Enemy, representation : PlayerRepresentation): Unit
+  def isMoveAllowed(movement : Move): Boolean
+}
+
+
+class RectangleCellImpl (override val top: Boolean, override val right: Boolean, override val bottom: Boolean, override val left: Boolean, override val elementWidth: Double = 200, override val elementHeight: Double = 200, var _x: Double, var elementY:Double) extends RectangleCell  {
   var _enemy: (Option[Enemy],Option[PlayerRepresentation]) = (Option.empty, Option.empty)
 
-  def enemy = _enemy
-  def enemy_(enemy: Enemy, representation : PlayerRepresentation) = {_enemy = (Option(enemy), Option(representation)) }
+  override def enemy:(Option[Enemy], Option[PlayerRepresentation]) = _enemy
+  override def enemy_(enemy: Enemy, representation : PlayerRepresentation): Unit = {_enemy = (Option(enemy), Option(representation)) }
 
-  def canEqual(other: Any) = other.isInstanceOf[RectangleCell]
+  override def canEqual(other: Any): Boolean = other.isInstanceOf[RectangleCell]
 
-  def getX = elementX;
-  def getY = elementY;
-  def getWidth = elementWidth;
-  def getHeight = elementHeight;
-  def setX(newX: Double) = {
-    elementX = newX
-  }
-  def setY(newY: Double) = {
-    elementY = newY
-  }
+  override def x: Double = _x
+  override def getY: Double = elementY
+  override def getWidth: Double = elementWidth
+  override def getHeight: Double = elementHeight
+  override def x_(newX: Double): Unit = _x = newX
+  override def setY(newY: Double): Unit = elementY = newY
 
   override def equals(other:Any) :Boolean = other match {
-    case that : RectangleCell => {
-      that.canEqual(this) && this.getX == that.getX && this.getY == that.getY
-    }
+    case that : RectangleCell => that.canEqual(this) && this.x == that.x && this.getY == that.getY
     case _  => false
   }
 
   override def hashCode(): Int = {
-    val state = Seq(elementX,elementY,elementWidth,elementHeight)
+    val state = Seq(_x,elementY,elementWidth,elementHeight)
     state.map(_.hashCode()).foldLeft(0)((a,b)=>31 * a + b)
   }
 
   override def toString :String = {
-    "Rectangle ("+elementX + ", " +elementY+") T: " + top + " R: " + right + " B: " + bottom + " L: " + left + " enemy: " + enemy._2.isDefined
+    "Rectangle ("+_x + ", " +elementY+") T: " + top + " R: " + right + " B: " + bottom + " L: " + left + " enemy: " + enemy._2.isDefined
   }
 
 
-  def show(): Unit = {
-    print("ciaoooo " + top);
-  }
-
-
-  private var _image : Image = null ;
-  def image = _image
+  private var _image : Image = _ ;
+  def image: Image = _image
 
 
   var _url:String = _
   var _rotation:Int = 0
-  def url = _url
-  def rotation = _rotation
+  def url: String = _url
+  def rotation: Int = _rotation
 
 
 
@@ -109,25 +125,15 @@ class RectangleCell (top: Boolean, right: Boolean, bottom: Boolean, left: Boolea
   }
 
   def isMoveAllowed(movement : Move): Boolean =movement match {
-    case Top => {
-      if(top) true
-      else false
-    } case Right => {
-      if(right) true
-      else false
-    } case Bottom => {
-      if(bottom) true
-      else false
-    } case Left  => {
-      if(left) true
-      else false
-    } case _  => {
-      false
-    }
+    case Top => top
+    case Right => right
+    case Bottom => bottom
+    case Left  => left
+    case _  => false
   }
 
-  if(top == false && right == false && bottom == false && left == false) throw new NoMovementException();
-  if(elementWidth == 0 || elementHeight == 0)  throw new IllegalSizeException();
+  if(!top && !right && !bottom && !left) throw new NoMovementException()
+  if(elementWidth == 0 || elementHeight == 0)  throw new IllegalSizeException()
 }
 
 object RectangleCell {
@@ -135,21 +141,21 @@ object RectangleCell {
     var rngX = 400
     var rngY = 200
     while(excludedValues.contains(rngX) && excludedValues.get(rngX).get.contains(rngY)) {
-      rngX = Random.nextInt(8) * 200;
+      rngX = Random.nextInt(8) * 200
       rngY = Random.nextInt(4) * 200
     }
     var top:Boolean = false
     var right:Boolean = false
     var bottom:Boolean = false
     var left:Boolean = false
-    while(top == false && right == false && bottom == false && left == false) {
+    while(!top && !right && !bottom && !left) {
       top = math.random()>0.5
       right = math.random()>0.5
       bottom = math.random()>0.5
       left = math.random()>0.5
     }
     println("Rectangle ("+rngX + ", " +rngY+") T: " + top + " R: " + right + " B: " + bottom + " L: " + left)
-    val rectcell=  new RectangleCell(top, right, bottom, left, elementX= rngX, elementY=rngY)
+    val rectcell=  new RectangleCellImpl(top, right, bottom, left, _x= rngX, elementY=rngY)
     var probEnemy = 0.1
     if(excludedValues.size == 1) probEnemy = 1
     if( math.random()<=probEnemy) {val enem = gameC.spawnEnemy(4); val enemy = new PlayerRepresentation(rectcell, enem.image);  rectcell.enemy_(enem,enemy) }
@@ -161,21 +167,21 @@ object RectangleCell {
     var right:Boolean = false
     var bottom:Boolean = false
     var left:Boolean = false
-    while(top == false && right == false && bottom == false && left == false) {
+    while(!top && !right && !bottom && !left) {
       top = math.random()>0.5
       right = math.random()>0.5
       bottom = math.random()>0.5
       left = math.random()>0.5
     }
-    new RectangleCell(top, right, bottom, left, elementX= 0, elementY=0)
+    new RectangleCellImpl(top, right, bottom, left, _x= 0, elementY=0)
   }
 
   def createImage(url: String, rotation: Double): ImagePattern = {
-    val iv = new ImageView(new Image( url));
-    iv.setRotate(rotation);
-    var params = new SnapshotParameters();
-    params.setFill(Color.Transparent);
-    val image = iv.snapshot(params, null);
+    val iv = new ImageView(new Image( url))
+    iv.setRotate(rotation)
+    var params = new SnapshotParameters()
+    params.setFill(Color.Transparent)
+    val image = iv.snapshot(params, null)
     new ImagePattern(image)
   }
 
@@ -183,9 +189,9 @@ object RectangleCell {
     val rect:Rectangle = new Rectangle()
     rect.fill_=(RectangleCell.createImage(rectangleCell.url, rectangleCell.rotation))
     rect.width_=(rectangleCell.getWidth)
-    rect.height_=(rectangleCell.getHeight);
-    rect.x_=(rectangleCell.getX);
-    rect.y_=(rectangleCell.getY);
+    rect.height_=(rectangleCell.getHeight)
+    rect.x_=(rectangleCell.x)
+    rect.y_=(rectangleCell.getY)
     rect
   }
 }

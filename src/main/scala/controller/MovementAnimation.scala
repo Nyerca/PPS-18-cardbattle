@@ -19,9 +19,7 @@ object MovementAnimation {
     interpolator = Interpolator.Linear
   }
 
-  def setAnimationNode (pane : BorderPane): Unit = {
-    anim.node = pane.center.apply()
-  }
+  def setAnimationNode (pane : BorderPane): Unit = anim.node = pane.center.apply()
 
 
   def setAnimation(fromX: Double, toX: Double, fromY:Double, toY: Double)   = {
@@ -69,9 +67,9 @@ object MovementAnimation {
   }
 
 
-  def checkAnimationEnd():Boolean = {
-    if(anim.status.getValue == Status.STOPPED) true
-    else false
+  def checkAnimationEnd():Boolean = anim.status.getValue match {
+    case Status.STOPPED => true
+    case _ => false
   }
 
 
