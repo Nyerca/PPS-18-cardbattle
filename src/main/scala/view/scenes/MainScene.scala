@@ -6,9 +6,8 @@ import scalafx.scene.control.Button
 import scalafx.scene.layout.BorderPane
 import scalafx.stage.Stage
 
-
 class MainScene(override val parentStage: Stage) extends BaseScene {
-  private val gameController: GameController = GameController(this.parentStage)
+  private val gameController: GameController = GameController()
 
 
   stylesheets.add("style.css")
@@ -20,13 +19,12 @@ class MainScene(override val parentStage: Stage) extends BaseScene {
       translateX = 530
       translateY = -45
       onAction = handle {
-        gameController.setUserInformation(OperationType.NewGame)
-        gameController.setMapScene
-
+        gameController.setUserInformation(OperationType.NewGame, parentStage)
+        changeScene()
       }
     }
   }
-
+  private def changeScene(): Unit = gameController.setMapScene(this)
 }
 
 object MainScene {

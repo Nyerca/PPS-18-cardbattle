@@ -80,24 +80,24 @@ val bc = BattleController(Game(user, enemy), this)
   root = new Pane {
     styleClass.add("common")
     id = "battleScene"
-    children = userCardIndicators ++ userHandCard.map(x => x.clickableCard) ++ userHandCard.map(x => x.cardName) ++ userHandCard.map(x => x.cardDamage) ++ List(cpuCardIndicator, userDeck, cpuDeck, cpuHandCard.clickableCard, cpuHandCard.cardName, cpuHandCard.cardDamage, battleField)
+    children = userCardIndicators  ++ userHandCard.map(x => x.clickableCard) ++ userHandCard.map(x => x.cardLevel)++ userHandCard.map(x => x.cardName) ++ userHandCard.map(x => x.cardDamage) ++ List(cpuCardIndicator, userDeck, cpuDeck, cpuHandCard.clickableCard, cpuHandCard.cardName, cpuHandCard.cardDamage, cpuHandCard.cardLevel, battleField)
   }
-  bc.drawCard(PlayerType.EnemyType)
+  bc.drawCard(PlayerType.Enemy)
   userHandCard foreach(_ => bc.drawCard(PlayerType.User))
 
   override def drawCard(playerType: PlayerType)(card: Card): Unit = playerType match {
-    case PlayerType.EnemyType => cpuHandCard.setCardInformation(card)
+    case PlayerType.Enemy => cpuHandCard.setCardInformation(card)
     case _ => userHandCard.find(cc => cc.clickableCard.opacity.value == 0 || cc.cardName.text.value == "").map(cc => cc.setCardInformation(card))
   }
 
-  override def playFightAnimation(category: Category, player: PlayerType, healthPoint: Double): Unit = (category, player) match {
-    case (Category.Attack, PlayerType.User) => userRepresentation.attack(90, handle(enemyRepresentation.updateHP(healthPoint)))
-    case (Category.Attack, PlayerType.EnemyType) => enemyRepresentation.attack(-90, handle {
-      userRepresentation.updateHP(healthPoint)
-      bc.drawCard(PlayerType.EnemyType)
-    })
-    case (Category.Defense, PlayerType.EnemyType) =>
-    case _ => userRepresentation.updateHP(healthPoint); enemyRepresentation.updateHP(healthPoint)
+  override def playFightAnimation(category: Category, player: PlayerType, healthPoint: Double): Unit = player match {
+    case PlayerType.Enemy =>
+      enemyRepresentation.playAnimation(-90, category, healthPoint)
+      bc.drawCard(PlayerType.Enemy)
+    case _ =>
+      userRepresentation.playAnimation(90, category, healthPoint)
+      bc.drawCard(PlayerType.User)
+
   }
 
   private def singleButtonFactory(marginX: Double, marginY: Double, description: String, mouseTransparency: Boolean, action: EventHandler[ActionEvent], classes: String*): Button = new Button {

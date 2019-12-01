@@ -7,7 +7,7 @@ trait PlayerType
 
 object PlayerType {
   case object User extends PlayerType
-  case object EnemyType extends PlayerType
+  case object Enemy extends PlayerType
 }
 
 trait BattleController {
@@ -22,8 +22,8 @@ trait BattleController {
 
   def fight(userCard: Card, enemyCard: Card): Unit = {
     game.fight(userCard, enemyCard)
-    battleScene.playFightAnimation(userCard.family._1, PlayerType.User, game.healthPointPlayer2)
-    battleScene.playFightAnimation(enemyCard.family._1, PlayerType.EnemyType, game.healthPointPlayer1)
+    battleScene.playFightAnimation(userCard.family._1, PlayerType.User, game.healthPointPlayer1)
+    battleScene.playFightAnimation(enemyCard.family._1, PlayerType.Enemy, game.healthPointPlayer2)
   }
 
   private def getCardAndReinsert(player: Player): Card = {

@@ -136,7 +136,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
           re = RectangleCell.generateRandomCard()
           graphic = new ImageView(RectangleCell.createImage(re.url, re.rotation).getImage)
         } else {
-          re = new EnemyCell(gameC.spawnEnemy(4))
+          re = new EnemyCell(gameC.spawnEnemy(Random.nextInt(4)))
           graphic = new ImageView(re.image)
         }
         onAction = () => selected = Option(re)
@@ -147,11 +147,13 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
     tmpList
   }
 
+
   override def postInsert(): Unit = {
     view.setPaneChildren(list, Option.empty)
     selected = Option.empty
     view.setBPane()
   }
+
 
   import model.Monoid._
 
