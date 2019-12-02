@@ -1,7 +1,7 @@
 package controller
 
 import model.{Card, Enemy, Game, Player, User}
-import view.scenes.{BattleScene, RewardScene}
+import view.scenes.BattleScene
 
 trait PlayerType
 
@@ -28,7 +28,10 @@ trait BattleController {
   }
 
   private def checkWinner(): Unit = game.checkWinner() match {
-    case Some(user) if user.isInstanceOf[User] => battleScene.fadeSceneChanging()
+    case Some(user) if user.isInstanceOf[User] =>
+      user.asInstanceOf[User].coins += game.enemy.asInstanceOf[Enemy].reward
+      user.asInstanceOf[User].addExperience(exp = game.enemy.asInstanceOf[Enemy].experience)
+      battleScene.fadeSceneChanging()
     case Some(enemy) if enemy.isInstanceOf[Enemy] =>
     case _ => ;
   }
