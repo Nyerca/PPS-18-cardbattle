@@ -46,14 +46,15 @@ trait GameController {
 }
 
 
-class GameControllerImpl(var difficulty: Difficulty = Difficulty.Easy) extends GameController {
+class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends GameController {
 
   private var enemyCount: Map[EnemyType, Int] = Map(EnemyType.Sphinx -> 0, EnemyType.Cobra -> 0, EnemyType.EgyptWarrior -> 0, EnemyType.Griffin -> 0, EnemyType.YellowBlob -> 0)
 
   override def setMapScene(scene: BaseScene): Unit = {
-    scene.changeScene(gameMap.getScene)
-    checkUserLevelUp(scene)
+    scene.changeScene(gameMap)
+    checkUserLevelUp()
   }
+
 
   override def setUserInformation(operationType: OperationType, parentStage: Stage): Unit = operationType match {
     case OperationType.NewGame =>
@@ -70,18 +71,25 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Easy) extends G
 
   private def loadData: Unit = ???
 
-  private def checkUserLevelUp(scene: BaseScene): Unit = {
-      if (user.missingExperience <= 0) {
-        user.missingExperience = 5 * user.level - user.missingExperience
+  private def checkUserLevelUp(): Unit = {
+      if (user.experience <= 0) {
+        user.experience = 5 * user.level - user.experience
         new Alert(AlertType.Information) {
-          initOwner(scene.parentStage)
+          initOwner(gameMap.parentStage)
           title = "Card level up"
           headerText = "Congratulations, you raised level " + user.level
         }.showAndWait()
     }
   }
 
-  private def getCardLevelAvg: Int = user.allCards.map(card => card.level).sum / user.allCards.size
+  private def getCardLevelAvg: Int = {
+    val avg: Double = user.battleDeck.map(card => card.level).sum.toDouble / user.battleDeck.size.toDouble
+    if (avg - avg.toInt > 0.1) {
+      avg.toInt + 1
+    } else {
+      avg.toInt
+    }
+  }
 
   private def createEnemy(enemyType: EnemyType, enemyLevel: Int, cardLevel: Int, enemyTypeCounter: Int): Enemy = {
     enemyCount += (enemyType -> (enemyCount(enemyType) + 1))

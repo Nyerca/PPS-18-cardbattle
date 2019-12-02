@@ -28,7 +28,9 @@ trait BattleController {
 
   def checkWinner(playerType: PlayerType): Unit = playerType match {
     case PlayerType.User if game.healthPointPlayer1 <= 0 =>
-    case PlayerType.Enemy if game.healthPointPlayer2 <= 0 && game.healthPointPlayer1 > 0 => battleScene.fadeSceneChanging()
+    case PlayerType.Enemy if game.healthPointPlayer2 <= 0 && game.healthPointPlayer1 > 0 =>
+      game.user.asInstanceOf[User].addExperience(game.enemy.experience)
+      battleScene.fadeSceneChanging()
     case _ => ;
   }
 
