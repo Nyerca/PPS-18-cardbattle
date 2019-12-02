@@ -20,7 +20,7 @@ class RewardScene(override val parentStage: Stage, gameController: GameControlle
 
   val rewards: List[CardComponent] = for (
     n <- 0 until 3 toList
-  ) yield CardComponent(115 + (n * 385), 300, false, handle {
+  ) yield CardComponent(marginX = 115 + (n * 385), marginY = 300, mouseTransparency = false, action = handle {
     rewards(n).fadeOutAll()
     getInformationMessage(gameController.user.gainCard(rewards(n).card), rewards(n).card)
     gameController.setMapScene(this)

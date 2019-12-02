@@ -33,7 +33,7 @@ class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy,
 
   val cpuCardIndicator: Button = singleButtonFactory(995, 450, "", true, DEFAULT_ON_FINISHED, "cardIndicator")
 
-  val cpuHandCard: CardComponent = CardComponent(995, 450, true, handle(cpuHandCard.fadeOutAll()))
+  val cpuHandCard: CardComponent = CardComponent(995, 450, mouseTransparency = true, handle(cpuHandCard.fadeOutAll()))
 
   val userCardIndicators: List[Button] = for (
     n <- 1 until 4 toList
@@ -41,10 +41,10 @@ class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy,
 
   val userHandCard: List[CardComponent] = for(
     n <- 1 until 4 toList
-  ) yield CardComponent(35 + n * 240, 50, false, handle {
+  ) yield CardComponent(35 + n * 240, 50, mouseTransparency = false, handle {
     cpuHandCard.clickableCard.fire()
+    userHandCard foreach(x => x.clickableCard.mouseTransparent = true)
     userHandCard(n - 1).fadeOutAll(handle {
-      userHandCard(n - 1).clickableCard.mouseTransparent = true
       battleController.fight(userHandCard(n - 1).card, cpuHandCard.card)
     })
   })
@@ -77,11 +77,12 @@ class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy,
 
   override def playFightAnimation(category: Category, player: PlayerType, healthPoint: Double): Unit = player match {
     case PlayerType.Enemy =>
-      enemyRepresentation.playAnimation(-90, category, healthPoint)
+      enemyRepresentation.playAnimation(-90, category, handle(enemyRepresentation.updateHP(healthPoint)))
       battleController.drawCard(PlayerType.Enemy)
-    case _ =>
-      userRepresentation.playAnimation(90, category, healthPoint)
-      battleController.drawCard(PlayerType.User)
+    case _ => userRepresentation.playAnimation(90, category, handle {
+        userRepresentation.updateHP(healthPoint)
+        userHandCard.filter(cc => cc.clickableCard.opacity.value == 1) foreach(cc => cc.clickableCard.mouseTransparent = false)
+    })
   }
 
   override def fadeSceneChanging(): Unit = new FadeTransition(Duration(300), root.value) {
