@@ -1,10 +1,10 @@
 package view.scenes
 
+import Utility.TransitionFactory
 import controller.{BattleController, GameController, PlayerType}
 import javafx.event.{ActionEvent, EventHandler}
 import model._
 import scalafx.Includes._
-import scalafx.animation.FadeTransition
 import scalafx.scene.control.Button
 import scalafx.scene.layout.Pane
 import scalafx.stage.Stage
@@ -77,20 +77,16 @@ class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy,
 
   override def playFightAnimation(category: Category, player: PlayerType, healthPoint: Double): Unit = player match {
     case PlayerType.Enemy =>
-      enemyRepresentation.playAnimation(-90, category, handle(enemyRepresentation.updateHP(healthPoint)))
+      enemyRepresentation.playAnimation(-90, category, handle(enemyRepresentation.updateHP(healthPoint, handle(battleController.checkWinner(PlayerType.Enemy)))))
       battleController.drawCard(PlayerType.Enemy)
     case _ => userRepresentation.playAnimation(90, category, handle {
-        userRepresentation.updateHP(healthPoint)
+        userRepresentation.updateHP(healthPoint, handle(battleController.checkWinner(PlayerType.User)))
         userHandCard.filter(cc => cc.clickableCard.opacity.value == 1) foreach(cc => cc.clickableCard.mouseTransparent = false)
     })
   }
 
-  override def fadeSceneChanging(): Unit = new FadeTransition(Duration(300), root.value) {
-    byValue = -1
-    onFinished = handle {
-      parentStage.scene = RewardScene(parentStage, gameController)
-    }
-  }.play()
+  override def fadeSceneChanging(): Unit = TransitionFactory.fadeTransitionFactory(Duration(1000), root.value, handle(parentStage.scene = RewardScene(parentStage, gameController))).play()
+
 
   private def singleButtonFactory(marginX: Double, marginY: Double, description: String, mouseTransparency: Boolean, action: EventHandler[ActionEvent], classes: String*): Button = new Button {
     classes.foreach(c => styleClass.add(c))

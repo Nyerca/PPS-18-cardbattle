@@ -1,6 +1,6 @@
 package controller
 
-import model.{Card, Enemy, Game, Player, User}
+import model.{Card, Game, Player, User}
 import view.scenes.BattleScene
 
 trait PlayerType
@@ -22,17 +22,13 @@ trait BattleController {
 
   def fight(userCard: Card, enemyCard: Card): Unit = {
     game.fight(userCard, enemyCard)
-    battleScene.playFightAnimation(userCard.family._1, PlayerType.User, game.healthPointPlayer1)
     battleScene.playFightAnimation(enemyCard.family._1, PlayerType.Enemy, game.healthPointPlayer2)
-    checkWinner()
+    battleScene.playFightAnimation(userCard.family._1, PlayerType.User, game.healthPointPlayer1)
   }
 
-  private def checkWinner(): Unit = game.checkWinner() match {
-    case Some(user) if user.isInstanceOf[User] =>
-      user.asInstanceOf[User].coins += game.enemy.asInstanceOf[Enemy].reward
-      user.asInstanceOf[User].addExperience(exp = game.enemy.asInstanceOf[Enemy].experience)
-      battleScene.fadeSceneChanging()
-    case Some(enemy) if enemy.isInstanceOf[Enemy] =>
+  def checkWinner(playerType: PlayerType): Unit = playerType match {
+    case PlayerType.User if game.healthPointPlayer1 <= 0 =>
+    case PlayerType.Enemy if game.healthPointPlayer2 <= 0 && game.healthPointPlayer1 > 0 => battleScene.fadeSceneChanging()
     case _ => ;
   }
 

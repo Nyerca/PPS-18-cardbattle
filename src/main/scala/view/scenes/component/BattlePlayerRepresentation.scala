@@ -1,9 +1,9 @@
 package view.scenes.component
 
+import Utility.TransitionFactory
 import javafx.beans.property.{SimpleDoubleProperty, SimpleStringProperty}
 import javafx.event.{ActionEvent, EventHandler}
 import model.{Category, Player}
-import scalafx.animation.{FadeTransition, RotateTransition, TranslateTransition}
 import scalafx.scene.control.{Button, Label, ProgressBar}
 import scalafx.scene.layout.{Pane, StackPane}
 import scalafx.util.Duration
@@ -19,7 +19,7 @@ trait BattlePlayerRepresentation extends Pane {
 
   def playAnimation(byVal: Double = 0, category: Category, action: EventHandler[ActionEvent]): Unit
 
-  def updateHP(hp: Double): Unit
+  def updateHP(hp: Double, action: EventHandler[ActionEvent]): Unit
 }
 
 class BattlePlayerRepresentationImpl(override val marginX: Double, override val marginY: Double, override val player: Player) extends BattlePlayerRepresentation {
@@ -31,7 +31,7 @@ class BattlePlayerRepresentationImpl(override val marginX: Double, override val 
     children = List(new ProgressBar {
       progress <== observableHealthPoint._1
       styleClass.add("life")
-    }, new Label{
+    }, new Label {
       styleClass.add("title")
       text <== observableHealthPoint._2
     })
@@ -46,7 +46,7 @@ class BattlePlayerRepresentationImpl(override val marginX: Double, override val 
 
   val shield: Button = new Button {
     translateX = playerRepresentation.translateX.value - 50
-    translateY = playerRepresentation.translateY.value -20
+    translateY = playerRepresentation.translateY.value - 20
     styleClass.add("shield")
   }
 
@@ -58,33 +58,25 @@ class BattlePlayerRepresentationImpl(override val marginX: Double, override val 
   }
 
 
-  override def updateHP(hp: Double): Unit = {
-    if(hp / player.healthPoint != observableHealthPoint._1.value) {
+  override def updateHP(hp: Double, action: EventHandler[ActionEvent]): Unit = {
+    if ( hp / player.healthPoint != observableHealthPoint._1.value ) {
       damage()
-      observableHealthPoint._1.set(if(hp / player.healthPoint > 0) hp / player.healthPoint else 0)
-      observableHealthPoint._2.set(if(hp > 0) "Player: "  +  hp.toInt + "hp" else "Player: 0hp")
+      observableHealthPoint._1.set(if ( hp / player.healthPoint > 0 ) hp / player.healthPoint else 0)
+      observableHealthPoint._2.set(if ( hp > 0 ) "Player: " + hp.toInt + "hp" else "Player: 0hp")
+      defeat(hp, action)
     }
   }
 
-  private def attack(byVal: Double, action: EventHandler[ActionEvent]): Unit = new TranslateTransition(Duration(150), playerRepresentation) {
-    byX = byVal
-    cycleCount = 2
-    autoReverse = true
-    onFinished = action
-  }.play()
+  private def defeat(hp: Double, action: EventHandler[ActionEvent]): Unit = hp match {
+    case n if n <= 0 => TransitionFactory.fadeTransitionFactory(Duration(500), this, action).play()
+    case _ => ;
+  }
 
-  private def defense(action: EventHandler[ActionEvent]): Unit = new FadeTransition(Duration(150), shield) {
-    byValue = 1
-    cycleCount = 2
-    autoReverse = true
-    onFinished = action
-  }.play()
+  private def attack(byVal: Double, action: EventHandler[ActionEvent]): Unit = TransitionFactory.translateTransitionFactory(Duration(150), playerRepresentation, action, byVal, 0, 2, autoReversible = true).play()
 
-  private def damage(): Unit = new RotateTransition(Duration(20), playerRepresentation) {
-    byAngle = 5
-    cycleCount = 20
-    autoReverse = true
-  }.play()
+  private def defense(action: EventHandler[ActionEvent]): Unit = TransitionFactory.fadeTransitionFactory(Duration(150), shield, action, 1, 2, autoReversible = true).play()
+
+  private def damage(): Unit = TransitionFactory.rotateTransitionFactory(Duration(20), playerRepresentation, TransitionFactory.DEFAULT_ON_FINISHED, 5, 20, autoReversible = true).play()
 }
 
 object BattlePlayerRepresentation {
