@@ -7,7 +7,7 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.paint.ImagePattern
 import model._
 import scalafx.Includes._
-import scalafx.scene.Scene
+import scalafx.scene.{Node, Parent, Scene}
 import scalafx.scene.control._
 import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.input.KeyEvent
@@ -16,17 +16,18 @@ import scalafx.scene.shape.Rectangle
 import scalafx.stage.Stage
 
 import scala.collection.mutable.ListBuffer
-
+import scala.util.Random
+import model.Cell
+import scalafx.scene.control.ScrollPane.ScrollBarPolicy
 
 class MapScene (override val parentStage: Stage, var _controller : MapController, var gameC :GameController) extends BaseScene{
   stylesheets.add("mapStyle.css")
 
   val _pane = new Pane {
-    id = "map"
     children = _controller.list
     maxHeight = 800
     for(el <- _controller.getAllEnemies() ) {
-      val cell = PlayerRepresentation.createPlayerCell(el.position, el.url)
+      val cell = PlayerRepresentation.createPlayerCell(el.position, el.url, 100,90)
       cell.setFill()
       children.append(cell.icon)
     }
@@ -40,7 +41,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
   var menu: VBox = new VBox {
     val toolbar = new ToolBar()
     addToToolbar(toolbar, new Button("Cards"){
-      onAction = () => parentStage.scene_=(EquipmentScene(parentStage))
+      onAction = () => parentStage.scene_=(EquipmentScene(parentStage, gameC))
       layoutX = 110
     }, false)
     addToToolbar(toolbar, new Button("Shop"){onAction = () => parentStage.scene_=(ShopScene(parentStage))}, false)
@@ -60,55 +61,91 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
 
   def setMenu(): Unit = {
-    bottomPane.toBack()
+
     _pane.toBack()
   }
 
-  val bottomPane: HBox = new HBox() {
-    id="bottomPane"
-    layoutX = 10
-    layoutY = 580
-    children = List()
 
-    var addList = _controller.createBottomCard()
-    children = addList
+  def createBottomCard(): ListBuffer[Button] = {
+    val tmpList = ListBuffer[Button]()
+    val btn: Button = new Button {
+      val re = new RectangleCellImpl(true, true, true, true, _x= 0.0, elementY=0.0)
+      onAction = () => _controller.selected_(Option(re))
+      defaultButton = true
+      graphic = new ImageView(RectangleCell.createImage(re.url, re.rotation).getImage) {
+        fitWidth_=(100)
+        fitHeight_=(100)
+      }
+    }
+    btn.getStyleClass().add("bottomButton");
+    tmpList.append(btn)
+
+    for(i<-0 until 4) {
+      val btn_tmp: Button = new Button {
+        var re: Cell = _
+        if(math.random() <= 0.8) {
+          re = RectangleCell.generateRandomCard()
+        } else {
+          re = new EnemyCell(gameC.spawnEnemy(Random.nextInt(4)))
+        }
+        graphic = new ImageView(re.image) {
+          fitWidth_=(100)
+          fitHeight_=(100)
+        }
+        onAction = () => _controller.selected_(Option(re))
+        defaultButton = true
+
+      }
+
+      btn_tmp.getStyleClass().add("bottomButton");
+      tmpList.append(btn_tmp)
+    }
+    tmpList
   }
+
+  val bottomPane: HBox = new HBox() {
+    id ="bottomRngPane"
+    translateX = 300
+    translateY = 630
+    maxWidth = 500
+    maxHeight = 120
+    children = createBottomCard()
+  }
+
 
   val _bpane: BorderPane = new BorderPane {
     top = menu
     center = _pane
     bottom = bottomPane
   }
-  def pane: Pane = _pane
+
   def bpane: BorderPane = _bpane
 
   _controller.view_(this)
 
   def setPaneChildren(list :ListBuffer[RectangleWithCell], tmpRect : Option[RectangleCell]): Unit = {
-    val listTmp = new ListBuffer[Rectangle]()
+    val listTmp = new ListBuffer[Node]()
     for (el <- list) yield {
       listTmp.append(el)
-      if(el.rectCell.enemy._2.isDefined) { val tmp = el.rectCell.enemy._2.get; var cell = PlayerRepresentation.createPlayerCell(tmp.position, tmp.url); cell.icon.fill_=(new ImagePattern(new Image(tmp.url))); listTmp.append(cell.icon); }
+      if(el.rectCell.enemy._2.isDefined) { val tmp = el.rectCell.enemy._2.get; var cell = PlayerRepresentation.createPlayerCell(tmp.position, tmp.url, 100, 90); cell.icon.fill_=(new ImagePattern(new Image(tmp.url))); listTmp.append(cell.icon); }
     }
     if(tmpRect.isDefined) listTmp.append(new RectangleWithCell(tmpRect.get.getWidth, tmpRect.get.getHeight, tmpRect.get.x, tmpRect.get.getY,tmpRect.get) {
       fill = RectangleCell.createImage(tmpRect.get.url, tmpRect.get.rotation)
     })
 
-    pane.children =listTmp
+    _pane.children =listTmp
   }
   def setBPane(): Unit = {
-    var addList = _controller.createBottomCard()
+    var addList = createBottomCard()
     bottomPane.children = addList
   }
 
 
-
-
-  val scene: Scene = new Scene(1200, 800) {
-
-    fill = new ImagePattern(new Image( "noroad.png"), 0, 0, 200, 200, false)
-    content = _bpane
-    content.add(_controller.player.icon)
+  val paneWithPlayer  = new Pane {
+    children = _controller.list
+    children.append(_bpane)
+    children.append(_controller.player.icon)
+    id = "rootPane"
 
     onKeyPressed = (ke : KeyEvent) =>  {
       try {
@@ -120,7 +157,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
       }
 
     }
-    onMouseClicked = (e: MouseEvent) => {
+   onMouseClicked = (e: MouseEvent) => {
       try {
         _controller.handleMouseClicked(e)
       } catch {
@@ -131,7 +168,8 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     }
   }
 
-  def getScene: Scene = scene
+  root = paneWithPlayer
+
 
   def changeScene(user:User, enemy:Enemy): Unit = {
     parentStage.scene_=(BattleScene(parentStage, user,enemy))

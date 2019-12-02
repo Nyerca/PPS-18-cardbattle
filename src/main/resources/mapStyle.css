@@ -1,15 +1,66 @@
-
-#map {
-     -fx-pref-height: 1800px;
+#cardsPane {
+    -fx-background-image: url("shop.jpg");
+    -fx-background-size: auto, auto;
 }
 
-#bottomPane {
-    padding-top: 580px;
-    padding-left: 10px;
-    -fx-background-color:"red";
+#scrollPane {
+    -fx-pref-width:1200;
+    -fx-pref-height:800;
 }
-#bottomButton {
--fx-pref-height: 500px;
--fx-pref-width: 200px;
--fx-background-color:"red";
+
+#grid {
+     -fx-padding: 10;
+     -fx-hgap: 70;
+     -fx-vgap: 200;
+ }
+
+
+/***** Map ****/
+.bottomButton {
+    -fx-border-color: #e2e2e2;
+    -fx-border-width: 2;
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
+    /*-fx-background-image: url("noroad.png"); */
+    -fx-font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+    -fx-font-size: 11pt;
+    -fx-text-fill: #d8d8d8;
 }
+
+
+#rootPane {
+-fx-background-image: url("noroad.png");
+-fx-background-size: 200, 200;
+-fx-pref-width:1200;
+-fx-pref-height:800;
+}
+
+#bottomRngPane {
+
+        -fx-pref-width:500;
+        -fx-pref-height:100;
+        -fx-border-image-source: url("margin.png");
+ -fx-border-image-repeat: stretch, stretch;
+
+         -fx-border-image-repeat: stretch, stretch;
+         -fx-border-image-width: 5, 20;
+         -fx-border-image-slice: 25, 30;
+
+}
+
+
+/***** Shop ****/
+
+#shopPane {
+-fx-pref-width:1200;
+         -fx-pref-height:800;
+    -fx-background-image: url("shop.jpg");
+    -fx-background-size: auto, auto;
+
+}
+
+#shopGrid {
+     -fx-padding: 10;
+     -fx-hgap: 220;
+     -fx-vgap: 140;
+ }

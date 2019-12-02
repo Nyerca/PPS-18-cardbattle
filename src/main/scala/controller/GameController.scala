@@ -48,7 +48,7 @@ trait GameController {
 class GameControllerImpl(override val difficulty: Difficulty = Difficulty.Medium) extends GameController {
   private var enemyCount: Map[EnemyType, Int] = Map(EnemyType.Sphinx -> 0, EnemyType.Cobra -> 0, EnemyType.EgyptWarrior -> 0, EnemyType.Griffin -> 0, EnemyType.YellowBlob -> 0)
 
-  override def setMapScene(scene: BaseScene): Unit = scene.changeScene(gameMap.getScene)
+  override def setMapScene(scene: BaseScene): Unit = scene.changeScene(gameMap)
 
   override def setUserInformation(operationType: OperationType, parentStage: Stage): Unit = operationType match {
     case OperationType.NewGame =>
