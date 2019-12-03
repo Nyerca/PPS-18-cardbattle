@@ -54,8 +54,8 @@ class BattlePlayerRepresentationImpl(override val marginX: Double, override val 
 
   val magicAttack: Button = new Button {
     styleClass.add("magicAttack")
-    translateX = if(player.isInstanceOf[User]) playerRepresentation.translateX.value + 70 else playerRepresentation.translateX.value - 70
-    translateY = if(player.isInstanceOf[User]) playerRepresentation.translateY.value + 70 else playerRepresentation.translateY.value - 70
+    translateX = if(player.isInstanceOf[User]) playerRepresentation.translateX.value + 130 else playerRepresentation.translateX.value - 90
+    translateY = playerRepresentation.translateY.value
     mouseTransparent = true
   }
 
@@ -82,10 +82,10 @@ class BattlePlayerRepresentationImpl(override val marginX: Double, override val 
   }
 
   private def attack(byVal: Double, action: EventHandler[ActionEvent], cardType: Type): Unit = cardType match {
-    case Type.Physic => TransitionFactory.translateTransitionFactory(Duration(150), playerRepresentation, action, byVal, 0, 2, autoReversible = true).play()
+    case Type.Physic => TransitionFactory.translateTransitionFactory(Duration(200), playerRepresentation, action, byVal, 0, 2, autoReversible = true).play()
     case _ =>
       TransitionFactory.fadeTransitionFactory(Duration(150), magicAttack, TransitionFactory.DEFAULT_ON_FINISHED,1, 2, autoReversible = true).play()
-      TransitionFactory.translateTransitionFactory(Duration(150), magicAttack, action, byVal, 0).play()
+      TransitionFactory.translateTransitionFactory(Duration(200), magicAttack, action, byVal, 0, 2, true).play()
   }
 
   private def defense(action: EventHandler[ActionEvent]): Unit = TransitionFactory.fadeTransitionFactory(Duration(150), shield, action, 1, 2, autoReversible = true).play()
