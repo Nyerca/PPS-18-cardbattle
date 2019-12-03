@@ -189,7 +189,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
 
   def changeScene(user:User, enemy:Enemy): Unit = {
-    parentStage.scene_=(BattleScene(parentStage, user,enemy))
+    parentStage.scene_=(BattleScene(parentStage, user,enemy, gameC))
   }
 
 }

@@ -30,7 +30,7 @@
 
 
 /**********BATTLE STAGE STYLE ***************/
-#battleScene {
+.battleScene {
    -fx-background-image: url("images/battleBackground.jpg");
    -fx-background-size: 1200 800;
    -fx-background-repeat: stretch;
