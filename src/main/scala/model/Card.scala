@@ -39,5 +39,5 @@ case class CardImpl(override val name: String, override val image: String, var l
 }
 
 object Card {
-  def apply(name: String, image: String, family: (Category,Type), level: Int = 1, value: Int = 0): Card = CardImpl(name, image, level, family, 2 * level + value, 1)
+  def apply(name: String, image: String, family: (Category,Type), level: Int = 1, value: Int = 0): Card = CardImpl(name, image, level, family, 2 * level + value, 2 * level)
 }

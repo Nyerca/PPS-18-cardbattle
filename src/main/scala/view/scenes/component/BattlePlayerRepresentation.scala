@@ -19,11 +19,11 @@ trait BattlePlayerRepresentation extends Pane {
 
   def playAnimation(byVal: Double = 0, family: (Category, Type), action: EventHandler[ActionEvent]): Unit
 
-  def updateHP(hp: Double, action: EventHandler[ActionEvent]): Unit
+  def updateHP(action: EventHandler[ActionEvent]): Unit
 }
 
 class BattlePlayerRepresentationImpl(override val marginX: Double, override val marginY: Double, override val player: Player) extends BattlePlayerRepresentation {
-  private val observableHealthPoint = (new SimpleDoubleProperty(1), new SimpleStringProperty("Player: " + player.healthPoint + "hp"))
+  private val observableHealthPoint = (new SimpleDoubleProperty(player.actualHealthPoint.toDouble / player.totalHealthPoint.toDouble), new SimpleStringProperty("Player: " + player.actualHealthPoint + "hp"))
   translateX = marginX
   translateY = marginY
   val life: StackPane = new StackPane {
@@ -59,8 +59,6 @@ class BattlePlayerRepresentationImpl(override val marginX: Double, override val 
     mouseTransparent = true
   }
 
-
-
   children = List(life, playerRepresentation, shield, magicAttack)
 
   override def playAnimation(byVal: Double = 0, family: (Category, Type), action: EventHandler[ActionEvent]): Unit = family._1 match {
@@ -68,13 +66,13 @@ class BattlePlayerRepresentationImpl(override val marginX: Double, override val 
     case Category.Defense => defense(action)
   }
 
-
-  override def updateHP(hp: Double, action: EventHandler[ActionEvent]): Unit = {
-    if ( hp / player.healthPoint != observableHealthPoint._1.value ) {
+  override def updateHP(action: EventHandler[ActionEvent]): Unit = {
+    val ratio: Double = player.actualHealthPoint.toDouble / player.totalHealthPoint.toDouble
+    if ( ratio != observableHealthPoint._1.value ) {
       damage()
-      observableHealthPoint._1.set(if ( hp / player.healthPoint > 0 ) hp / player.healthPoint else 0)
-      observableHealthPoint._2.set(if ( hp > 0 ) "Player: " + hp.toInt + "hp" else "Player: 0hp")
-      defeat(hp, action)
+      observableHealthPoint._1.set(if ( ratio > 0 ) ratio else 0)
+      observableHealthPoint._2.set(if ( ratio > 0 ) "Player: " + player.actualHealthPoint + "hp" else "Player: 0hp")
+      defeat(player.actualHealthPoint, action)
     }
   }
 

@@ -15,7 +15,7 @@ trait BattleScene extends BaseScene {
 
   def drawCard(playerType: PlayerType)(card: Card): Unit
 
-  def playFightAnimation(family: (Category, Type), player: PlayerType, healthPoint: Double): Unit
+  def playFightAnimation(family: (Category, Type), player: PlayerType): Unit
 
   def fadeSceneChanging(): Unit
 }
@@ -25,7 +25,7 @@ class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy,
 
   stylesheets.add("style.css")
 
-  val battleController: BattleController = BattleController(Game(user, enemy), this)
+  val battleController: BattleController = BattleController(user, enemy, this)
 
   val userDeck: Button = singleButtonFactory(35, 50, "USER DECK", false, handle(battleController.drawCard(PlayerType.User)), "card", "deck")
 
@@ -49,9 +49,9 @@ class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy,
     })
   })
 
-  val userRepresentation: BattlePlayerRepresentation = BattlePlayerRepresentation(10, 200, battleController.game.user)
+  val userRepresentation: BattlePlayerRepresentation = BattlePlayerRepresentation(10, 200, battleController.user)
 
-  val enemyRepresentation: BattlePlayerRepresentation = BattlePlayerRepresentation(500, 200, battleController.game.enemy)
+  val enemyRepresentation: BattlePlayerRepresentation = BattlePlayerRepresentation(500, 200, battleController.enemy)
 
   val battleField: Pane = new Pane {
     id = "battleField"
@@ -75,12 +75,12 @@ class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy,
     case _ => userHandCard.find(cc => cc.clickableCard.opacity.value == 0 || cc.cardName.text.value == "").map(cc => cc.setCardInformation(card))
   }
 
-  override def playFightAnimation(family: (Category, Type), player: PlayerType, healthPoint: Double): Unit = player match {
+  override def playFightAnimation(family: (Category, Type), player: PlayerType): Unit = player match {
     case PlayerType.Enemy =>
-      enemyRepresentation.playAnimation(-90, family, handle(enemyRepresentation.updateHP(healthPoint, handle(battleController.checkWinner(PlayerType.Enemy)))))
+      enemyRepresentation.playAnimation(-90, family, handle(enemyRepresentation.updateHP(handle(battleController.checkWinner(PlayerType.Enemy)))))
       battleController.drawCard(PlayerType.Enemy)
     case _ => userRepresentation.playAnimation(90, family, handle {
-        userRepresentation.updateHP(healthPoint, handle(battleController.checkWinner(PlayerType.User)))
+        userRepresentation.updateHP(handle(battleController.checkWinner(PlayerType.User)))
         userHandCard.filter(cc => cc.clickableCard.opacity.value == 1) foreach(cc => cc.clickableCard.mouseTransparent = false)
     })
   }

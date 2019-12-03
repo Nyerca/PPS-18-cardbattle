@@ -84,7 +84,7 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
 
   private def getCardLevelAvg: Int = {
     val avg: Double = user.battleDeck.map(card => card.level).sum.toDouble / user.battleDeck.size.toDouble
-    if (avg - avg.toInt > 0.1) {
+    if (avg - avg.toInt > 0.4) {
       avg.toInt + 1
     } else {
       avg.toInt
