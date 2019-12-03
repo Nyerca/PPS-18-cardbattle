@@ -22,9 +22,10 @@ class PlayerRepresentation  (var _position : RectangleCell, var _url :  String) 
     "Url: " + _url + " Position: " + _position
   }
 }
-
+/*
 object PlayerRepresentation {
   def createPlayerCell( position : RectangleCell, url : String, elemWidth: Double = 60, elemHeight: Double = 80): PlayerWithCell = {
     new PlayerWithCell(position, url, elemWidth, elemHeight)
   }
 }
+*/

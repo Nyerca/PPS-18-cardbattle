@@ -2,7 +2,7 @@ package model
 import controller.MapController
 import exception.{DoubleCellException, DoubleEnemyException, DoubleMovementException, MissingCellException}
 import javafx.animation.Animation.Status
-import model.{Bottom, Cell, EnemyCell, Left, Player, PlayerRepresentation, PlayerWithCell, RectangleCell, RectangleWithCell, Right, Top}
+import model.{Bottom, Cell, EnemyCell, Left, Player, PlayerRepresentation, RectangleCell, RectangleWithCell, Right, Top}
 import exception._
 import scalafx.scene.control.{Button, Separator, ToolBar}
 import scalafx.scene.input.KeyCode

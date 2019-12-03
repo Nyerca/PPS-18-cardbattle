@@ -27,9 +27,9 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     children = _controller.list
     maxHeight = 800
     for(el <- _controller.getAllEnemies() ) {
-      val cell = PlayerRepresentation.createPlayerCell(el.position, el.url, 100,90)
-      cell.setFill()
-      children.append(cell.icon)
+      val cell = new PlayerRepresentation(el.position, el.url)
+
+      children.append(icon(cell, 100, 90))
     }
   }
 
@@ -127,7 +127,12 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     val listTmp = new ListBuffer[Node]()
     for (el <- list) yield {
       listTmp.append(el)
-      if(el.rectCell.enemy._2.isDefined) { val tmp = el.rectCell.enemy._2.get; var cell = PlayerRepresentation.createPlayerCell(tmp.position, tmp.url, 100, 90); cell.icon.fill_=(new ImagePattern(new Image(tmp.url))); listTmp.append(cell.icon); }
+      if(el.rectCell.enemy._2.isDefined) {
+        val tmp = el.rectCell.enemy._2.get;
+
+        val cell = new PlayerRepresentation(tmp.position, tmp.url)
+        listTmp.append(icon(cell, 100, 90))
+      }
     }
     if(tmpRect.isDefined) listTmp.append(new RectangleWithCell(tmpRect.get.getWidth, tmpRect.get.getHeight, tmpRect.get.x, tmpRect.get.getY,tmpRect.get) {
       fill = RectangleCell.createImage(tmpRect.get.url, tmpRect.get.rotation)
@@ -140,11 +145,23 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     bottomPane.children = addList
   }
 
+  def icon(player: PlayerRepresentation, elemWidth: Double = 60, elemHeight: Double = 80 ): Rectangle = {
+    new Rectangle() {
+      x=player.position.x+player.position.getWidth/2 - elemWidth/2
+      y=(player.position.getY+player.position.getHeight/2)-(elemHeight-10)
+      width = elemWidth
+      height = elemHeight
+      fill_=(new ImagePattern(new Image(player.url)))
+    }
+  }
+
+  var playerImg = icon(_controller.player)
+  def playerImg_(player: PlayerRepresentation):Unit = {playerImg.fill_=(new ImagePattern(new Image(player.url)))}
 
   val paneWithPlayer  = new Pane {
     children = _controller.list
     children.append(_bpane)
-    children.append(_controller.player.icon)
+    children.append(playerImg)
     id = "rootPane"
 
     onKeyPressed = (ke : KeyEvent) =>  {

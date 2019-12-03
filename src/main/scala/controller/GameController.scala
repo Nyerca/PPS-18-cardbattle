@@ -76,7 +76,7 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
         user.experience = 5 * user.level - user.experience
         new Alert(AlertType.Information) {
           initOwner(gameMap.parentStage)
-          title = "Card level up"
+          title = "User level up"
           headerText = "Congratulations, you raised level " + user.level
         }.showAndWait()
     }
