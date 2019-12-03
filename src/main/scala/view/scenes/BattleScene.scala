@@ -15,7 +15,7 @@ trait BattleScene extends BaseScene {
 
   def drawCard(playerType: PlayerType)(card: Card): Unit
 
-  def playFightAnimation(category: Category, player: PlayerType, healthPoint: Double): Unit
+  def playFightAnimation(family: (Category, Type), player: PlayerType, healthPoint: Double): Unit
 
   def fadeSceneChanging(): Unit
 }
@@ -75,11 +75,11 @@ class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy,
     case _ => userHandCard.find(cc => cc.clickableCard.opacity.value == 0 || cc.cardName.text.value == "").map(cc => cc.setCardInformation(card))
   }
 
-  override def playFightAnimation(category: Category, player: PlayerType, healthPoint: Double): Unit = player match {
+  override def playFightAnimation(family: (Category, Type), player: PlayerType, healthPoint: Double): Unit = player match {
     case PlayerType.Enemy =>
-      enemyRepresentation.playAnimation(-90, category, handle(enemyRepresentation.updateHP(healthPoint)))
+      enemyRepresentation.playAnimation(-90, family, handle(enemyRepresentation.updateHP(healthPoint)))
       battleController.drawCard(PlayerType.Enemy)
-    case _ => userRepresentation.playAnimation(90, category, handle {
+    case _ => userRepresentation.playAnimation(90, family, handle {
         userRepresentation.updateHP(healthPoint)
         userHandCard.filter(cc => cc.clickableCard.opacity.value == 1) foreach(cc => cc.clickableCard.mouseTransparent = false)
     })

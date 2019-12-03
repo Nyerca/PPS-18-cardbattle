@@ -2,7 +2,7 @@ package view.scenes.component
 
 import javafx.beans.property.{SimpleDoubleProperty, SimpleStringProperty}
 import javafx.event.{ActionEvent, EventHandler}
-import model.{Category, Player}
+import model.{Category, Player, Type}
 import scalafx.animation.{FadeTransition, RotateTransition, TranslateTransition}
 import scalafx.scene.control.{Button, Label, ProgressBar}
 import scalafx.scene.layout.{Pane, StackPane}
@@ -17,7 +17,7 @@ trait BattlePlayerRepresentation extends Pane {
 
   def player: Player
 
-  def playAnimation(byVal: Double = 0, category: Category, action: EventHandler[ActionEvent]): Unit
+  def playAnimation(byVal: Double = 0, family: (Category, Type), action: EventHandler[ActionEvent]): Unit
 
   def updateHP(hp: Double): Unit
 }
@@ -52,7 +52,7 @@ class BattlePlayerRepresentationImpl(override val marginX: Double, override val 
 
   children = List(life, playerRepresentation, shield)
 
-  override def playAnimation(byVal: Double = 0, category: Category, action: EventHandler[ActionEvent]): Unit = category match {
+  override def playAnimation(byVal: Double = 0, family: (Category, Type), action: EventHandler[ActionEvent]): Unit = family._1 match {
     case Category.Attack => attack(byVal, action)
     case Category.Defense => defense(action)
   }
