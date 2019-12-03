@@ -70,14 +70,20 @@ class RectangleCellImpl (override val top: Boolean, override val right: Boolean,
   }
 
 
-  private var _image : Image = _ ;
-  def image: Image = _image
+  override def image(): Image = {
+    val iv = new ImageView(new Image( url))
+    iv.setRotate(rotation)
+    var params = new SnapshotParameters()
+    params.setFill(Color.Transparent)
+    iv.snapshot(params, null)
+  }
+
 
 
   var _url:String = _
   var _rotation:Int = 0
-  def url: String = _url
-  def rotation: Int = _rotation
+  override def url: String = _url
+  override def rotation: Int = _rotation
 
 
 
@@ -162,7 +168,7 @@ object RectangleCell {
 
     rectcell
   }
-  def generateRandomCard() : RectangleCell = {
+  def generateRandomCard() : RectangleCellImpl = {
     var top:Boolean = false
     var right:Boolean = false
     var bottom:Boolean = false

@@ -84,6 +84,15 @@
    -fx-opacity: 0
 }
 
+.magicAttack {
+   -fx-background-image: url("images/magicAttackAnimation.png");
+   -fx-pref-width: 200;
+   -fx-pref-height: 200;
+   -fx-background-size: 200 200;
+   -fx-background-color:transparent;
+   -fx-opacity: 0
+}
+
 .title {
     -fx-text-fill: "black";
     -fx-font-size: 18px;

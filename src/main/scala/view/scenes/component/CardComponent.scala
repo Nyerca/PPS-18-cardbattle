@@ -1,21 +1,19 @@
 package view.scenes.component
 
+import Utility.TransitionFactory
 import javafx.event.{ActionEvent, EventHandler}
 import model.{Card, Category, Type}
-import scalafx.animation.{FadeTransition, Transition}
-import scalafx.scene.Node
 import scalafx.scene.control.{Button, Label}
 import scalafx.util.Duration
 
 trait CardComponent {
-  val DEFAULT_ON_FINISHED = null
   var card: Card = _
   def clickableCard: Button
   def cardName: Label
   def cardDamage: Label
   def cardLevel: Label
   def setCardInformation(card: Card): Unit
-  def fadeOutAll(action: EventHandler[ActionEvent] = DEFAULT_ON_FINISHED ): Unit
+  def fadeOutAll(action: EventHandler[ActionEvent] = TransitionFactory.DEFAULT_ON_FINISHED): Unit
 }
 
 class CardComponentImpl(marginX: Double, marginY: Double, mouseTransparency: Boolean, action: EventHandler[ActionEvent]) extends CardComponent {
@@ -44,8 +42,6 @@ class CardComponentImpl(marginX: Double, marginY: Double, mouseTransparency: Boo
     translateY = marginY + 132
   }
 
-
-
   override def setCardInformation(c: Card): Unit = {
     card = c
     fadeInAll()
@@ -56,16 +52,10 @@ class CardComponentImpl(marginX: Double, marginY: Double, mouseTransparency: Boo
   }
 
   override def fadeOutAll(action: EventHandler[ActionEvent]): Unit = {
-    fadeTransitionFactory(Duration(300), cardName, -1, 1, action).play()
-    fadeTransitionFactory(Duration(300), clickableCard, -1, 1).play()
-    fadeTransitionFactory(Duration(300), cardDamage, -1, 1).play()
-    fadeTransitionFactory(Duration(300), cardLevel, -1, 1).play()
-  }
-
-  private def fadeTransitionFactory(duration: Duration, node: Node, byVal: Double, cycles: Int, action: EventHandler[ActionEvent] = DEFAULT_ON_FINISHED): Transition = new FadeTransition(duration, node) {
-    byValue = byVal
-    cycleCount = cycles
-    onFinished = action
+    TransitionFactory.fadeTransitionFactory(Duration(300), cardName, action).play()
+    TransitionFactory.fadeTransitionFactory(Duration(300), clickableCard, TransitionFactory.DEFAULT_ON_FINISHED).play()
+    TransitionFactory.fadeTransitionFactory(Duration(300), cardDamage, TransitionFactory.DEFAULT_ON_FINISHED).play()
+    TransitionFactory.fadeTransitionFactory(Duration(300), cardLevel, TransitionFactory.DEFAULT_ON_FINISHED).play()
   }
 
   private def printType(t: Type): String = t match {

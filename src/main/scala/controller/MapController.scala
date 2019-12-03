@@ -15,6 +15,7 @@ import model.Placeable._
 
 trait MapController {
   def gameC: GameController
+  def selected_(element: Option[Cell]):Unit
   def _list: ListBuffer[RectangleWithCell]
   def startingDefined: Option[RectangleCell]
   def view_ (newView : MapScene): Unit
@@ -26,7 +27,6 @@ trait MapController {
   def addToList(rect: RectangleWithCell): Unit
 
   def getAllEnemies(): ListBuffer[PlayerRepresentation]
-  def createBottomCard(): ListBuffer[Button]
   def handleSave(): Unit
   def handleKey(keyCode : KeyCode): Unit
   def handleMouseClicked(e:MouseEvent): Unit
@@ -37,7 +37,8 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
 
   def this(gameC : GameController) {this(gameC,MapController.setup(gameC),Option.empty)}
 
-  private var selected:Option[Cell] = Option.empty
+  var selected:Option[Cell] = Option.empty
+  override def selected_(element: Option[Cell]):Unit = selected = element
 
   override def list:ListBuffer[RectangleWithCell] = _list
   override def addToList(rect: RectangleWithCell): Unit = {
@@ -117,11 +118,10 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
     output.close()
   }
 
-
+/*
   override def createBottomCard(): ListBuffer[Button] = {
     val tmpList = ListBuffer[Button]()
     val btn: Button = new Button {
-      id="bottomButton"
       val re = new RectangleCellImpl(true, true, true, true, _x= 0.0, elementY=0.0)
       onAction = () => selected = Option(re)
       defaultButton = true
@@ -134,7 +134,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
         var re: Cell = _
         if(math.random() <= 0.8) {
           re = RectangleCell.generateRandomCard()
-          graphic = new ImageView(RectangleCell.createImage(re.url, re.rotation).getImage)
+          graphic = new ImageView(re.image)
         } else {
           re = new EnemyCell(gameC.spawnEnemy(Random.nextInt(4)))
           graphic = new ImageView(re.image)
@@ -146,6 +146,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
     }
     tmpList
   }
+  */
 
 
   override def postInsert(): Unit = {
