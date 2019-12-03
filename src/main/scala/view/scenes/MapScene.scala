@@ -156,7 +156,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
   }
 
   var playerImg = icon(_controller.player)
-  def playerImg_(player: PlayerRepresentation):Unit = {println("CALL: " + player.url); playerImg.fill_=(new ImagePattern(new Image(player.url)))}
+  def playerImg_(player: PlayerRepresentation):Unit = {playerImg.fill_=(new ImagePattern(new Image(player.url)))}
 
   val paneWithPlayer  = new Pane {
     children = _controller.list

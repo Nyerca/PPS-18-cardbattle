@@ -3,7 +3,7 @@ package controller
 import java.io.{FileOutputStream, ObjectOutputStream}
 import exception.DoubleMovementException
 import javafx.scene.input.MouseEvent
-import model.{Bottom, Cell, EnemyCell, Left, PlayerRepresentation, PlayerWithCell, RectangleCell, RectangleCellImpl, RectangleWithCell, Right, Top}
+import model.{Bottom, Cell, EnemyCell, Left, PlayerRepresentation, RectangleCell, RectangleCellImpl, RectangleWithCell, Right, Top}
 import scalafx.Includes._
 import scalafx.scene.control.Button
 import scalafx.scene.image.ImageView
@@ -67,7 +67,7 @@ var _player : PlayerRepresentation = _
   var view: MapScene = _
   override def view_ (newView : MapScene): Unit = {
     view = newView
-    println("VIEW: " + view)
+    //println("VIEW: " + view)
     MovementAnimation.setAnimationNode(view.bpane)
     view.setMenu()
   }
@@ -86,8 +86,8 @@ var _player : PlayerRepresentation = _
     case true =>
       player.position_(newRectangle, stringUrl)
       view.playerImg_(player)
-      println("--------------------------------")
-      println(player._position)
+      //println("--------------------------------")
+      //println(player._position)
       if(player._position.enemy._2.isDefined) {
         view.changeScene(gameC.user, player._position.enemy._1.get)
        // _view.changeScene()

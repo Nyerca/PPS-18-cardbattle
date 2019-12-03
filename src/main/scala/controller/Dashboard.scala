@@ -1,6 +1,6 @@
 package controller
 import exception.{MissingCellException, NoMovementException}
-import model.{Bottom, Left, Move, PlayerRepresentation, PlayerWithCell, RectangleCell, RectangleWithCell, Right, Top}
+import model.{Bottom, Left, Move, PlayerRepresentation, RectangleCell, RectangleWithCell, Right, Top}
 
 import scala.collection.mutable.ListBuffer
 
@@ -31,7 +31,7 @@ class DashboardImpl (var cells: ListBuffer[RectangleWithCell], override val play
   }
 
   override def searchPosition(newX : Double, newY : Double, movement: Move): Option[RectangleCell] = {
-    println("Searching: (" + newX + ", " + newY + ")")
+    //println("Searching: (" + newX + ", " + newY + ")")
     (for (rectangle <- cells if  rectangle.isRectangle(newX, newY) && rectangle.rectCell.isMoveAllowed(movement)) yield rectangle.rectCell).headOption
   }
 
