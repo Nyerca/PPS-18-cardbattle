@@ -77,7 +77,7 @@ class BattlePlayerRepresentationImpl(override val marginX: Double, override val 
   }
 
   private def defeat(hp: Double, action: EventHandler[ActionEvent]): Unit = hp match {
-    case n if n <= 0 => TransitionFactory.fadeTransitionFactory(Duration(500), this, action).play()
+    case n if n <= 0 => TransitionFactory.fadeTransitionFactory(Duration(1000), this, action).play()
     case _ => ;
   }
 

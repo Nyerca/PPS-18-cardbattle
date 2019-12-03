@@ -13,7 +13,7 @@ object PlayerType {
 }
 
 trait BattleController {
-  
+
   def user: User
 
   user.battleDeck = Random.shuffle(user.battleDeck)

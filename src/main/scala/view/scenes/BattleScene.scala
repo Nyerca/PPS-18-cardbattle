@@ -81,7 +81,7 @@ class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy,
       battleController.drawCard(PlayerType.Enemy)
     case _ => userRepresentation.playAnimation(90, family, handle {
         userRepresentation.updateHP(handle(battleController.checkWinner(PlayerType.User)))
-        userHandCard.filter(cc => cc.clickableCard.opacity.value == 1) foreach(cc => cc.clickableCard.mouseTransparent = false)
+        if(enemyRepresentation.player.actualHealthPoint > 0 && userRepresentation.player.actualHealthPoint > 0) userHandCard.filter(cc => cc.clickableCard.opacity.value == 1) foreach(cc => cc.clickableCard.mouseTransparent = false)
     })
   }
 
