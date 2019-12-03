@@ -19,7 +19,7 @@ trait MapController {
   def _list: ListBuffer[RectangleWithCell]
   def startingDefined: Option[RectangleCell]
   def view_ (newView : MapScene): Unit
-  def player: PlayerWithCell
+  def player: PlayerRepresentation
 
   def postInsert(): Unit
 
@@ -46,6 +46,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
     dashboard.setCells(_list)
   }
 
+/*
   var _player : PlayerWithCell = _
   startingDefined match {
     case Some(rect: RectangleCell) => _player = new PlayerWithCell(rect, "bot.png")
@@ -53,7 +54,13 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
   }
   _player.setFill()
   override def player: PlayerWithCell = _player
-
+*/
+var _player : PlayerRepresentation = _
+  startingDefined match {
+    case Some(rect: RectangleCell) => _player = new PlayerRepresentation(rect, "bot.png")
+    case _ => _player = new PlayerRepresentation(list.head.rectCell, "bot.png")
+  }
+  override def player: PlayerRepresentation = _player
 
   val dashboard = new DashboardImpl(list, _player)
 
@@ -68,8 +75,8 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
 
   def checkAnimationEnd(url: String):Boolean = {
     if(MovementAnimation.checkAnimationEnd()) {
-      player.player.url_(url + ".png")
-      player.setFill()
+      player.url_(url + ".png")
+      view.playerImg_(player)
       true
     }
     else throw new DoubleMovementException
@@ -77,17 +84,17 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
 
   def afterMovement(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean): Unit = isEnded match {
     case true =>
-      player.player.position_(newRectangle, stringUrl)
-      player.setFill()
+      player.position_(newRectangle, stringUrl)
+      view.playerImg_(player)
       println("--------------------------------")
-      println(player.player._position)
-      if(player.player._position.enemy._2.isDefined) {
-        view.changeScene(gameC.user, player.player._position.enemy._1.get)
+      println(player._position)
+      if(player._position.enemy._2.isDefined) {
+        view.changeScene(gameC.user, player._position.enemy._1.get)
        // _view.changeScene()
       }
     case _ =>
-      player.player.url_(stringUrl)
-      player.setFill()
+      player.url_(stringUrl)
+      view.playerImg_(player)
 
   }
 
@@ -114,7 +121,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
     val outList = new ListBuffer[RectangleCell]
     for(el <-list)  outList.append(el.rectCell)
     output.writeObject(outList)
-    output.writeObject(player.player)
+    output.writeObject(player)
     output.close()
   }
 

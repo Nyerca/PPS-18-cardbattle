@@ -4,7 +4,7 @@ import javafx.scene.paint.ImagePattern
 import scalafx.Includes._
 import scalafx.scene.image.Image
 import scalafx.scene.shape.Rectangle
-
+/*
 class PlayerWithCell (var _position : RectangleCell, var _url :  String, val elemWidth: Double = 60, val elemHeight: Double = 80) {
 
   private var _player = new PlayerRepresentation(_position, _url)
@@ -24,3 +24,4 @@ class PlayerWithCell (var _position : RectangleCell, var _url :  String, val ele
   }
 
 }
+*/

@@ -42,7 +42,6 @@ trait RectangleCell extends Serializable with Cell {
 
 class RectangleCellImpl (override val top: Boolean, override val right: Boolean, override val bottom: Boolean, override val left: Boolean, override val elementWidth: Double = 200, override val elementHeight: Double = 200, var _x: Double, var elementY:Double) extends RectangleCell  {
   var _enemy: (Option[Enemy],Option[PlayerRepresentation]) = (Option.empty, Option.empty)
-
   override def enemy:(Option[Enemy], Option[PlayerRepresentation]) = _enemy
   override def enemy_(enemy: Enemy, representation : PlayerRepresentation): Unit = {_enemy = (Option(enemy), Option(representation)) }
 
