@@ -1,6 +1,6 @@
 package view.scenes.component
 
-import Utility.TransitionFactory
+import Utility.{GUIObjectFactory, TransitionFactory}
 import javafx.beans.property.{SimpleDoubleProperty, SimpleStringProperty}
 import javafx.event.{ActionEvent, EventHandler}
 import model.{Category, Player, Type, User}
@@ -24,8 +24,11 @@ trait BattlePlayerRepresentation extends Pane {
 
 class BattlePlayerRepresentationImpl(override val marginX: Double, override val marginY: Double, override val player: Player) extends BattlePlayerRepresentation {
   private val observableHealthPoint = (new SimpleDoubleProperty(player.actualHealthPoint.toDouble / player.totalHealthPoint.toDouble), new SimpleStringProperty("Player: " + player.actualHealthPoint + "hp"))
+
   translateX = marginX
+
   translateY = marginY
+
   val life: StackPane = new StackPane {
     translateY = -10
     children = List(new ProgressBar {
@@ -37,35 +40,27 @@ class BattlePlayerRepresentationImpl(override val marginX: Double, override val 
     })
   }
 
-  val playerRepresentation: Button = new Button {
-    styleClass.add("image")
-    translateY = 20
-    mouseTransparent = true
-    style = "-fx-background-image: url(" + player.image + ")"
-  }
+  val playerRepresentation: Button = GUIObjectFactory.buttonFactory(0, 20, true, GUIObjectFactory.DEFAULT_ON_ACTION, "-fx-background-image: url(" + player.image + ");", "image")
 
-  val magicShield: Button = new Button {
-    translateX = playerRepresentation.translateX.value - 50
-    translateY = playerRepresentation.translateY.value - 20
-    styleClass.add("magicShield")
-    style="-fx-background-image: url('images/shield.png');"
-    mouseTransparent = true
-  }
+  val magicShield: Button = GUIObjectFactory.buttonFactory(playerRepresentation.translateX.value - 50, playerRepresentation.translateY.value - 20, true, GUIObjectFactory.DEFAULT_ON_ACTION,  "-fx-background-image: url('images/shield.png');", "magicShield")
+  
+  val physicShield: Button = GUIObjectFactory.buttonFactory(
+    if(player.isInstanceOf[User]) playerRepresentation.translateX.value  + 200 else playerRepresentation.translateX.value  - 100,
+    playerRepresentation.translateY.value + 60,
+    true,
+    GUIObjectFactory.DEFAULT_ON_ACTION,
+    if(player.isInstanceOf[User]) "-fx-background-image: url('images/fshield.png');" else "-fx-background-image: url('images/fshield2.png');",
+    "physicShield"
+  )
 
-  val physicShield: Button = new Button {
-    translateX = if(player.isInstanceOf[User]) playerRepresentation.translateX.value  + 200 else playerRepresentation.translateX.value  - 100
-    translateY = playerRepresentation.translateY.value + 60
-    styleClass.add("physicShield")
-    style = if(player.isInstanceOf[User]) "-fx-background-image: url('images/fshield.png');" else "-fx-background-image: url('images/fshield2.png');"
-    mouseTransparent = true
-  }
-
-  val magicAttack: Button = new Button {
-    styleClass.add("magicAttack")
-    translateX = if(player.isInstanceOf[User]) playerRepresentation.translateX.value + 130 else playerRepresentation.translateX.value - 90
-    translateY = playerRepresentation.translateY.value
-    mouseTransparent = true
-  }
+  val magicAttack: Button = GUIObjectFactory.buttonFactory(
+    if(player.isInstanceOf[User]) playerRepresentation.translateX.value + 130 else playerRepresentation.translateX.value - 90,
+    playerRepresentation.translateY.value,
+    true,
+    GUIObjectFactory.DEFAULT_ON_ACTION,
+    GUIObjectFactory.DEFAULT_STYLE,
+    "magicAttack"
+  )
 
   children = List(life,playerRepresentation, physicShield, magicShield, magicAttack)
 

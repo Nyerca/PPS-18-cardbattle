@@ -45,8 +45,8 @@ trait BattleController {
   def checkWinner(playerType: PlayerType): Unit = playerType match {
     case PlayerType.User if user.actualHealthPoint <= 0 =>
     case PlayerType.Enemy if user.actualHealthPoint > 0 && enemy.actualHealthPoint <= 0 =>
-      user.addExperience(enemy.experience)
-      battleScene.fadeSceneChanging()
+      user.addExperience(enemy experience)
+      battleScene fadeSceneChanging
     case _ => ;
   }
 
@@ -54,7 +54,7 @@ trait BattleController {
     if (card1.family._2 == card2.family._2) {
       hitPlayer(player, if(card1.value - card2.value > 0) card1.value - card2.value else 0)
     } else {
-      hitPlayer(player, card1.value)
+      hitPlayer(player, card1 value)
     }
   }
 

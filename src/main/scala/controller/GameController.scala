@@ -1,7 +1,7 @@
 package controller
 
 import Utility.GameObjectFactory.createCards
-import Utility.GameObjectFactory
+import Utility.{GUIObjectFactory, GameObjectFactory}
 import model.{Card, Enemy, Player, User}
 import scalafx.scene.control.Alert
 import scalafx.scene.control.Alert.AlertType
@@ -72,16 +72,13 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
 
   private def loadData: Unit = ???
 
-  private def checkUserLevelUp: Unit = {
-      if (user.experience <= 0) {
-        user.experience = 5 * user.level - user.experience
-        new Alert(AlertType.Information) {
-          initOwner(gameMap.parentStage)
-          title = "User level up"
-          headerText = "Congratulations, you raised level " + user.level
-        }.showAndWait()
-    }
+  private def checkUserLevelUp: Unit = user.experience match {
+    case n if n <= 0 =>
+      user.experience = 5 * user.level - n
+      GUIObjectFactory.alertFactory(AlertType.Information, gameMap.parentStage, "User level up", "Congratulations, you raised level " + user.level).showAndWait()
+    case _ => ;
   }
+
 
   private def getCardLevelAvg: Int = {
     val avg: Double = user.battleDeck.map(card => card.level).sum.toDouble / user.battleDeck.size.toDouble

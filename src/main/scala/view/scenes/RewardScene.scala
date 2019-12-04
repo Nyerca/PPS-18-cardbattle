@@ -1,11 +1,12 @@
 package view.scenes
 
+import Utility.GUIObjectFactory
 import controller.GameController
 import model.Card
 import scalafx.stage.Stage
 import view.scenes.component.CardComponent
 import scalafx.Includes._
-import scalafx.scene.control.Alert
+import scalafx.scene.control.ButtonType
 import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.layout.Pane
 
@@ -26,12 +27,7 @@ class RewardScene(override val parentStage: Stage, gameController: GameControlle
     gameController.setMapScene(this)
   })
 
-  for (n <- 0 until 3) yield {
-    rewards(n).cardDamage.opacity = 0
-    rewards(n).cardLevel.opacity = 0
-    rewards(n) setCardInformation shuffledCards(n)
-  }
-
+  for (n <- 0 until 3) yield rewards(n) setCardInformation shuffledCards(n)
 
   root = new Pane {
     styleClass.add("common")
@@ -39,17 +35,9 @@ class RewardScene(override val parentStage: Stage, gameController: GameControlle
     children = rewards.map(x => x.cardDamage) ++ rewards.map(x => x.cardLevel) ++ rewards.map(x => x.clickableCard) ++ rewards.map(x => x.cardName)
   }
 
-  private def getInformationMessage(level: Option[Int], card: Card): Unit = level match {
-    case Some(n) => new Alert(AlertType.Information) {
-      initOwner(parentStage)
-      title = "Card level up"
-      headerText = "Congratulations, " + card.name + " raised level " + n
-    }.showAndWait()
-    case _ => new Alert(AlertType.Information) {
-      initOwner(parentStage)
-      title = "Card gained"
-      headerText = "Congratulations, you gained a card"
-    }.showAndWait()
+  private def getInformationMessage(level: Option[Int], card: Card): Option[ButtonType] = level match {
+    case Some(n) => GUIObjectFactory.alertFactory(AlertType.Information, parentStage, "Card level up", "Congratulations, " + card.name + " raised level " + n).showAndWait()
+    case _ => GUIObjectFactory.alertFactory(AlertType.Information, parentStage, "Card gained","Congratulations, you gained a card").showAndWait()
   }
 }
 
