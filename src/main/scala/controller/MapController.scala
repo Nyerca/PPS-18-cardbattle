@@ -17,6 +17,7 @@ trait MapController {
   def gameC: GameController
   def selected_(element: Option[Cell]):Unit
   def _list: ListBuffer[RectangleWithCell]
+  def removeEnemyCell(): Unit
   def startingDefined: Option[RectangleCell]
   def view_ (newView : MapScene): Unit
   def player: PlayerRepresentation
@@ -41,6 +42,25 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
   override def selected_(element: Option[Cell]):Unit = selected = element
 
   override def list:ListBuffer[RectangleWithCell] = _list
+  override def removeEnemyCell(): Unit = {
+    println("POOOOOOOOOOOOOOOOS: " + _player.position)
+    //var outElem: PlayerRepresentation = _
+    for { el <- list; element = el.rectCell.enemy._2; if element.isDefined} yield println("UGUALE a: " + element.get)
+
+    val elem: Option[RectangleWithCell] = list.find(rc => rc.rectCell.enemy._2.isDefined && rc.rectCell == _player.position)
+    println("FIND: " + elem)
+
+    //list.remove(list.indexOf(list.find(rc => rc.rectCell == _player.position)))
+
+  if(elem.isDefined) {
+    elem.get.rectCell.enemy_(Option.empty, Option.empty)
+    postInsert()
+  }
+
+      if(getAllEnemies.size == 0) println("No more enemies.......")
+
+    //outList
+  }
   override def addToList(rect: RectangleWithCell): Unit = {
     _list.append(rect)
     dashboard.setCells(_list)

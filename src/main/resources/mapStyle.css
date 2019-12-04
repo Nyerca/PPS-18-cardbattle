@@ -9,9 +9,10 @@
 }
 
 #grid {
-     -fx-padding: 10;
-     -fx-hgap: 70;
-     -fx-vgap: 200;
+     -fx-padding: 50 40 50 85;
+     -fx-hgap: 110;
+     -fx-vgap: 150;
+     -fx-pref-width:1200;
  }
 
 

@@ -35,7 +35,7 @@ trait RectangleCell extends Serializable with Cell {
   def setY(newY: Double): Unit
 
   def enemy:(Option[Enemy], Option[PlayerRepresentation])
-  def enemy_(enemy: Enemy, representation : PlayerRepresentation): Unit
+  def enemy_(enemy: Option[Enemy], representation : Option[PlayerRepresentation]): Unit
   def isMoveAllowed(movement : Move): Boolean
 }
 
@@ -43,7 +43,7 @@ trait RectangleCell extends Serializable with Cell {
 class RectangleCellImpl (override val top: Boolean, override val right: Boolean, override val bottom: Boolean, override val left: Boolean, override val elementWidth: Double = 200, override val elementHeight: Double = 200, var _x: Double, var elementY:Double) extends RectangleCell  {
   var _enemy: (Option[Enemy],Option[PlayerRepresentation]) = (Option.empty, Option.empty)
   override def enemy:(Option[Enemy], Option[PlayerRepresentation]) = _enemy
-  override def enemy_(enemy: Enemy, representation : PlayerRepresentation): Unit = {_enemy = (Option(enemy), Option(representation)) }
+  override def enemy_(enemy: Option[Enemy], representation : Option[PlayerRepresentation]): Unit = {_enemy = (enemy, representation) }
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[RectangleCell]
 
@@ -163,7 +163,7 @@ object RectangleCell {
     val rectcell=  new RectangleCellImpl(top, right, bottom, left, _x= rngX, elementY=rngY)
     var probEnemy = 0.1
     if(excludedValues.size == 1) probEnemy = 1
-    if( math.random()<=probEnemy) {val enem = gameC.spawnEnemy(4); val enemy = new PlayerRepresentation(rectcell, enem.image);  rectcell.enemy_(enem,enemy) }
+    if( math.random()<=probEnemy) {val enem = gameC.spawnEnemy(4); val enemy = new PlayerRepresentation(rectcell, enem.image);  rectcell.enemy_(Option(enem),Option(enemy)) }
 
     rectcell
   }

@@ -52,6 +52,7 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Easy) extends G
 
   override def setMapScene(scene: BaseScene): Unit = {
     scene.changeScene(gameMap)
+    gameMap.removeEnemyCell()
     checkUserLevelUp(scene)
   }
 
