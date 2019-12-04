@@ -79,13 +79,20 @@
    -fx-background-color:transparent;
 }
 
-.shield {
+.magicShield {
    -fx-pref-width: 400;
    -fx-pref-height: 400;
    -fx-background-size: 400 400;
    -fx-background-color:transparent;
-   -fx-background-image: url("images/shield.png");
-   -fx-opacity: 0
+   -fx-opacity: 0;
+}
+
+.physicShield {
+   -fx-pref-width: 150;
+   -fx-pref-height: 150;
+   -fx-background-size: 150 150;
+   -fx-background-color:transparent;
+   -fx-opacity: 0;
 }
 
 .magicAttack {

@@ -44,12 +44,20 @@ class BattlePlayerRepresentationImpl(override val marginX: Double, override val 
     style = "-fx-background-image: url(" + player.image + ")"
   }
 
-  val shield: Button = new Button {
+  val magicShield: Button = new Button {
     translateX = playerRepresentation.translateX.value - 50
     translateY = playerRepresentation.translateY.value - 20
-    styleClass.add("shield")
+    styleClass.add("magicShield")
+    style="-fx-background-image: url('images/shield.png');"
     mouseTransparent = true
+  }
 
+  val physicShield: Button = new Button {
+    translateX = if(player.isInstanceOf[User]) playerRepresentation.translateX.value  + 200 else playerRepresentation.translateX.value  - 100
+    translateY = playerRepresentation.translateY.value + 60
+    styleClass.add("physicShield")
+    style = if(player.isInstanceOf[User]) "-fx-background-image: url('images/fshield.png');" else "-fx-background-image: url('images/fshield2.png');"
+    mouseTransparent = true
   }
 
   val magicAttack: Button = new Button {
@@ -59,11 +67,11 @@ class BattlePlayerRepresentationImpl(override val marginX: Double, override val 
     mouseTransparent = true
   }
 
-  children = List(life, playerRepresentation, shield, magicAttack)
+  children = List(life,playerRepresentation, physicShield, magicShield, magicAttack)
 
   override def playAnimation(byVal: Double = 0, family: (Category, Type), action: EventHandler[ActionEvent]): Unit = family._1 match {
     case Category.Attack => attack(byVal, action, family._2)
-    case Category.Defense => defense(action)
+    case Category.Defense => defense(action, family._2)
   }
 
   override def updateHP(action: EventHandler[ActionEvent]): Unit = {
@@ -85,10 +93,13 @@ class BattlePlayerRepresentationImpl(override val marginX: Double, override val 
     case Type.Physic => TransitionFactory.translateTransitionFactory(Duration(200), playerRepresentation, action, byVal, 0, 2, autoReversible = true).play()
     case _ =>
       TransitionFactory.fadeTransitionFactory(Duration(150), magicAttack, TransitionFactory.DEFAULT_ON_FINISHED,1, 2, autoReversible = true).play()
-      TransitionFactory.translateTransitionFactory(Duration(200), magicAttack, action, byVal, 0, 2, true).play()
+      TransitionFactory.translateTransitionFactory(Duration(200), magicAttack, action, byVal, 0, 2, autoReversible = true).play()
   }
 
-  private def defense(action: EventHandler[ActionEvent]): Unit = TransitionFactory.fadeTransitionFactory(Duration(150), shield, action, 1, 2, autoReversible = true).play()
+  private def defense(action: EventHandler[ActionEvent], cardType: Type): Unit = cardType match {
+    case Type.Magic => TransitionFactory.fadeTransitionFactory(Duration(150), magicShield, action, 1, 2, autoReversible = true).play()
+    case _ => TransitionFactory.fadeTransitionFactory(Duration(150), physicShield, action, 1, 2, autoReversible = true).play()
+  }
 
   private def damage(): Unit = TransitionFactory.rotateTransitionFactory(Duration(20), playerRepresentation, TransitionFactory.DEFAULT_ON_FINISHED, 5, 20, autoReversible = true).play()
 }
