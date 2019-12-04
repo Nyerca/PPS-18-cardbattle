@@ -52,7 +52,8 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
 
   override def setMapScene(scene: BaseScene): Unit = {
     scene.changeScene(gameMap)
-    checkUserLevelUp()
+    gameMap.removeEnemyCell()
+    checkUserLevelUp
   }
 
 
@@ -71,7 +72,7 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
 
   private def loadData: Unit = ???
 
-  private def checkUserLevelUp(): Unit = {
+  private def checkUserLevelUp: Unit = {
       if (user.experience <= 0) {
         user.experience = 5 * user.level - user.experience
         new Alert(AlertType.Information) {

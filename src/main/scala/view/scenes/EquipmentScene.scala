@@ -14,6 +14,7 @@ import scalafx.scene.shape.Rectangle
 import scalafx.scene.text.Text
 import scalafx.scene.{Node, Scene}
 import scalafx.stage.Stage
+import view.scenes.component.{CardComponent, CardComponentImpl}
 
 import scala.collection.mutable.ListBuffer
 
@@ -21,7 +22,15 @@ import scala.collection.mutable.ListBuffer
 class EquipmentScene(override val parentStage: Stage, gameController: GameController) extends BaseScene{
 
   stylesheets.add("mapStyle.css")
+  stylesheets.add("style.css")
 
+  println("BATTLEDECK")
+  println(gameController.user.battleDeck);
+  println("ALL CARDS")
+  println(gameController.user.allCards);
+
+
+/*
   def createCardPane(valX:Double, valY:Double): Pane = {
     new Pane {
       children = new ListBuffer[Node]
@@ -38,6 +47,17 @@ class EquipmentScene(override val parentStage: Stage, gameController: GameContro
       children.append(img)
     }
   }
+*/
+  def createCardPane(valX:Double, valY:Double): Pane = {
+    new Pane {
+      children = new ListBuffer[Node]
+      maxHeight = 800
+      val c = new CardComponentImpl(0,0, false,handle{println("ciao")})
+      c.setCardInformation(gameController.allCards.head)
+      val btn: Button = c.clickableCard
+      children.append(btn)
+    }
+  }
 
   def addCard(gridPane: GridPane, num : Integer): Unit = {
     for(i<- 0 to num - 1) gridPane.add(createCardPane(0,0), i % 4, i / 4);
@@ -47,7 +67,7 @@ class EquipmentScene(override val parentStage: Stage, gameController: GameContro
   addCard(gridPane, 12)
 
   val toolbar = new ToolBar()
-  val text2 = new Text("0 /")
+  val text2 = new Text(gameController.user.battleDeck.size + " /")
   val text3 = new Text("8   ")
   toolbar.getItems().add(new Text("CARDS:         "))
   toolbar.getItems().add(text2);
@@ -75,7 +95,7 @@ class EquipmentScene(override val parentStage: Stage, gameController: GameContro
     vbarPolicy = ScrollBarPolicy.AsNeeded
     id= "scrollPane"
     content = cardsPane
-    pannable_=(true)
+    //pannable_=(true)
   }
 
 }

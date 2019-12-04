@@ -192,6 +192,10 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     parentStage.scene_=(BattleScene(parentStage, user,enemy, gameC))
   }
 
+  def removeEnemyCell(): Unit = {
+    _controller.removeEnemyCell();
+  }
+
 }
 
 object MapScene {
