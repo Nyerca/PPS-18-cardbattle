@@ -3,7 +3,6 @@ package controller
 import Utility.GameObjectFactory.createCards
 import Utility.{GUIObjectFactory, GameObjectFactory}
 import model.{Card, Enemy, Player, User}
-import scalafx.scene.control.Alert
 import scalafx.scene.control.Alert.AlertType
 import scalafx.stage.Stage
 import view.scenes.{BaseScene, MapScene}

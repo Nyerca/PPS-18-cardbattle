@@ -5,13 +5,6 @@ import view.scenes.BattleScene
 
 import scala.util.Random
 
-trait PlayerType
-
-object PlayerType {
-  case object User extends PlayerType
-  case object Enemy extends PlayerType
-}
-
 trait BattleController {
 
   def user: User
@@ -24,9 +17,9 @@ trait BattleController {
 
   def battleScene: BattleScene
 
-  def drawCard(playerType: PlayerType): Unit = playerType match {
-    case PlayerType.User => battleScene.drawCard(playerType)(getCardAndReinsert(user))
-    case _ => battleScene.drawCard(playerType)(getCardAndReinsert(enemy))
+  def drawCard(player: Player): Unit = player match {
+    case _:User => battleScene.drawCard(player)(getCardAndReinsert(user))
+    case _ => battleScene.drawCard(player)(getCardAndReinsert(enemy))
   }
 
   def fight(userCard: Card, enemyCard: Card): Unit = {
@@ -38,13 +31,13 @@ trait BattleController {
       case (Category.Attack, Category.Defense) => calculateDamage(userCard, enemyCard, enemy)
       case (_,_) => calculateDamage(enemyCard, userCard, user)
     }
-    battleScene.playFightAnimation(userCard.family, PlayerType.User)
-    battleScene.playFightAnimation(enemyCard.family, PlayerType.Enemy)
+    battleScene.playFightAnimation(userCard.family, user)
+    battleScene.playFightAnimation(enemyCard.family, enemy)
   }
 
-  def checkWinner(playerType: PlayerType): Unit = playerType match {
-    case PlayerType.User if user.actualHealthPoint <= 0 =>
-    case PlayerType.Enemy if user.actualHealthPoint > 0 && enemy.actualHealthPoint <= 0 =>
+  def checkWinner(player: Player): Unit = player match {
+    case _: User if user.actualHealthPoint <= 0 =>
+    case _: Enemy if user.actualHealthPoint > 0 && enemy.actualHealthPoint <= 0 =>
       user.addExperience(enemy experience)
       battleScene fadeSceneChanging
     case _ => ;
@@ -59,7 +52,7 @@ trait BattleController {
   }
 
   private def hitPlayer(player: Player, damage: Int): Unit = player match {
-    case _: User => user.actualHealthPoint -= damage
+    case _:User => user.actualHealthPoint -= damage
     case _ => enemy.actualHealthPoint -= damage
   }
 
@@ -71,7 +64,7 @@ trait BattleController {
   }
 
   private def findDeck(player: Player): List[Card] = player match {
-    case _: User => user.battleDeck
+    case _:User => user.battleDeck
     case _ => enemy.battleDeck
   }
 }
