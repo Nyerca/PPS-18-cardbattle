@@ -36,12 +36,16 @@
    -fx-background-repeat: stretch;
 }
 
+.deck {
+   -fx-background-image: url("images/deckImage.jpg");
+}
+
 .card {
    -fx-background-size: 170 240;
    -fx-pref-width:170;
    -fx-pref-height:240;
-   -fx-background-color: "white";
-    -fx-cursor: hand
+   -fx-background-color: transparent;
+   -fx-cursor: hand
 }
 
 .cardIndicator {

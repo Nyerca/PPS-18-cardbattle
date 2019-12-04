@@ -27,17 +27,17 @@ class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy,
 
   val battleController: BattleController = BattleController(user, enemy, this)
 
-  val userDeck: Button = singleButtonFactory(35, 50, "USER DECK", false, handle(battleController.drawCard(PlayerType.User)), "card", "deck")
+  val userDeck: Button = buttonFactory(35, 50, false, handle(battleController.drawCard(PlayerType.User)), "card", "deck")
 
-  val cpuDeck: Button = singleButtonFactory(995, 50, "CPU DECK", true, DEFAULT_ON_FINISHED, "card", "deck")
+  val cpuDeck: Button = buttonFactory(995, 50,true, DEFAULT_ON_FINISHED, "card", "deck")
 
-  val cpuCardIndicator: Button = singleButtonFactory(995, 450, "", true, DEFAULT_ON_FINISHED, "cardIndicator")
+  val cpuCardIndicator: Button = buttonFactory(995, 450, true, DEFAULT_ON_FINISHED, "cardIndicator")
 
   val cpuHandCard: CardComponent = CardComponent(995, 450, mouseTransparency = true, handle(cpuHandCard.fadeOutAll()))
 
   val userCardIndicators: List[Button] = for (
     n <- 1 until 4 toList
-  ) yield singleButtonFactory(35 + n * 240, 50, "", true, DEFAULT_ON_FINISHED, "cardIndicator")
+  ) yield buttonFactory(35 + n * 240, 50,true, DEFAULT_ON_FINISHED, "cardIndicator")
 
   val userHandCard: List[CardComponent] = for(
     n <- 1 until 4 toList
@@ -88,11 +88,10 @@ class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy,
   override def fadeSceneChanging(): Unit = TransitionFactory.fadeTransitionFactory(Duration(1000), root.value, handle(parentStage.scene = RewardScene(parentStage, gameController))).play()
 
 
-  private def singleButtonFactory(marginX: Double, marginY: Double, description: String, mouseTransparency: Boolean, action: EventHandler[ActionEvent], classes: String*): Button = new Button {
+  private def buttonFactory(marginX: Double, marginY: Double, mouseTransparency: Boolean, action: EventHandler[ActionEvent], classes: String*): Button = new Button {
     classes.foreach(c => styleClass.add(c))
     translateX = marginX
     translateY = marginY
-    text = description
     mouseTransparent = mouseTransparency
     onAction = action
   }
