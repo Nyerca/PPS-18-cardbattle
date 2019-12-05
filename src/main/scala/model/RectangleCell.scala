@@ -169,14 +169,19 @@ object RectangleCell {
     println("Rectangle ("+rngX + ", " +rngY+") T: " + top + " R: " + right + " B: " + bottom + " L: " + left)
     val rectcell=  new RectangleCellImpl(top, right, bottom, left, _x= rngX, elementY=rngY)
     var probEnemy = 0.1
+    var probStatue = 0.1
     if(excludedValues.size == 1) probEnemy = 1
+    if(excludedValues.size == 2) {
+      probEnemy=0
+      probStatue=1
+    }
     if( math.random()<=probEnemy) {val enem = gameC.spawnEnemy(4); val enemy = new PlayerRepresentation(rectcell, enem.image);
       rectcell.mapEvent_(Option(MapEvent.createMapEvent(enem, enemy)) )
       //rectcell.enemy_(Option(enem),Option(enemy))
-    } else {
+  } else if(math.random()<=probStatue) {
       println("STATUEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
       val statue = new Statue(10)
-      //rectcell.mapEvent_(Option(MapEvent.createMapEvent(statue, new PlayerRepresentation(rectcell, "statue.png"))) )
+      rectcell.mapEvent_(Option(MapEvent.createMapEvent(statue, new PlayerRepresentation(rectcell, "statue.png"))) )
     }
 
     rectcell

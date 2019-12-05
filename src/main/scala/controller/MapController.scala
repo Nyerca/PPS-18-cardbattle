@@ -141,6 +141,7 @@ var _player : PlayerRepresentation = _
   override def getAllStatues(): ListBuffer[PlayerRepresentation] = {
     val outList = new ListBuffer[PlayerRepresentation]
     for { el <- list; element = el.rectCell.mapEvent; if element.isDefined && element.get.callEvent.isInstanceOf[Statue]} yield outList.append(element.get.playerRepresentation)
+    println("STATUE LIST: " + outList)
     outList
   }
 

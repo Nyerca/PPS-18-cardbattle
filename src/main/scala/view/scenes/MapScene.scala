@@ -35,7 +35,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     for(el <- _controller.getAllStatues() ) {
       val cell = new PlayerRepresentation(el.position, el.url)
       println("Add statueeeeee")
-      children.append(icon(cell, 50, 150))
+      children.append(icon(cell, 38, 110))
     }
 
   }
