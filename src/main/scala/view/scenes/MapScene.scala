@@ -40,6 +40,15 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
   }
 
+  def showStatueAlert(money: Int): Unit = {
+    val alert = new Alert(AlertType.INFORMATION)
+    alert.setTitle("God statue")
+    alert.setGraphic(new ImageView(new Image("statue.png")))
+    alert.setHeaderText("Would you like to heal donating " + money + " golds?")
+    alert.setContentText("ITEM")
+    alert.show();
+  }
+
   def addToToolbar(toolbar: ToolBar, btn: Button, isLast:Boolean): Unit = {
     toolbar.getItems.add(btn)
     if(!isLast) toolbar.getItems.add(new Separator())

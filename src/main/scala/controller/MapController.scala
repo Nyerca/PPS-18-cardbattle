@@ -114,7 +114,9 @@ var _player : PlayerRepresentation = _
       //println(player._position)
       if(player._position.mapEvent.isDefined) {
         if(player._position.mapEvent.get.callEvent.isInstanceOf[Enemy]) view.changeScene(gameC.user, player._position.mapEvent.get.callEvent.asInstanceOf[Enemy])
-       // _view.changeScene()
+        if(player._position.mapEvent.get.callEvent.isInstanceOf[Statue]) view.showStatueAlert(5);
+
+        // _view.changeScene()
       }
     case _ =>
       player.url_(stringUrl)
