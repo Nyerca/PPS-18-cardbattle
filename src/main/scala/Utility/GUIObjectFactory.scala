@@ -22,7 +22,7 @@ object GUIObjectFactory {
     text = buttonText
   }
 
-  def alertFactory(alertType: AlertType, owner: Stage, alertTitle: String, alertHeaderText: String): Alert = new Alert(alertType) {
+  def alertFactory(alertType: AlertType, owner: Stage, alertTitle: String, alertHeaderText: String = ""): Alert = new Alert(alertType) {
     initOwner(owner)
     title = alertTitle
     headerText = alertHeaderText

@@ -17,7 +17,7 @@ class GameOverScene(override val parentStage: Stage, val gameController: GameCon
 
   val brokenHeart: Button = GUIObjectFactory.buttonFactory(530, 200, mouseTransparency = true)("brokenHeart")
   val anubiDefeated: Button = GUIObjectFactory.buttonFactory(500, 350, mouseTransparency = true)("anubiDefeated")
-  val retryButton: Button = GUIObjectFactory.buttonFactory(500,550, mouseTransparency = false, handle(gameController.setScene(this, MainScene(parentStage))), GUIObjectFactory.DEFAULT_STYLE, "Retry")("retry")
+  val retryButton: Button = GUIObjectFactory.buttonFactory(500,550, mouseTransparency = false, handle(gameController.setScene(this, MainScene(parentStage))), GUIObjectFactory.DEFAULT_STYLE, "Retry")("mainPageButton")
   root = new Pane {
     styleClass.add("common")
     style = "-fx-background-color: black;"
