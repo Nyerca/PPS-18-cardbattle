@@ -124,17 +124,17 @@
 .brokenHeart {
   -fx-background-image: url("images/brokenHeart.png");
   -fx-background-color:transparent;
-  -fx-pref-width: 150;
-  -fx-pref-height: 150;
-  -fx-background-size: 150 150;
+  -fx-pref-width: 100;
+  -fx-pref-height: 100;
+  -fx-background-size: 100 100;
 }
 
 .anubiDefeated {
   -fx-background-image: url("images/anubiDefeated.png");
   -fx-background-color:transparent;
-  -fx-pref-width: 200;
-  -fx-pref-height: 200;
-  -fx-background-size: 200 200;
+  -fx-pref-width: 250;
+  -fx-pref-height: 250;
+  -fx-background-size: 250 250;
 }
 
 /***************/
