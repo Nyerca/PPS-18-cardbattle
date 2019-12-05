@@ -18,7 +18,7 @@ trait CardComponent {
 
 class CardComponentImpl(marginX: Double, marginY: Double, mouseTransparency: Boolean, action: EventHandler[ActionEvent]) extends CardComponent {
 
-  override val clickableCard: Button = GUIObjectFactory.buttonFactory(marginX, marginY, mouseTransparency, action, GUIObjectFactory.DEFAULT_STYLE,"card")
+  override val clickableCard: Button = GUIObjectFactory.buttonFactory(marginX, marginY, mouseTransparency, action)("card")
 
   override val cardName: Label = GUIObjectFactory.labelFactory(marginX + 20, marginY + 11)
 

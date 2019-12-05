@@ -6,10 +6,8 @@ import model.Card
 import scalafx.stage.Stage
 import view.scenes.component.CardComponent
 import scalafx.Includes._
-import scalafx.scene.control.ButtonType
+import scalafx.scene.control.{ButtonType, Label}
 import scalafx.scene.control.Alert.AlertType
-import scalafx.scene.layout.Pane
-
 import scala.util.Random
 
 
@@ -24,16 +22,14 @@ class RewardScene(override val parentStage: Stage, gameController: GameControlle
   ) yield CardComponent(marginX = 115 + (n * 385), marginY = 300, mouseTransparency = false, action = handle {
     rewards(n).fadeOutAll()
     getInformationMessage(gameController.user.gainCard(rewards(n).card), rewards(n).card)
-    gameController.setMapScene(this)
+    gameController.setScene(this)
   })
+
+  val title: Label = GUIObjectFactory.labelFactory(120, 50, "Choose your reward", "rewardTitle")
 
   for (n <- 0 until 3) yield rewards(n) setCardInformation shuffledCards(n)
 
-  root = new Pane {
-    styleClass.add("common")
-    styleClass.add("battleScene")
-    children = rewards.map(x => x.cardDamage) ++ rewards.map(x => x.cardLevel) ++ rewards.map(x => x.clickableCard) ++ rewards.map(x => x.cardName)
-  }
+  root = GUIObjectFactory.paneFactory(rewards.map(x => x.cardDamage) ++ rewards.map(x => x.cardLevel) ++ rewards.map(x => x.clickableCard) ++ rewards.map(x => x.cardName) :+ title, "common", "battleScene")
 
   private def getInformationMessage(level: Option[Int], card: Card): Option[ButtonType] = level match {
     case Some(n) => GUIObjectFactory.alertFactory(AlertType.Information, parentStage, "Card level up", "Congratulations, " + card.name + " raised level " + n).showAndWait()

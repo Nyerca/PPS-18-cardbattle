@@ -8,6 +8,7 @@ import scalafx.scene.control.Button
 import scalafx.scene.layout.Pane
 import scalafx.stage.Stage
 import scalafx.util.Duration
+import language.postfixOps
 import view.scenes.component.{BattlePlayerRepresentation, CardComponent}
 
 trait BattleScene extends BaseScene {
@@ -16,7 +17,7 @@ trait BattleScene extends BaseScene {
 
   def playFightAnimation(family: (Category, Type), player: Player): Unit
 
-  def fadeSceneChanging: Unit
+  def fadeSceneChanging(player: Player): Unit
 }
 
 class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy, gameController: GameController) extends BattleScene {
@@ -24,17 +25,17 @@ class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy,
 
   val battleController: BattleController = BattleController(user, enemy, this)
 
-  val userDeck: Button = GUIObjectFactory.buttonFactory(35, 50, false, handle(battleController.drawCard(user)), GUIObjectFactory.DEFAULT_STYLE, "card", "deck")
+  val userDeck: Button = GUIObjectFactory.buttonFactory(35, 50, mouseTransparency = false, handle(battleController.drawCard(user)))("card", "deck")
 
-  val cpuDeck: Button = GUIObjectFactory.buttonFactory(995, 50,true, GUIObjectFactory.DEFAULT_ON_ACTION, GUIObjectFactory.DEFAULT_STYLE, "card", "deck")
+  val cpuDeck: Button = GUIObjectFactory.buttonFactory(995, 50, mouseTransparency = true)( "card", "deck")
 
-  val cpuCardIndicator: Button = GUIObjectFactory.buttonFactory(995, 450, true, GUIObjectFactory.DEFAULT_ON_ACTION, GUIObjectFactory.DEFAULT_STYLE, "cardIndicator")
+  val cpuCardIndicator: Button = GUIObjectFactory.buttonFactory(995, 450, mouseTransparency = true)("cardIndicator")
 
   val cpuHandCard: CardComponent = CardComponent(995, 450, mouseTransparency = true, handle(cpuHandCard.fadeOutAll()))
 
   val userCardIndicators: List[Button] = for (
     n <- 1 until 4 toList
-  ) yield GUIObjectFactory.buttonFactory(35 + n * 240, 50,true, GUIObjectFactory.DEFAULT_ON_ACTION, GUIObjectFactory.DEFAULT_STYLE,"cardIndicator")
+  ) yield GUIObjectFactory.buttonFactory(35 + n * 240, 50,mouseTransparency = true)("cardIndicator")
 
   val userHandCard: List[CardComponent] = for(
     n <- 1 until 4 toList
@@ -57,11 +58,7 @@ class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy,
     children = List(enemyRepresentation, userRepresentation)
   }
 
-  root = new Pane {
-    styleClass.add("common")
-    styleClass.add("battleScene")
-    children = userCardIndicators  ++ userHandCard.map(x => x.clickableCard) ++ userHandCard.map(x => x.cardLevel) ++ userHandCard.map(x => x.cardName) ++ userHandCard.map(x => x.cardDamage) ++ List(cpuCardIndicator, userDeck, cpuDeck, cpuHandCard.clickableCard, cpuHandCard.cardName, cpuHandCard.cardDamage, cpuHandCard.cardLevel, battleField)
-  }
+  root = GUIObjectFactory.paneFactory(userCardIndicators ++ userHandCard.map(x => x.clickableCard) ++ userHandCard.map(x => x.cardLevel) ++ userHandCard.map(x => x.cardName) ++ userHandCard.map(x => x.cardDamage) ++ List(cpuCardIndicator, userDeck, cpuDeck, cpuHandCard.clickableCard, cpuHandCard.cardName, cpuHandCard.cardDamage, cpuHandCard.cardLevel, battleField), "common", "battleScene")
 
   battleController.drawCard(enemy)
 
@@ -82,7 +79,10 @@ class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy,
     })
   }
 
-  override def fadeSceneChanging: Unit = TransitionFactory.fadeTransitionFactory(Duration(1000), root.value, handle(parentStage.scene = RewardScene(parentStage, gameController))).play()
+  override def fadeSceneChanging(player: Player): Unit = player match {
+    case _: User => TransitionFactory.fadeTransitionFactory(Duration(1000), root.value, handle(gameController.setScene(this, RewardScene(parentStage, gameController)))).play()
+    case _ => TransitionFactory.fadeTransitionFactory(Duration(1000), root.value, handle(gameController.setScene(this, GameOverScene(parentStage, gameController)))).play()
+  }
 
 }
 

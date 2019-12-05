@@ -40,27 +40,22 @@ class BattlePlayerRepresentationImpl(override val marginX: Double, override val 
     })
   }
 
-  val playerRepresentation: Button = GUIObjectFactory.buttonFactory(0, 20, true, GUIObjectFactory.DEFAULT_ON_ACTION, "-fx-background-image: url(" + player.image + ");", "image")
+  val playerRepresentation: Button = GUIObjectFactory.buttonFactory(0, 20, mouseTransparency = true, GUIObjectFactory.DEFAULT_ON_ACTION, "-fx-background-image: url(" + player.image + ");")("image")
 
-  val magicShield: Button = GUIObjectFactory.buttonFactory(playerRepresentation.translateX.value - 50, playerRepresentation.translateY.value - 20, true, GUIObjectFactory.DEFAULT_ON_ACTION,  "-fx-background-image: url('images/shield.png');", "magicShield")
+  val magicShield: Button = GUIObjectFactory.buttonFactory(playerRepresentation.translateX.value - 50, playerRepresentation.translateY.value - 20, mouseTransparency = true)( "magicShield")
   
   val physicShield: Button = GUIObjectFactory.buttonFactory(
     if(player.isInstanceOf[User]) playerRepresentation.translateX.value  + 200 else playerRepresentation.translateX.value  - 100,
     playerRepresentation.translateY.value + 60,
-    true,
+    mouseTransparency = true,
     GUIObjectFactory.DEFAULT_ON_ACTION,
-    if(player.isInstanceOf[User]) "-fx-background-image: url('images/fshield.png');" else "-fx-background-image: url('images/fshield2.png');",
-    "physicShield"
-  )
+    if(player.isInstanceOf[User]) "-fx-background-image: url('images/fshield.png');" else "-fx-background-image: url('images/fshield2.png');")("physicShield")
+
 
   val magicAttack: Button = GUIObjectFactory.buttonFactory(
     if(player.isInstanceOf[User]) playerRepresentation.translateX.value + 130 else playerRepresentation.translateX.value - 90,
     playerRepresentation.translateY.value,
-    true,
-    GUIObjectFactory.DEFAULT_ON_ACTION,
-    GUIObjectFactory.DEFAULT_STYLE,
-    "magicAttack"
-  )
+    mouseTransparency = true)("magicAttack")
 
   children = List(life,playerRepresentation, physicShield, magicShield, magicAttack)
 

@@ -1,5 +1,6 @@
 package view.scenes
 
+import Utility.GUIObjectFactory
 import controller.{GameController, OperationType}
 import scalafx.Includes._
 import scalafx.scene.control.Button
@@ -11,20 +12,16 @@ class MainScene(override val parentStage: Stage) extends BaseScene {
 
 
   stylesheets.add("style.css")
+
+  val playButton: Button = GUIObjectFactory.buttonFactory(530, -45, mouseTransparency = false, handle{
+    gameController.setUserInformation(OperationType.NewGame, parentStage)
+    gameController.setScene(this)
+  })("playButton")
   root = new BorderPane {
     styleClass.add("common")
     id = "mainPane"
-    bottom = new Button {
-      id = "playButton"
-      translateX = 530
-      translateY = -45
-      onAction = handle {
-        gameController.setUserInformation(OperationType.NewGame, parentStage)
-        changeScene()
-      }
-    }
+    bottom = playButton
   }
-  private def changeScene(): Unit = gameController.setMapScene(this)
 }
 
 object MainScene {

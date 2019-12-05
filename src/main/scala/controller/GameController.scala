@@ -38,10 +38,16 @@ trait GameController {
   var gameMap: MapScene = _
   var user: User = _
   val allCards: List[Card] = GameObjectFactory.createCards(1)
+
   def difficulty: Difficulty
-  def setMapScene(scene: BaseScene): Unit
+
+  def setScene(fromScene: BaseScene, toScene: BaseScene = gameMap): Unit
+
   def setUserInformation(operationType: OperationType, parentStage: Stage): Unit
+
   def spawnEnemy(randomIndex: Int): Enemy
+
+
 }
 
 
@@ -49,12 +55,13 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
 
   private var enemyCount: Map[EnemyType, Int] = Map(EnemyType.Sphinx -> -1, EnemyType.Cobra -> -1, EnemyType.EgyptWarrior -> -1, EnemyType.Griffin -> -1, EnemyType.YellowBlob -> -1)
 
-  override def setMapScene(scene: BaseScene): Unit = {
-    scene.changeScene(gameMap)
-    gameMap.removeEnemyCell()
-    checkUserLevelUp
+  override def setScene(fromScene: BaseScene, toScene: BaseScene): Unit =  toScene match {
+    case map: MapScene =>
+      fromScene.changeScene(map)
+      map.removeEnemyCell()
+      checkUserLevelUp
+    case _ => fromScene.changeScene(toScene)
   }
-
 
   override def setUserInformation(operationType: OperationType, parentStage: Stage): Unit = operationType match {
     case OperationType.NewGame =>
@@ -68,6 +75,7 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
     case Difficulty.Medium => createEnemy(enemyCount.keys.toList(randomIndex), user.level, getCardLevelAvg)
     case Difficulty.Hard => createEnemy(enemyCount.keys.toList(randomIndex), user.level + 1, getCardLevelAvg + 1)
   }
+
 
   private def loadData: Unit = ???
 
@@ -98,6 +106,7 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
       case EnemyType.YellowBlob => Player.enemyFactory("Yellow Blob", "images/blob.png", Random.shuffle(createCards(cardLevel)).take(8),enemyLevel, 5 + enemyCount(enemyType))
     }
   }
+
 }
 
 object GameController {
