@@ -2,18 +2,19 @@ package Utility
 
 import model.{Card, Category, Type}
 
-
-
-
 object GameObjectFactory {
-  def createCards(level: Int): List[Card] = List(Card("Fireball", "fireball.png", (Category.Attack,Type.Magic), level),
-    Card("Iceball", "iceball.png", (Category.Attack,Type.Magic), level),
-    Card("Attacco magico 3", "iceball.png", (Category.Attack,Type.Magic), level),
-    Card("Supersonic fist", "ariete.png", (Category.Attack,Type.Physic), level),
-    Card("Fire shield", "magicShield.png", (Category.Defense,Type.Magic), level),
-    Card("Ice shield", "magicShield.png", (Category.Defense,Type.Magic), level),
-    Card("Light shield", "magicShield.png", (Category.Defense,Type.Magic), level),
-    Card("Physic shield", "physicShield.png", (Category.Defense,Type.Physic), level),
-    Card("Scudo fisico 2", "physicShield.png", (Category.Defense,Type.Physic), level),
-    Card("Scudo fisico 3", "physicShield.png", (Category.Defense,Type.Physic), level))
+  def createCards(level: Int): List[Card] = List(Card("Fireball", "images/mattack.png", (Category.Attack,Type.Magic), level),
+    Card("Iceball", "images/mattack.png", (Category.Attack,Type.Magic), level),
+    Card("Oblivion hole", "images/mattack.png", (Category.Attack,Type.Magic), level),
+    Card("Energetic wave", "images/mattack.png", (Category.Attack,Type.Magic), level),
+    Card("Supersonic fist", "images/attack.png", (Category.Attack,Type.Physic), level),
+    Card("Lethal whiplash", "images/attack.png", (Category.Attack,Type.Physic), level),
+    Card("Rotating stock", "images/attack.png", (Category.Attack,Type.Physic), level),
+    Card("Dragon shot", "images/attack.png", (Category.Attack,Type.Physic), level),
+    Card("Fire shield", "images/mdefense.png", (Category.Defense,Type.Magic), level),
+    Card("Enchanted circle", "images/mdefense.png", (Category.Defense,Type.Magic), level),
+    Card("Light barrier", "images/mdefense.png", (Category.Defense,Type.Magic), level),
+    Card("Iron gate", "images/defense.png", (Category.Defense,Type.Physic), level),
+    Card("Rock shield", "images/defense.png", (Category.Defense,Type.Physic), level),
+    Card("Bone barrier", "images/defense.png", (Category.Defense,Type.Physic), level))
 }

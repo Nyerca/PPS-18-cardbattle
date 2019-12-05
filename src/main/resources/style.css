@@ -1,11 +1,16 @@
+/***IMPORT FONTS***/
+
+@font-face {
+    font-family: "Great-Vibes";
+    src: url("./font/GreatVibes-Regular.otf");
+}
+
+/****************/
+
 .common {
    -fx-pref-width: 1200px;
    -fx-pref-height: 800px;
 }
-
-
-
-
 
 /************MAIN STAGE STYLE ********************/
 
@@ -15,13 +20,7 @@
     -fx-background-repeat: stretch;
 }
 
-#title {
-   -fx-text-fill: "white";
-   -fx-font-size: 100px;
-   -fx-font-family: "Helvetica";
-}
-
-#playButton {
+.playButton {
   -fx-pref-width: 150px;
   -fx-pref-height: 60px;
   -fx-opacity: 0;
@@ -30,18 +29,22 @@
 
 
 /**********BATTLE STAGE STYLE ***************/
-#battleScene {
+.battleScene {
    -fx-background-image: url("images/battleBackground.jpg");
    -fx-background-size: 1200 800;
    -fx-background-repeat: stretch;
+}
+
+.deck {
+   -fx-background-image: url("images/deckImage.jpg");
 }
 
 .card {
    -fx-background-size: 170 240;
    -fx-pref-width:170;
    -fx-pref-height:240;
-   -fx-background-color: "white";
-    -fx-cursor: hand
+   -fx-background-color: transparent;
+   -fx-cursor: hand
 }
 
 .cardIndicator {
@@ -75,16 +78,71 @@
    -fx-background-color:transparent;
 }
 
-.shield {
+.magicShield {
    -fx-pref-width: 400;
    -fx-pref-height: 400;
    -fx-background-size: 400 400;
    -fx-background-color:transparent;
-   -fx-background-image: url("images/shield.png");
+   -fx-background-image: url('images/shield.png');
+   -fx-opacity: 0;
+}
+
+.physicShield {
+   -fx-pref-width: 150;
+   -fx-pref-height: 150;
+   -fx-background-size: 150 150;
+   -fx-background-color:transparent;
+   -fx-opacity: 0;
+}
+
+.magicAttack {
+   -fx-background-image: url("images/magicAttackAnimation.png");
+   -fx-pref-width: 200;
+   -fx-pref-height: 200;
+   -fx-background-size: 200 200;
+   -fx-background-color:transparent;
    -fx-opacity: 0
 }
 
 .title {
     -fx-text-fill: "black";
     -fx-font-size: 18px;
+    -fx-font-family: "Great-Vibes";
 }
+/****REWARD SCENE*****/
+.rewardTitle {
+   -fx-font-size: 100px;
+   -fx-font-family: "Great-Vibes";
+   -fx-text-fill: "white"
+}
+/***************/
+
+/*****GAME OVER SCENE******/
+.brokenHeart {
+  -fx-background-image: url("images/brokenHeart.png");
+  -fx-background-color:transparent;
+  -fx-pref-width: 150;
+  -fx-pref-height: 150;
+  -fx-background-size: 150 150;
+}
+
+.anubiDefeated {
+  -fx-background-image: url("images/anubiDefeated.png");
+  -fx-background-color:transparent;
+  -fx-pref-width: 200;
+  -fx-pref-height: 200;
+  -fx-background-size: 200 200;
+}
+
+.retry {
+  -fx-pref-width: 200;
+  -fx-pref-height: 100;
+  -fx-font-size: 40px;
+  -fx-background-color: transparent;
+  -fx-text-fill: "white";
+  -fx-border-width: 5 ;
+  -fx-border-color: "white";
+  -fx-border-style: segments(10, 15, 15, 15)  line-cap round;
+  -fx-cursor: hand
+}
+/***************/

@@ -1,63 +1,97 @@
 package view.scenes.component
 
-import javafx.beans.property.SimpleDoubleProperty
+import Utility.{GUIObjectFactory, TransitionFactory}
+import javafx.beans.property.{SimpleDoubleProperty, SimpleStringProperty}
 import javafx.event.{ActionEvent, EventHandler}
-import model.Player
-import scalafx.animation.{FadeTransition, RotateTransition, TranslateTransition}
+import model.{Category, Player, Type, User}
 import scalafx.scene.control.{Button, Label, ProgressBar}
-import scalafx.scene.layout.{BorderPane, StackPane}
+import scalafx.scene.layout.{Pane, StackPane}
 import scalafx.util.Duration
 import scalafx.Includes._
 
 
-trait BattlePlayerRepresentation extends BorderPane{
+trait BattlePlayerRepresentation extends Pane {
   def marginX: Double
+
   def marginY: Double
+
   def player: Player
-  def updateHP(hp: Double): Unit
-  def attack(byVal: Double, action: EventHandler[ActionEvent]): Unit
+
+  def playAnimation(byVal: Double = 0, family: (Category, Type), action: EventHandler[ActionEvent]): Unit
+
+  def updateHP(action: EventHandler[ActionEvent]): Unit
 }
 
 class BattlePlayerRepresentationImpl(override val marginX: Double, override val marginY: Double, override val player: Player) extends BattlePlayerRepresentation {
-  private val observableHealthPoint = new SimpleDoubleProperty(1)
+  private val observableHealthPoint = (new SimpleDoubleProperty(player.actualHealthPoint.toDouble / player.totalHealthPoint.toDouble), new SimpleStringProperty("Player: " + player.actualHealthPoint + "hp"))
+
   translateX = marginX
+
   translateY = marginY
-  top = new StackPane {
+
+  val life: StackPane = new StackPane {
+    translateY = -10
     children = List(new ProgressBar {
-      progress <== observableHealthPoint
+      progress <== observableHealthPoint._1
       styleClass.add("life")
-    }, new Label{
+    }, new Label {
       styleClass.add("title")
-      text = player.name
+      text <== observableHealthPoint._2
     })
   }
 
-  center = new Button {
-    styleClass.add("image")
-    mouseTransparent = true
-    style = "-fx-background-image: url(" + player.image + ")"
+  val playerRepresentation: Button = GUIObjectFactory.buttonFactory(0, 20, mouseTransparency = true, GUIObjectFactory.DEFAULT_ON_ACTION, "-fx-background-image: url(" + player.image + ");")("image")
+
+  val magicShield: Button = GUIObjectFactory.buttonFactory(playerRepresentation.translateX.value - 50, playerRepresentation.translateY.value - 20, mouseTransparency = true)( "magicShield")
+  
+  val physicShield: Button = GUIObjectFactory.buttonFactory(
+    if(player.isInstanceOf[User]) playerRepresentation.translateX.value  + 200 else playerRepresentation.translateX.value  - 100,
+    playerRepresentation.translateY.value + 60,
+    mouseTransparency = true,
+    GUIObjectFactory.DEFAULT_ON_ACTION,
+    if(player.isInstanceOf[User]) "-fx-background-image: url('images/fshield.png');" else "-fx-background-image: url('images/fshield2.png');")("physicShield")
+
+
+  val magicAttack: Button = GUIObjectFactory.buttonFactory(
+    if(player.isInstanceOf[User]) playerRepresentation.translateX.value + 130 else playerRepresentation.translateX.value - 90,
+    playerRepresentation.translateY.value,
+    mouseTransparency = true)("magicAttack")
+
+  children = List(life,playerRepresentation, physicShield, magicShield, magicAttack)
+
+  override def playAnimation(byVal: Double = 0, family: (Category, Type), action: EventHandler[ActionEvent]): Unit = family._1 match {
+    case Category.Attack => attack(byVal, action, family._2)
+    case Category.Defense => defense(action, family._2)
   }
 
-  override def updateHP(hp: Double): Unit = {
-    if(hp / player.healthPoint != observableHealthPoint.value) {
+  override def updateHP(action: EventHandler[ActionEvent]): Unit = {
+    val ratio: Double = player.actualHealthPoint.toDouble / player.totalHealthPoint.toDouble
+    if ( ratio != observableHealthPoint._1.value ) {
       damage()
-      observableHealthPoint.set(hp / player.healthPoint)
+      observableHealthPoint._1.set(if ( ratio > 0 ) ratio else 0)
+      observableHealthPoint._2.set(if ( ratio > 0 ) "Player: " + player.actualHealthPoint + "hp" else "Player: 0hp")
+      defeat(player.actualHealthPoint, action)
     }
   }
 
-  override def attack(byVal: Double, action: EventHandler[ActionEvent]): Unit = new TranslateTransition(Duration(100), center.value) {
-    byX = byVal
-    cycleCount = 2
-    autoReverse = true
-    onFinished = action
-  }.play()
+  private def defeat(hp: Double, action: EventHandler[ActionEvent]): Unit = hp match {
+    case n if n <= 0 => TransitionFactory.fadeTransitionFactory(Duration(1000), this, action).play()
+    case _ => ;
+  }
 
+  private def attack(byVal: Double, action: EventHandler[ActionEvent], cardType: Type): Unit = cardType match {
+    case Type.Physic => TransitionFactory.translateTransitionFactory(Duration(200), playerRepresentation, action, byVal, 0, 2, autoReversible = true).play()
+    case _ =>
+      TransitionFactory.fadeTransitionFactory(Duration(150), magicAttack, TransitionFactory.DEFAULT_ON_FINISHED,1, 2, autoReversible = true).play()
+      TransitionFactory.translateTransitionFactory(Duration(200), magicAttack, action, byVal, 0, 2, autoReversible = true).play()
+  }
 
-  private def damage(): Unit = new RotateTransition(Duration(20), center.value) {
-    byAngle = 5
-    cycleCount = 20
-    autoReverse = true
-  }.play()
+  private def defense(action: EventHandler[ActionEvent], cardType: Type): Unit = cardType match {
+    case Type.Magic => TransitionFactory.fadeTransitionFactory(Duration(150), magicShield, action, 1, 2, autoReversible = true).play()
+    case _ => TransitionFactory.fadeTransitionFactory(Duration(150), physicShield, action, 1, 2, autoReversible = true).play()
+  }
+
+  private def damage(): Unit = TransitionFactory.rotateTransitionFactory(Duration(20), playerRepresentation, TransitionFactory.DEFAULT_ON_FINISHED, 5, 20, autoReversible = true).play()
 }
 
 object BattlePlayerRepresentation {

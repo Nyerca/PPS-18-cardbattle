@@ -2,7 +2,7 @@ package model
 import controller.MapController
 import exception.{DoubleCellException, DoubleEnemyException, DoubleMovementException, MissingCellException}
 import javafx.animation.Animation.Status
-import model.{Bottom, Cell, EnemyCell, Left, Player, PlayerRepresentation, PlayerWithCell, RectangleCell, RectangleWithCell, Right, Top}
+import model.{Bottom, Cell, EnemyCell, Left, Player, PlayerRepresentation, RectangleCell, RectangleWithCell, Right, Top}
 import exception._
 import scalafx.scene.control.{Button, Separator, ToolBar}
 import scalafx.scene.input.KeyCode
@@ -21,7 +21,7 @@ import scala.collection.mutable.ListBuffer
 import scala.util.Random
 import javafx.scene.input.MouseEvent
 import javafx.scene.paint.ImagePattern
-import view.map
+
 
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
@@ -60,7 +60,7 @@ object Placeable {
 
 */
 
-trait Placeable[A] {
+trait Placeable[A <: Cell] {
   def place(a: A, cell:Option[RectangleCell],controller:MapController ): Unit
 }
 
@@ -71,11 +71,11 @@ object Placeable {
 
 
   //Apply
-  def apply[A](implicit pleaceable: Placeable[A ]): Placeable[A] = pleaceable
-  def place[A: Placeable](a: A, cell:Option[RectangleCell], controller:MapController) = Placeable[A].place(a, cell, controller)
+  def apply[A <: Cell](implicit pleaceable: Placeable[A ]): Placeable[A] = pleaceable
+  def place[A <: Cell :Placeable](a: A, cell:Option[RectangleCell], controller:MapController) = Placeable[A].place(a, cell, controller)
 
 
-  def instance[A](func: (A, Option[RectangleCell], MapController) => Unit): Placeable[A] =
+  def instance[A <: Cell](func: (A, Option[RectangleCell], MapController) => Unit): Placeable[A] =
     new Placeable[A] {
       def place(a: A, cell:Option[RectangleCell] , controller: MapController): Unit = func(a, cell, controller)
     }
@@ -84,14 +84,13 @@ object Placeable {
   implicit def cellToRectangleCell(cell: Cell): RectangleCell = cell.asInstanceOf[RectangleCell];
 
 
-
   implicit val rectanglePlaceable: Placeable[RectangleCell] =
     instance((selected, cell, controller) => {
       //val selectedElement = selected.asInstanceOf[RectangleCell]
 
       if(!cell.isDefined) {
 
-        val rect = new RectangleWithCell(selected.getWidth, selected.getHeight, selected.getX, selected.getY,selected) {
+        val rect = new RectangleWithCell(selected.getWidth, selected.getHeight, selected.x, selected.getY,selected) {
           fill = (RectangleCell.createImage(selected.url, selected.rotation))
         }
         controller.addToList(rect)
@@ -107,8 +106,8 @@ object Placeable {
       if(cell.isDefined) {
 
         val rect = cell.get
-        if(!rect.enemy.isDefined) {
-          rect.enemy_(new PlayerRepresentation(rect, selected.enemy.image))
+        if(!rect.enemy._2.isDefined) {
+          rect.enemy_(Option(selected.enemy),Option(new PlayerRepresentation(rect, selected.enemy.image)))
           controller.postInsert()
         } else {
           throw new DoubleEnemyException
