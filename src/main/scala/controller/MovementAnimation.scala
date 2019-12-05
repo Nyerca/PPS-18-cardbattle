@@ -56,6 +56,7 @@ object MovementAnimation {
           anim.setOnFinished(e => {
             setAnim(newRectangle,incrementX,incrementY,stringUrl + ".png",fun)
             anim.setOnFinished(e => {
+              anim.stop();
                 fun(newRectangle,stringUrl+ ".png", true)
             })
             anim.play();})
