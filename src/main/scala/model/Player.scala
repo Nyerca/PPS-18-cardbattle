@@ -29,7 +29,7 @@ class User(override val name: String, override val image: String, var level: Int
   }
 }
 
-case class Enemy(override val name: String, override val level: Int, override val image: String, override val battleDeck: List[Card], override val healthPoint: Int, experience: Int, reward: Int) extends Player
+case class Enemy(override val name: String, override val level: Int, override val image: String, override val battleDeck: List[Card], override val healthPoint: Int, experience: Int, reward: Int) extends Player with CellEvent
 
 object Player {
   def userFactory(name: String, image: String, allCards: List[Card], level: Int = 1, healthPoint: Int = 10, missingExperience: Double = 1, coins: Int = 0): User = new User(name, image, level, missingExperience, allCards, healthPoint, coins)

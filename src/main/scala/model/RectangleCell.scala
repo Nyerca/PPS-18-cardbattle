@@ -34,16 +34,23 @@ trait RectangleCell extends Serializable with Cell {
   def x_(newX: Double): Unit
   def setY(newY: Double): Unit
 
-  def enemy:(Option[Enemy], Option[PlayerRepresentation])
-  def enemy_(enemy: Option[Enemy], representation : Option[PlayerRepresentation]): Unit
+  //def enemy:(Option[Enemy], Option[PlayerRepresentation])
+  //def enemy_(enemy: Option[Enemy], representation : Option[PlayerRepresentation]): Unit
   def isMoveAllowed(movement : Move): Boolean
+
+  def mapEvent:Option[MapEvent]
+  def mapEvent_(cellEve: Option[MapEvent]): Unit
 }
 
 
 class RectangleCellImpl (override val top: Boolean, override val right: Boolean, override val bottom: Boolean, override val left: Boolean, override val elementWidth: Double = 200, override val elementHeight: Double = 200, var _x: Double, var elementY:Double) extends RectangleCell  {
-  var _enemy: (Option[Enemy],Option[PlayerRepresentation]) = (Option.empty, Option.empty)
-  override def enemy:(Option[Enemy], Option[PlayerRepresentation]) = _enemy
-  override def enemy_(enemy: Option[Enemy], representation : Option[PlayerRepresentation]): Unit = {_enemy = (enemy, representation) }
+  var _mapEvent:Option[MapEvent] = Option.empty
+  override def mapEvent:Option[MapEvent] = _mapEvent
+  override def mapEvent_(cellEve: Option[MapEvent]): Unit = {_mapEvent = cellEve }
+
+  //var _enemy: (Option[Enemy],Option[PlayerRepresentation]) = (Option.empty, Option.empty)
+  //override def enemy:(Option[Enemy], Option[PlayerRepresentation]) = _enemy
+  //override def enemy_(enemy: Option[Enemy], representation : Option[PlayerRepresentation]): Unit = {_enemy = (enemy, representation) }
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[RectangleCell]
 
@@ -65,7 +72,7 @@ class RectangleCellImpl (override val top: Boolean, override val right: Boolean,
   }
 
   override def toString :String = {
-    "Rectangle ("+_x + ", " +elementY+") T: " + top + " R: " + right + " B: " + bottom + " L: " + left + " enemy: " + enemy._2.isDefined
+    "Rectangle ("+_x + ", " +elementY+") T: " + top + " R: " + right + " B: " + bottom + " L: " + left + " enemy: " + _mapEvent
   }
 
 
@@ -146,7 +153,7 @@ object RectangleCell {
     var rngX = 400
     var rngY = 200
     while(excludedValues.contains(rngX) && excludedValues.get(rngX).get.contains(rngY)) {
-      rngX = Random.nextInt(8) * 200
+      rngX = Random.nextInt(6) * 200
       rngY = Random.nextInt(4) * 200
     }
     var top:Boolean = false
@@ -163,7 +170,14 @@ object RectangleCell {
     val rectcell=  new RectangleCellImpl(top, right, bottom, left, _x= rngX, elementY=rngY)
     var probEnemy = 0.1
     if(excludedValues.size == 1) probEnemy = 1
-    if( math.random()<=probEnemy) {val enem = gameC.spawnEnemy(4); val enemy = new PlayerRepresentation(rectcell, enem.image);  rectcell.enemy_(Option(enem),Option(enemy)) }
+    if( math.random()<=probEnemy) {val enem = gameC.spawnEnemy(4); val enemy = new PlayerRepresentation(rectcell, enem.image);
+      rectcell.mapEvent_(Option(MapEvent.createMapEvent(enem, enemy)) )
+      //rectcell.enemy_(Option(enem),Option(enemy))
+    } else {
+      println("STATUEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+      val statue = new Statue(10)
+      //rectcell.mapEvent_(Option(MapEvent.createMapEvent(statue, new PlayerRepresentation(rectcell, "statue.png"))) )
+    }
 
     rectcell
   }

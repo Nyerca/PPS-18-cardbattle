@@ -1,14 +1,16 @@
 package controller
 
 import java.io.{FileOutputStream, ObjectOutputStream}
+
 import exception.DoubleMovementException
 import javafx.scene.input.MouseEvent
-import model.{Bottom, Cell, EnemyCell, Left, PlayerRepresentation, RectangleCell, RectangleCellImpl, RectangleWithCell, Right, Top}
+import model.{Bottom, Cell, Enemy, EnemyCell, Left, PlayerRepresentation, RectangleCell, RectangleCellImpl, RectangleWithCell, Right, Statue, Top}
 import scalafx.Includes._
 import scalafx.scene.control.Button
 import scalafx.scene.image.ImageView
 import scalafx.scene.input.KeyCode
 import view.scenes.MapScene
+
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
 import model.Placeable._
@@ -28,6 +30,7 @@ trait MapController {
   def addToList(rect: RectangleWithCell): Unit
 
   def getAllEnemies(): ListBuffer[PlayerRepresentation]
+  def getAllStatues(): ListBuffer[PlayerRepresentation]
   def handleSave(): Unit
   def handleKey(keyCode : KeyCode): Unit
   def handleMouseClicked(e:MouseEvent): Unit
@@ -45,15 +48,16 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
   override def removeEnemyCell(): Unit = {
     println("POOOOOOOOOOOOOOOOS: " + _player.position)
     //var outElem: PlayerRepresentation = _
-    for { el <- list; element = el.rectCell.enemy._2; if element.isDefined} yield println("UGUALE a: " + element.get)
 
-    val elem: Option[RectangleWithCell] = list.find(rc => rc.rectCell.enemy._2.isDefined && rc.rectCell == _player.position)
+    //for { el <- list; element = el.rectCell.enemy._2; if element.isDefined} yield println("UGUALE a: " + element.get)
+
+    val elem: Option[RectangleWithCell] = list.find(rc => rc.rectCell.mapEvent.isDefined && rc.rectCell == _player.position)
     println("FIND: " + elem)
 
     //list.remove(list.indexOf(list.find(rc => rc.rectCell == _player.position)))
 
   if(elem.isDefined) {
-    elem.get.rectCell.enemy_(Option.empty, Option.empty)
+    elem.get.rectCell.mapEvent_(Option.empty)
     postInsert()
   }
 
@@ -108,8 +112,8 @@ var _player : PlayerRepresentation = _
       view.playerImg_(player)
       //println("--------------------------------")
       //println(player._position)
-      if(player._position.enemy._2.isDefined) {
-        view.changeScene(gameC.user, player._position.enemy._1.get)
+      if(player._position.mapEvent.isDefined) {
+        if(player._position.mapEvent.get.callEvent.isInstanceOf[Enemy]) view.changeScene(gameC.user, player._position.mapEvent.get.callEvent.asInstanceOf[Enemy])
        // _view.changeScene()
       }
     case _ =>
@@ -131,7 +135,12 @@ var _player : PlayerRepresentation = _
 
   override def getAllEnemies(): ListBuffer[PlayerRepresentation] = {
     val outList = new ListBuffer[PlayerRepresentation]
-    for { el <- list; element = el.rectCell.enemy._2; if element.isDefined} yield outList.append(element.get)
+    for { el <- list; element = el.rectCell.mapEvent; if element.isDefined && element.get.callEvent.isInstanceOf[Enemy]} yield outList.append(element.get.playerRepresentation)
+    outList
+  }
+  override def getAllStatues(): ListBuffer[PlayerRepresentation] = {
+    val outList = new ListBuffer[PlayerRepresentation]
+    for { el <- list; element = el.rectCell.mapEvent; if element.isDefined && element.get.callEvent.isInstanceOf[Statue]} yield outList.append(element.get.playerRepresentation)
     outList
   }
 

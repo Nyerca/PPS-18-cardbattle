@@ -26,11 +26,18 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
   val _pane = new Pane {
     children = _controller.list
     maxHeight = 800
+
     for(el <- _controller.getAllEnemies() ) {
       val cell = new PlayerRepresentation(el.position, el.url)
-
+      println("Add ENEMY")
       children.append(icon(cell, 100, 90))
     }
+    for(el <- _controller.getAllStatues() ) {
+      val cell = new PlayerRepresentation(el.position, el.url)
+      println("Add statueeeeee")
+      children.append(icon(cell, 50, 150))
+    }
+
   }
 
   def addToToolbar(toolbar: ToolBar, btn: Button, isLast:Boolean): Unit = {
@@ -127,11 +134,17 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     val listTmp = new ListBuffer[Node]()
     for (el <- list) yield {
       listTmp.append(el)
+      /*
       if(el.rectCell.enemy._2.isDefined) {
         val tmp = el.rectCell.enemy._2.get;
 
         val cell = new PlayerRepresentation(tmp.position, tmp.url)
         listTmp.append(icon(cell, 100, 90))
+      }
+      */
+      if(el.rectCell.mapEvent.isDefined) {
+        if(el.rectCell.mapEvent.get.callEvent.isInstanceOf[Enemy]) listTmp.append(icon(el.rectCell.mapEvent.get.playerRepresentation, 100, 90))
+        if(el.rectCell.mapEvent.get.callEvent.isInstanceOf[Statue]) listTmp.append(icon(el.rectCell.mapEvent.get.playerRepresentation, 38, 110))
       }
     }
     if(tmpRect.isDefined) listTmp.append(new RectangleWithCell(tmpRect.get.getWidth, tmpRect.get.getHeight, tmpRect.get.x, tmpRect.get.getY,tmpRect.get) {
@@ -144,6 +157,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     var addList = createBottomCard()
     bottomPane.children = addList
   }
+
 
   def icon(player: PlayerRepresentation, elemWidth: Double = 60, elemHeight: Double = 80 ): Rectangle = {
     new Rectangle() {
