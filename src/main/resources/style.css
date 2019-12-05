@@ -121,9 +121,17 @@
 .brokenHeart {
   -fx-background-image: url("images/brokenHeart.png");
   -fx-background-color:transparent;
-  -fx-pref-width: 300;
-  -fx-pref-height: 300;
-  -fx-background-size: 300 300;
+  -fx-pref-width: 150;
+  -fx-pref-height: 150;
+  -fx-background-size: 150 150;
+}
+
+.anubiDefeated {
+  -fx-background-image: url("images/anubiDefeated.png");
+  -fx-background-color:transparent;
+  -fx-pref-width: 200;
+  -fx-pref-height: 200;
+  -fx-background-size: 200 200;
 }
 
 .retry {
