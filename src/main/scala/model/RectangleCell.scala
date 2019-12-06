@@ -92,6 +92,9 @@ class RectangleCellImpl (override val top: Boolean, override val right: Boolean,
   override def rotation: Int = _rotation
 
 
+  def setDamage(): Unit = {
+    _url = _url.substring(0, _url.length - 4) + "Dmg.png"
+  }
 
 
   if(top && left && right && bottom) {
@@ -149,7 +152,7 @@ class RectangleCellImpl (override val top: Boolean, override val right: Boolean,
 }
 
 object RectangleCell {
-  def generateRandom(gameC: GameController, excludedValues : Map[Int,ListBuffer[Int]]) : RectangleCell = {
+  def generateRandom(gameC: GameController, excludedValues : Map[Int,ListBuffer[Int]], iteration: Int) : RectangleCell = {
     var rngX = 400
     var rngY = 200
     while(excludedValues.contains(rngX) && excludedValues.get(rngX).get.contains(rngY)) {
@@ -167,23 +170,43 @@ object RectangleCell {
       left = math.random()>0.5
     }
     println("Rectangle ("+rngX + ", " +rngY+") T: " + top + " R: " + right + " B: " + bottom + " L: " + left)
+    if(iteration==0 || iteration==3) {
+      top=true
+      right = true
+      left=true
+      bottom=true
+    }
     val rectcell=  new RectangleCellImpl(top, right, bottom, left, _x= rngX, elementY=rngY)
     var probEnemy = 0.1
     var probStatue = 0.1
-    if(excludedValues.size == 1) probEnemy = 1
-    if(excludedValues.size == 2) {
+    val probDmg = 0.3
+
+
+    if(iteration == 1) probEnemy = 1
+    if(iteration == 2) {
       probEnemy=0
       probStatue=1
     }
-    if( math.random()<=probEnemy) {val enem = gameC.spawnEnemy(4); val enemy = new PlayerRepresentation(rectcell, enem.image);
-      rectcell.mapEvent_(Option(MapEvent.createMapEvent(enem, enemy)) )
-      //rectcell.enemy_(Option(enem),Option(enemy))
-  } else if(math.random()<=probStatue) {
-      println("STATUEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
-      val statue = new Statue(10)
-      rectcell.mapEvent_(Option(MapEvent.createMapEvent(statue, new PlayerRepresentation(rectcell, "statue.png"))) )
+    if(iteration ==3) {
+      println("PYRAMIDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD")
+      val pyramid = new Pyramid()
+      rectcell.mapEvent_(Option(MapEvent.createMapEvent(pyramid, new PlayerRepresentation(rectcell, "pyramid.png"))) )
+    } else {
+      if (math.random() <= probEnemy) {
+        val enem = gameC.spawnEnemy(4);
+        val enemy = new PlayerRepresentation(rectcell, enem.image);
+        rectcell.mapEvent_(Option(MapEvent.createMapEvent(enem, enemy)))
+        //rectcell.enemy_(Option(enem),Option(enemy))
+      } else if (math.random() <= probStatue) {
+        println("STATUEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+        val statue = new Statue(10)
+        rectcell.mapEvent_(Option(MapEvent.createMapEvent(statue, new PlayerRepresentation(rectcell, "statue.png"))))
+      }
     }
-
+    if (iteration > 3 && math.random() <= probDmg) {
+      rectcell.setDamage();
+    }
+    println(rectcell)
     rectcell
   }
   def generateRandomCard() : RectangleCellImpl = {

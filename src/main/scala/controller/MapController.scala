@@ -4,7 +4,7 @@ import java.io.{FileOutputStream, ObjectOutputStream}
 
 import exception.DoubleMovementException
 import javafx.scene.input.MouseEvent
-import model.{Bottom, Cell, Enemy, EnemyCell, Left, PlayerRepresentation, RectangleCell, RectangleCellImpl, RectangleWithCell, Right, Statue, Top}
+import model.{Bottom, Cell, Enemy, EnemyCell, Left, MapEvent, PlayerRepresentation, Pyramid, RectangleCell, RectangleCellImpl, RectangleWithCell, Right, Statue, Top}
 import scalafx.Includes._
 import scalafx.scene.control.Button
 import scalafx.scene.image.ImageView
@@ -31,6 +31,7 @@ trait MapController {
 
   def getAllEnemies(): ListBuffer[PlayerRepresentation]
   def getAllStatues(): ListBuffer[PlayerRepresentation]
+  def getPyramid(): PlayerRepresentation
   def handleSave(): Unit
   def handleKey(keyCode : KeyCode): Unit
   def handleMouseClicked(e:MouseEvent): Unit
@@ -61,7 +62,19 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
     postInsert()
   }
 
-      if(getAllEnemies.size == 0) println("No more enemies.......")
+      if(getAllEnemies.size == 0) {
+        println("No more enemies.......")
+
+        for { el <- list; element = el.rectCell.mapEvent; if element.isDefined && element.get.callEvent.isInstanceOf[Pyramid]} yield{
+
+          val pyramid: Pyramid = el.rectCell.mapEvent.get.callEvent.asInstanceOf[Pyramid]
+          el.rectCell.mapEvent_(Option(MapEvent.createMapEvent(pyramid, new PlayerRepresentation(el.rectCell, "pyramidDoor.png"))))
+
+        }
+        postInsert()
+
+
+      }
 
     //outList
   }
@@ -146,6 +159,9 @@ var _player : PlayerRepresentation = _
     println("STATUE LIST: " + outList)
     outList
   }
+  override def getPyramid(): PlayerRepresentation = {
+    list.find(p=> p.rectCell.mapEvent.isDefined && p.rectCell.mapEvent.get.callEvent.isInstanceOf[Pyramid]).get.rectCell.mapEvent.get.playerRepresentation
+  }
 
   override def handleSave(): Unit = {
     val output = new ObjectOutputStream(new FileOutputStream("./src/main/saves/save2.txt"))
@@ -216,13 +232,13 @@ object MapController {
   def setup(gameC: GameController): ListBuffer[RectangleWithCell] = {
     val list = new ListBuffer[RectangleWithCell]()
 
-    val tmp = Random.nextInt(10) + 2
+    val tmp = Random.nextInt(6) + 4
 
     var excludedValues: Map[Int,ListBuffer[Int]] = Map()
     val tmplist = new ListBuffer[Int]()
 
-    for(_<-0 until tmp) {
-      val rect = RectangleCell.generateRandom(gameC,excludedValues)
+    for(i<-0 until tmp) {
+      val rect = RectangleCell.generateRandom(gameC,excludedValues, i)
 
       list.append(new RectangleWithCell(rect.getWidth, rect.getHeight, rect.x, rect.getY, rect) {
         fill = RectangleCell.createImage(rect.url, rect.rotation)

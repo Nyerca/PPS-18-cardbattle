@@ -38,6 +38,12 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
       println("Add statueeeeee")
       children.append(icon(cell, 38, 110))
     }
+    val pyramid = _controller.getPyramid();
+    val cell = new PlayerRepresentation(pyramid.position, pyramid.url)
+    println("Add pyramid")
+    println(cell)
+    children.append(icon(cell, 80, 110))
+
 
   }
 
@@ -165,6 +171,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
       if(el.rectCell.mapEvent.isDefined) {
         if(el.rectCell.mapEvent.get.callEvent.isInstanceOf[Enemy]) listTmp.append(icon(el.rectCell.mapEvent.get.playerRepresentation, 100, 90))
         if(el.rectCell.mapEvent.get.callEvent.isInstanceOf[Statue]) listTmp.append(icon(el.rectCell.mapEvent.get.playerRepresentation, 38, 110))
+        if(el.rectCell.mapEvent.get.callEvent.isInstanceOf[Pyramid]) listTmp.append(icon(el.rectCell.mapEvent.get.playerRepresentation, 80, 110))
       }
     }
     if(tmpRect.isDefined) listTmp.append(new RectangleWithCell(tmpRect.get.getWidth, tmpRect.get.getHeight, tmpRect.get.x, tmpRect.get.getY,tmpRect.get) {
