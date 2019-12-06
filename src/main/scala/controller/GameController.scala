@@ -12,7 +12,7 @@ import scala.util.Random
 trait OperationType
 
 object OperationType {
-  case object Load extends OperationType
+  case object LoadGame extends OperationType
   case object NewGame extends OperationType
 }
 
@@ -36,10 +36,12 @@ object Difficulty {
 
 trait GameController {
   var gameMap: MapScene = _
+
   var user: User = _
+
   val allCards: List[Card] = GameObjectFactory.createCards(1)
 
-  def difficulty: Difficulty
+  var difficulty: Difficulty
 
   def setScene(fromScene: BaseScene, toScene: BaseScene = gameMap): Unit
 
