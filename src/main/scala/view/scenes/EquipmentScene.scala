@@ -73,7 +73,7 @@ class EquipmentScene(override val parentStage: Stage, gameController: GameContro
   toolbar.getItems().add(text2);
   toolbar.getItems().add(text3);
   toolbar.getItems().add(new ImageView(new Image("cardSprite.png")));
-  private def changeScene(): Unit = gameController.setMapScene(this)
+  private def changeScene(): Unit = gameController.setScene(this)
   val back = new Button("Back") {onAction = () => changeScene}
   toolbar.getItems().add(back);
 

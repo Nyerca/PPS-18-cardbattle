@@ -2,7 +2,7 @@
 
 
 import scala.language.postfixOps
-import model.{Card, Category, Enemy, Game, Player, Type, User}
+import model.{Card, Category, Player, Type, User}
 import org.junit.runner.RunWith
 import org.scalatest.{FunSpec, Matchers}
 import org.scalatestplus.junit.JUnitRunner
@@ -52,32 +52,4 @@ class BattleTest extends FunSpec with Matchers {
       assert(baseUser.level == 2)
     }
   }
-
-  describe("in a game") {
-    val deck: List[Card] =  List(Card("fireBall", "", (Category.Attack, Type.Magic)),
-      Card("iceBall", "", (Category.Attack, Type.Magic)),
-      Card("ariete", "", (Category.Attack, Type.Physic)),
-      Card("magicShield", "", (Category.Defense, Type.Magic)),
-      Card("physicShield", "", (Category.Defense, Type.Physic)))
-    it("two attack type cards should decrement life points of the two players") {
-      val baseUser: User = Player.userFactory("user", "", deck)
-      val baseEnemy: Enemy = Player.enemyFactory("enemy", "", deck, 1, 30)
-      val game: Game = Game(baseUser, baseEnemy)
-      assert(game.fight(deck.head, deck(1)) == (Some(baseUser), Some(baseEnemy)))
-      assert(game.healthPointPlayer2 == baseEnemy.healthPoint - deck.head.value)
-      assert(game.healthPointPlayer1 == baseUser.healthPoint - deck(1).value)
-    }
-    it("magic/physic type card vs defense one should result in the difference betweend their values") {
-      val baseUser: User = Player.userFactory("user", "", deck)
-      val baseEnemy: Enemy = Player.enemyFactory("enemy", "", deck, 1, 30)
-      val game: Game = Game(baseUser, baseEnemy)
-      assert(game.fight(deck.head, deck(3)) == (None, Some(baseEnemy)))
-      assert(game.healthPointPlayer2 == baseEnemy.healthPoint - (deck.head.value - deck(3).value))
-      assert(game.healthPointPlayer1 == baseUser.healthPoint)
-      assert(game.fight(deck(3), deck.head) == (Some(baseUser),None))
-      assert(game.healthPointPlayer1 == baseUser.healthPoint - (deck(3).value - deck.head.value))
-      assert(game.healthPointPlayer2 == baseEnemy.healthPoint)
-    }
-  }
-
 }
