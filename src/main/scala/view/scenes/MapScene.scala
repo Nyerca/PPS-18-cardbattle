@@ -2,6 +2,8 @@ package view.scenes
 
 import controller.{GameController, MapController, MapControllerImpl}
 import exception._
+import javafx.beans.property.{SimpleDoubleProperty, SimpleStringProperty}
+import javafx.event.{ActionEvent, EventHandler}
 import javafx.scene.control.Alert.AlertType
 import javafx.scene.input.MouseEvent
 import javafx.scene.paint.ImagePattern
@@ -66,10 +68,32 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
   }
 
-  def addToToolbar(toolbar: ToolBar, btn: Button, isLast:Boolean): Unit = {
+  def addToToolbar(toolbar: ToolBar, btn: Node, isLast:Boolean): Unit = {
     toolbar.getItems.add(btn)
     if(!isLast) toolbar.getItems.add(new Separator())
   }
+
+  private val observableHealthPoint = (new SimpleDoubleProperty(gameC.user.actualHealthPoint.toDouble / gameC.user.totalHealthPoint.toDouble), new SimpleStringProperty("Player: " + gameC.user.actualHealthPoint + "hp"))
+
+  def updateHP(): Unit = {
+    val ratio: Double = gameC.user.actualHealthPoint.toDouble / gameC.user.totalHealthPoint.toDouble
+    println("LIFE IS: " + gameC.user.actualHealthPoint)
+    observableHealthPoint._1.set(if ( ratio > 0 ) ratio else 0)
+    observableHealthPoint._2.set(if ( ratio > 0 ) "Player: " + gameC.user.actualHealthPoint + "hp" else "Player: 0hp")
+  }
+
+  var life = new StackPane {
+    children = List(new ProgressBar {
+      progress <== observableHealthPoint._1
+      styleClass.add("life")
+    }, new Label {
+      styleClass.add("title")
+      text <== observableHealthPoint._2
+    })
+  }
+
+
+
 
   var menu: VBox = new VBox {
     val toolbar = new ToolBar()
@@ -86,11 +110,15 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
         alert.setHeaderText("You obtained a new item!")
         alert.setContentText("ITEM")
         alert.showAndWait();}
-    }, true)
+    }, false)
+
+
+    addToToolbar(toolbar, life, true)
 
     children = toolbar
     minWidth = 1200
   }
+
 
 
   def setMenu(): Unit = {

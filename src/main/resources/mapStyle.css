@@ -49,6 +49,12 @@
 
 }
 
+.life {
+  -fx-pref-width: 200;
+  -fx-accent: green;
+}
+
+
 
 /***** Shop ****/
 

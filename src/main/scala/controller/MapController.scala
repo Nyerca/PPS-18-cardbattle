@@ -48,6 +48,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
   override def list:ListBuffer[RectangleWithCell] = _list
   override def removeEnemyCell(): Unit = {
     println("POOOOOOOOOOOOOOOOS: " + _player.position)
+    view.updateHP()
     //var outElem: PlayerRepresentation = _
 
     //for { el <- list; element = el.rectCell.enemy._2; if element.isDefined} yield println("UGUALE a: " + element.get)
