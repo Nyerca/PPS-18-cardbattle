@@ -14,6 +14,8 @@ import view.scenes.MapScene
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
 import model.Placeable._
+import scalafx.animation.{Interpolator, TranslateTransition}
+import scalafx.util.Duration
 
 trait MapController {
   def gameC: GameController
@@ -35,6 +37,7 @@ trait MapController {
   def handleSave(): Unit
   def handleKey(keyCode : KeyCode): Unit
   def handleMouseClicked(e:MouseEvent): Unit
+  def reset():Unit
 }
 
 
@@ -46,9 +49,10 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
   override def selected_(element: Option[Cell]):Unit = selected = element
 
   override def list:ListBuffer[RectangleWithCell] = _list
+
   override def removeEnemyCell(): Unit = {
     println("POOOOOOOOOOOOOOOOS: " + _player.position)
-    view.updateHP()
+    view.updateParameters()
     //var outElem: PlayerRepresentation = _
 
     //for { el <- list; element = el.rectCell.enemy._2; if element.isDefined} yield println("UGUALE a: " + element.get)
@@ -84,15 +88,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
     dashboard.setCells(_list)
   }
 
-/*
-  var _player : PlayerWithCell = _
-  startingDefined match {
-    case Some(rect: RectangleCell) => _player = new PlayerWithCell(rect, "bot.png")
-    case _ => _player = new PlayerWithCell(list.head.rectCell, "bot.png")
-  }
-  _player.setFill()
-  override def player: PlayerWithCell = _player
-*/
+
 var _player : PlayerRepresentation = _
   startingDefined match {
     case Some(rect: RectangleCell) => _player = new PlayerRepresentation(rect, "bot.png")
@@ -100,7 +96,9 @@ var _player : PlayerRepresentation = _
   }
   override def player: PlayerRepresentation = _player
 
-  val dashboard = new DashboardImpl(list, _player)
+
+  var dashboard = new DashboardImpl(list, _player)
+  println("DASHBOARD: " + dashboard.toString)
 
   var view: MapScene = _
   override def view_ (newView : MapScene): Unit = {
@@ -108,6 +106,14 @@ var _player : PlayerRepresentation = _
     //println("VIEW: " + view)
     MovementAnimation.setAnimationNode(view.bpane)
     view.setMenu()
+  }
+
+  override def reset(): Unit = {
+
+    val newMap =  MapScene(view.parentStage, gameC)
+    gameC.gameMap = newMap
+    gameC.setScene(view, newMap)
+
   }
 
 
@@ -122,13 +128,24 @@ var _player : PlayerRepresentation = _
 
   def afterMovement(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean): Unit = isEnded match {
     case true =>
+      println("TRASLATION: " +  view.bpane.translateX.toDouble + " " + view.bpane.translateY.toDouble)
+
+      if(newRectangle.url.contains("Dmg")) {
+        gameC.user.actualHealthPoint = gameC.user.actualHealthPoint - 1
+        view.updateHP()
+      }
       player.position_(newRectangle, stringUrl)
       view.playerImg_(player)
       //println("--------------------------------")
       //println(player._position)
       if(player._position.mapEvent.isDefined) {
         if(player._position.mapEvent.get.callEvent.isInstanceOf[Enemy]) view.changeScene(gameC.user, player._position.mapEvent.get.callEvent.asInstanceOf[Enemy])
-        if(player._position.mapEvent.get.callEvent.isInstanceOf[Statue]) view.showStatueAlert(5);
+        else if(player._position.mapEvent.get.callEvent.isInstanceOf[Statue]) view.showStatueAlert(5);
+        else if(player._position.mapEvent.get.callEvent.isInstanceOf[Pyramid]) {
+          if(player._position.mapEvent.get.playerRepresentation.url.contains("Door")) {
+            reset()
+        }
+        }
 
         // _view.changeScene()
       }
@@ -174,37 +191,6 @@ var _player : PlayerRepresentation = _
     output.close()
   }
 
-/*
-  override def createBottomCard(): ListBuffer[Button] = {
-    val tmpList = ListBuffer[Button]()
-    val btn: Button = new Button {
-      val re = new RectangleCellImpl(true, true, true, true, _x= 0.0, elementY=0.0)
-      onAction = () => selected = Option(re)
-      defaultButton = true
-      graphic = new ImageView(RectangleCell.createImage(re.url, re.rotation).getImage)
-    }
-    tmpList.append(btn)
-
-    for(i<-0 until 4) {
-      val btn_tmp: Button = new Button {
-        var re: Cell = _
-        if(math.random() <= 0.8) {
-          re = RectangleCell.generateRandomCard()
-          graphic = new ImageView(re.image)
-        } else {
-          re = new EnemyCell(gameC.spawnEnemy(Random.nextInt(4)))
-          graphic = new ImageView(re.image)
-        }
-        onAction = () => selected = Option(re)
-        defaultButton = true
-      }
-      tmpList.append(btn_tmp)
-    }
-    tmpList
-  }
-  */
-
-
   override def postInsert(): Unit = {
     view.setPaneChildren(list, Option.empty)
     selected = Option.empty
@@ -216,6 +202,7 @@ var _player : PlayerRepresentation = _
 
   override def handleMouseClicked(e:MouseEvent): Unit = {
     val cell = dashboard.searchPosition(e.x - dashboard.traslationX, e.y - dashboard.traslationY)
+    println("CLICKED : " + cell)
     selected match {
       case Some(rc:RectangleCell) =>
         rc.x_(sum(e.x, dashboard.traslationX))

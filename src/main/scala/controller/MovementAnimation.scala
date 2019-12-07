@@ -18,6 +18,7 @@ object MovementAnimation {
     interpolator = Interpolator.Linear
   }
 
+
   def setAnimationNode (pane : BorderPane): Unit = anim.node = pane.center.apply()
 
 

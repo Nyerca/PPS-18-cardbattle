@@ -178,7 +178,7 @@ object RectangleCell {
     }
     val rectcell=  new RectangleCellImpl(top, right, bottom, left, _x= rngX, elementY=rngY)
     var probEnemy = 0.1
-    var probStatue = 0.1
+    var probStatue = 1
     val probDmg = 0.3
 
 

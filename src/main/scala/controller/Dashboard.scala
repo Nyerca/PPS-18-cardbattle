@@ -15,6 +15,8 @@ trait Dashboard {
   def traslationX: Double
   def traslationY: Double
 
+  def reset(list: ListBuffer[RectangleWithCell]): Unit
+
   def move(movement : Move, fun:(RectangleCell, String, Boolean) => Unit): Unit
 }
 
@@ -40,18 +42,28 @@ class DashboardImpl (var cells: ListBuffer[RectangleWithCell], override val play
   override def traslationX: Double = _traslationX
   override def traslationY: Double = _traslationY
 
-
+  override def reset(list: ListBuffer[RectangleWithCell]): Unit = {
+    cells = list
+    _traslationX = 0.0
+    _traslationY = 0.0
+    MovementAnimation.setAnimation(0, 0, 0, 0)
+  }
 
   private def move(url : String, movement:Move, incX : Double, incY : Double, fun:(RectangleCell, String, Boolean) => Unit): Unit = {
     MovementAnimation.setAnimation(traslationX, traslationX + incX.toInt * (-5), traslationY, traslationY + incY.toInt * (-5))
 
     val newRectangle = this.searchPosition(player.position.x + incX.toInt * (-5), player.position.getY + incY.toInt * (-5), movement.opposite)
 
+    println("PLAYER POSITION: " + player.position)
+    println("MAP: " + this.toString)
+
     if(player.position.isMoveAllowed(movement)) {
       if(newRectangle.isDefined) {
         MovementAnimation.setAnimationIncrement(newRectangle.get, incX, incY, url, fun)
          _traslationX += incX * 5;
         _traslationY += incY * 5;
+
+        println("ANIM: " + MovementAnimation.anim.fromX + " " + MovementAnimation.anim.fromY + " " + MovementAnimation.anim.toX + " " + MovementAnimation.anim.toY)
         MovementAnimation.anim.play();
 
       } else throw new MissingCellException

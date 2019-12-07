@@ -20,8 +20,10 @@ import scalafx.stage.Stage
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
 import model.Cell
+import scalafx.animation.{Interpolator, TranslateTransition}
 import scalafx.application.Platform
 import scalafx.scene.control.ScrollPane.ScrollBarPolicy
+import scalafx.util.Duration
 
 class MapScene (override val parentStage: Stage, var _controller : MapController, var gameC :GameController) extends BaseScene{
   stylesheets.add("mapStyle.css")
@@ -48,6 +50,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
 
   }
+
 
   def showStatueAlert(money: Int): Unit = {
     Platform.runLater(() -> {
@@ -82,6 +85,11 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     observableHealthPoint._2.set(if ( ratio > 0 ) "Player: " + gameC.user.actualHealthPoint + "hp" else "Player: 0hp")
   }
 
+  def updateParameters(): Unit = {
+    updateHP();
+    observableLevel.set("Level: " + gameC.user.level)
+  }
+
   var life = new StackPane {
     children = List(new ProgressBar {
       progress <== observableHealthPoint._1
@@ -92,7 +100,8 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     })
   }
 
-
+  private val observableLevel = new SimpleStringProperty("Level: " + gameC.user.level)
+  var level = new Label{text <== observableLevel}
 
 
   var menu: VBox = new VBox {
@@ -113,7 +122,8 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     }, false)
 
 
-    addToToolbar(toolbar, life, true)
+    addToToolbar(toolbar, life, false)
+    addToToolbar(toolbar, level, true)
 
     children = toolbar
     minWidth = 1200
@@ -174,13 +184,14 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
   }
 
 
-  val _bpane: BorderPane = new BorderPane {
+  var _bpane: BorderPane = new BorderPane {
     top = menu
     center = _pane
     bottom = bottomPane
   }
 
   def bpane: BorderPane = _bpane
+
 
   _controller.view_(this)
 
@@ -227,7 +238,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
   var playerImg = icon(_controller.player)
   def playerImg_(player: PlayerRepresentation):Unit = {playerImg.fill_=(new ImagePattern(new Image(player.url)))}
 
-  val paneWithPlayer  = new Pane {
+  val playerPane = new Pane {
     children = _controller.list
     children.append(_bpane)
     children.append(playerImg)
@@ -254,7 +265,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     }
   }
 
-  root = paneWithPlayer
+  root = playerPane
 
 
   def changeScene(user:User, enemy:Enemy): Unit = {
