@@ -65,7 +65,15 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
       //alert.show()
       val res = alert.showAndWait();
       // alert is exited, no button has been pressed.
-      if( res.isDefined && res.get == ButtonType.OK) {println("OK")}
+      if( res.isDefined && res.get == ButtonType.OK) {
+        if(gameC.user.coins >= money) {
+          gameC.user.coins= gameC.user.coins - money
+          gameC.user.actualHealthPoint = gameC.user.totalHealthPoint
+          updateHP();
+        } else {
+          println("You haven't got enough money!")
+        }
+      }
     });
 
 
