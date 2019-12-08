@@ -41,18 +41,22 @@ trait MapController {
 }
 
 
-class MapControllerImpl (override val gameC : GameController, var _list:ListBuffer[RectangleWithCell], var startingDefined : Option[RectangleCell]) extends MapController {
+class MapControllerImpl (override val gameC : GameController, var _list:ListBuffer[RectangleWithCell], var startingDefined : Option[RectangleCell], traslationX:Double, traslationY:Double) extends MapController {
 
-  def this(gameC : GameController) {this(gameC,MapController.setup(gameC),Option.empty)}
+  def this(gameC : GameController) {this(gameC,MapController.setup(gameC),Option.empty,0,0)}
+
+  println("traslationX: " + traslationX)
+
 
   var selected:Option[Cell] = Option.empty
   override def selected_(element: Option[Cell]):Unit = selected = element
 
   override def list:ListBuffer[RectangleWithCell] = _list
 
+
   override def removeEnemyCell(): Unit = {
     println("POOOOOOOOOOOOOOOOS: " + _player.position)
-    view.updateParameters()
+
     //var outElem: PlayerRepresentation = _
 
     //for { el <- list; element = el.rectCell.enemy._2; if element.isDefined} yield println("UGUALE a: " + element.get)
@@ -62,10 +66,12 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
 
     //list.remove(list.indexOf(list.find(rc => rc.rectCell == _player.position)))
 
-  if(elem.isDefined) {
+  if(elem.isDefined && elem.get.rectCell.mapEvent.get.callEvent.isInstanceOf[Enemy]) {
     elem.get.rectCell.mapEvent_(Option.empty)
     postInsert()
   }
+
+    view.updateParameters()
 
       if(getAllEnemies.size == 0) {
         println("No more enemies.......")
@@ -88,21 +94,28 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
     dashboard.setCells(_list)
   }
 
+  var dashboard = new DashboardImpl(list)
+dashboard.translationX_(traslationX)
+  dashboard.translationY_(traslationY)
 
 var _player : PlayerRepresentation = _
   startingDefined match {
-    case Some(rect: RectangleCell) => _player = new PlayerRepresentation(rect, "bot.png")
+    case Some(rect: RectangleCell) => {
+      _player = new PlayerRepresentation(dashboard.searchPosition(rect.x, rect.getY).get, "bot.png")
+    }
     case _ => _player = new PlayerRepresentation(list.head.rectCell, "bot.png")
   }
   override def player: PlayerRepresentation = _player
 
 
-  var dashboard = new DashboardImpl(list, _player)
+  dashboard.player_(_player)
   println("DASHBOARD: " + dashboard.toString)
+
 
   var view: MapScene = _
   override def view_ (newView : MapScene): Unit = {
     view = newView
+
     //println("VIEW: " + view)
     MovementAnimation.setAnimationNode(view.bpane)
     view.setMenu()
@@ -158,10 +171,10 @@ var _player : PlayerRepresentation = _
 
   override def handleKey(keyCode : KeyCode): Unit = {
     keyCode.getName match {
-      case "Up" => if(checkAnimationEnd("top")) dashboard.move(Top, afterMovement) ;
-      case "Left" => if(checkAnimationEnd("left")) dashboard.move(Left, afterMovement) ;
-      case "Down" => if(checkAnimationEnd("bot")) dashboard.move(Bottom, afterMovement)
-      case "Right" => if(checkAnimationEnd("right")) dashboard.move(Right, afterMovement) ;
+      case "W" => if(checkAnimationEnd("top")) dashboard.move(Top, afterMovement) ;
+      case "A" => if(checkAnimationEnd("left")) dashboard.move(Left, afterMovement) ;
+      case "S" => if(checkAnimationEnd("bot")) dashboard.move(Bottom, afterMovement)
+      case "D" => if(checkAnimationEnd("right")) dashboard.move(Right, afterMovement) ;
       case _ => {}
     }
   }
@@ -188,14 +201,30 @@ var _player : PlayerRepresentation = _
     for(el <-list)  outList.append(el.rectCell)
     output.writeObject(outList)
     output.writeObject(player)
+    output.writeObject(gameC.user)
+    output.writeObject(gameC.difficulty)
+    output.writeObject(dashboard.traslationX)
+    output.writeObject(dashboard.traslationY)
     output.close()
   }
 
   override def postInsert(): Unit = {
+    view.updateParameters()
+    if(getAllEnemies.size > 0) {
+
+      for { el <- list; element = el.rectCell.mapEvent; if element.isDefined && element.get.callEvent.isInstanceOf[Pyramid]} yield{
+
+        val pyramid: Pyramid = el.rectCell.mapEvent.get.callEvent.asInstanceOf[Pyramid]
+        el.rectCell.mapEvent_(Option(MapEvent.createMapEvent(pyramid, new PlayerRepresentation(el.rectCell, "pyramid.png"))))
+
+      }
+
+    }
     view.setPaneChildren(list, Option.empty)
     selected = Option.empty
     view.setBPane()
   }
+
 
 
   import model.Monoid._

@@ -1,5 +1,6 @@
 package controller
 
+import controller.SoundType._
 import scalafx.scene.media.{Media, MediaPlayer}
 
 trait SoundType
@@ -7,30 +8,23 @@ trait SoundType
 object SoundType {
   case object MainMenuSound extends SoundType
   case object MapSound extends SoundType
+  case object BattleSound extends SoundType
   case object WinningSound extends SoundType
   case object LoseSound extends SoundType
 }
+
 object MusicPlayer {
+  var mediaPlayer :MediaPlayer = _
 
-
-  private var mediaPlayer: MediaPlayer = _
-
-  def play(soundType: SoundType): Unit = {
+  def play(soundType:SoundType) = {
     soundType match {
-      case SoundType.MainMenuSound => mediaPlayer = new MediaPlayer(new Media(""))
-      case SoundType.LoseSound => mediaPlayer = new MediaPlayer(new Media(""))
-      case SoundType.WinningSound => mediaPlayer = new MediaPlayer(new Media(""))
-      case _ => mediaPlayer = new MediaPlayer(new Media(""))
+      case MainMenuSound =>mediaPlayer = new MediaPlayer(new Media(getClass.getClassLoader.getResource("Theme1.m4a").toString)) {volume = if(mediaPlayer==null) 0.5 else mediaPlayer.volume.toDouble}
+      case MapSound =>mediaPlayer = new MediaPlayer(new Media(getClass.getClassLoader.getResource("Theme1.m4a").toString)) {volume = if(mediaPlayer==null) 0.5 else mediaPlayer.volume.toDouble}
+      case BattleSound =>mediaPlayer = new MediaPlayer(new Media(getClass.getClassLoader.getResource("Battle1.m4a").toString)) {volume = if(mediaPlayer==null) 0.5 else mediaPlayer.volume.toDouble}
+      case WinningSound =>mediaPlayer = new MediaPlayer(new Media(getClass.getClassLoader.getResource("Theme1.m4a").toString))
+      case LoseSound => mediaPlayer = new MediaPlayer(new Media(getClass.getClassLoader.getResource("Theme1.m4a").toString))
     }
+    mediaPlayer.cycleCount = MediaPlayer.Indefinite
     mediaPlayer.play()
   }
-
-  def pause: Unit = mediaPlayer.pause()
-
-  def resume: Unit = mediaPlayer.play()
-
-  def volumeUp: Unit = mediaPlayer.volume += 1
-
-  def volumeDown: Unit = mediaPlayer.volume -= 1
-
 }

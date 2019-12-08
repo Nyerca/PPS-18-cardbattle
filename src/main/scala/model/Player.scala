@@ -1,6 +1,6 @@
 package model
 
-trait Player {
+trait Player extends Serializable {
   def name: String
   def level: Int
   def image: String

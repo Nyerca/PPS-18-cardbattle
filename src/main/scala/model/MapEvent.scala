@@ -10,7 +10,7 @@ case class Pyramid() extends CellEvent {
 
 }
 
-trait MapEvent {
+trait MapEvent extends Serializable {
   def callEvent: CellEvent
   def playerRepresentation : PlayerRepresentation
   def playerRepresentation_(pRep : PlayerRepresentation):Unit

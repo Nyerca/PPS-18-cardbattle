@@ -1,6 +1,8 @@
 package view.scenes
 
-import controller.{GameController, MapController, MapControllerImpl}
+import AudioPlayer1.Launcher.{getClass, stage}
+import controller.MusicPlayer.mediaPlayer
+import controller._
 import exception._
 import javafx.beans.property.{SimpleDoubleProperty, SimpleStringProperty}
 import javafx.event.{ActionEvent, EventHandler}
@@ -21,34 +23,20 @@ import scala.collection.mutable.ListBuffer
 import scala.util.Random
 import model.Cell
 import scalafx.animation.{Interpolator, TranslateTransition}
+import scalafx.application.JFXApp.PrimaryStage
 import scalafx.application.Platform
 import scalafx.scene.control.ScrollPane.ScrollBarPolicy
+import scalafx.scene.media.{Media, MediaPlayer}
+import scalafx.scene.text.Text
 import scalafx.util.Duration
 
-class MapScene (override val parentStage: Stage, var _controller : MapController, var gameC :GameController) extends BaseScene{
+class MapScene (override val parentStage: Stage, var _controller : MapController, var gameC :GameController,traslationX : Double = 0, traslationY: Double = 0) extends BaseScene{
   stylesheets.add("mapStyle.css")
 
+
+
   val _pane = new Pane {
-    children = _controller.list
     maxHeight = 800
-
-    for(el <- _controller.getAllEnemies() ) {
-      val cell = new PlayerRepresentation(el.position, el.url)
-      println("Add ENEMY")
-      children.append(icon(cell, 100, 90))
-    }
-    for(el <- _controller.getAllStatues() ) {
-      val cell = new PlayerRepresentation(el.position, el.url)
-      println("Add statueeeeee")
-      children.append(icon(cell, 38, 110))
-    }
-    val pyramid = _controller.getPyramid();
-    val cell = new PlayerRepresentation(pyramid.position, pyramid.url)
-    println("Add pyramid")
-    println(cell)
-    children.append(icon(cell, 80, 110))
-
-
   }
 
 
@@ -65,7 +53,16 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
       //alert.show()
       val res = alert.showAndWait();
       // alert is exited, no button has been pressed.
-      if( res.isDefined && res.get == ButtonType.OK) {println("OK")}
+      if( res.isDefined && res.get == ButtonType.OK) {
+        println("USER_Money: " + gameC.user.coins)
+        if(gameC.user.coins >= money) {
+          gameC.user.coins= gameC.user.coins - money
+          gameC.user.actualHealthPoint = gameC.user.totalHealthPoint
+          updateHP();
+        } else {
+          println("You haven't got enough money!")
+        }
+      }
     });
 
 
@@ -87,6 +84,9 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
   def updateParameters(): Unit = {
     updateHP();
+    println("NEW SIZE: " + _controller.getAllEnemies().size)
+    remainingEnemies.set("Enemies: " + _controller.getAllEnemies().size)
+    observableGold.set("Gold: " +gameC.user.coins+ "x")
     observableLevel.set("Level: " + gameC.user.level)
   }
 
@@ -100,9 +100,35 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     })
   }
 
+  private val remainingEnemies = new SimpleStringProperty("Enemies: " + _controller.getAllEnemies().size)
+  var enemies = new Label{text <== remainingEnemies}
+
+  private val observableGold = new SimpleStringProperty("Gold: " +gameC.user.coins+ "x")
+  var gold = new Label{text <== observableGold}
+
   private val observableLevel = new SimpleStringProperty("Level: " + gameC.user.level)
   var level = new Label{text <== observableLevel}
 
+  private def setDifficulty: Difficulty = {
+    new ChoiceDialog(Difficulty.Medium, List(Difficulty.Easy, Difficulty.Medium, Difficulty.Hard)) {
+      title = "Select difficulty"
+      headerText = "Select difficulty"
+    }.showAndWait().get
+  }
+
+  private def createSlider(sliderId: String): Slider = new Slider {
+    min = 0
+    max = 1
+    value = 0
+    id = sliderId
+  }
+
+  var volumeSlider: Slider = createSlider("volumeSlider")
+
+  private def addListenersAndBindings(mp: MediaPlayer): Unit = {
+    volumeSlider.value <==> mp.volume
+  }
+  addListenersAndBindings(MusicPlayer.mediaPlayer)
 
   var menu: VBox = new VBox {
     val toolbar = new ToolBar()
@@ -110,20 +136,24 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
       onAction = () => parentStage.scene_=(EquipmentScene(parentStage, gameC))
       layoutX = 110
     }, false)
-    addToToolbar(toolbar, new Button("Shop"){onAction = () => parentStage.scene_=(ShopScene(parentStage))}, false)
     addToToolbar(toolbar, new Button("Save"){onAction = () => _controller.handleSave()}, false)
+    addToToolbar(toolbar, new Button("Option"){onAction = () =>
+gameC.difficulty = setDifficulty
+    }, false)
     addToToolbar(toolbar, new Button("Quit"){
-      onAction = () => {  val alert = new Alert(AlertType.INFORMATION)
-        alert.setTitle("Item Obtained")
-        alert.setGraphic(new ImageView(new Image("vamp.png")))
-        alert.setHeaderText("You obtained a new item!")
-        alert.setContentText("ITEM")
-        alert.showAndWait();}
+      onAction = () => {
+        System.exit(0)
+      }
     }, false)
 
 
     addToToolbar(toolbar, life, false)
-    addToToolbar(toolbar, level, true)
+    addToToolbar(toolbar, level, false)
+
+    addToToolbar(toolbar, gold, true)
+    addToToolbar(toolbar, new ImageView(new Image("coin.png")), false)
+    addToToolbar(toolbar, enemies, false)
+    addToToolbar(toolbar, volumeSlider, true)
 
     children = toolbar
     minWidth = 1200
@@ -190,9 +220,9 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     bottom = bottomPane
   }
 
+  //_pane.layoutX_=(-200)
+
   def bpane: BorderPane = _bpane
-
-
   _controller.view_(this)
 
   def setPaneChildren(list :ListBuffer[RectangleWithCell], tmpRect : Option[RectangleCell]): Unit = {
@@ -219,6 +249,8 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
     _pane.children =listTmp
   }
+
+
   def setBPane(): Unit = {
     var addList = createBottomCard()
     bottomPane.children = addList
@@ -235,13 +267,20 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     }
   }
 
-  var playerImg = icon(_controller.player)
+  var playerImg = new Rectangle() {
+    x=_controller.list.head.rectCell.x+_controller.list.head.rectCell.getWidth/2 - 60/2
+    y=(_controller.list.head.rectCell.getY+_controller.list.head.rectCell.getHeight/2)-(80-10)
+    width = 60
+    height = 80
+    fill_=(new ImagePattern(new Image(_controller.player.url)))
+  }
   def playerImg_(player: PlayerRepresentation):Unit = {playerImg.fill_=(new ImagePattern(new Image(player.url)))}
 
   val playerPane = new Pane {
     children = _controller.list
     children.append(_bpane)
     children.append(playerImg)
+
     id = "rootPane"
 
     onKeyPressed = (ke : KeyEvent) =>  {
@@ -264,8 +303,12 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
       }
     }
   }
+  _pane.translateX=traslationX
+  _pane.translateY=traslationY
 
+  setPaneChildren(_controller.list, Option.empty)
   root = playerPane
+
 
 
   def changeScene(user:User, enemy:Enemy): Unit = {
@@ -280,4 +323,5 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
 object MapScene {
   def apply(parentStage: Stage, gameC : GameController): MapScene = new MapScene(parentStage, new MapControllerImpl(gameC),gameC)
+  def apply(parentStage: Stage, gameC : GameController, list:ListBuffer[RectangleWithCell],startingDefined : Option[RectangleCell], traslationX : Double, traslationY: Double): MapScene = new MapScene(parentStage, new MapControllerImpl(gameC, list, startingDefined,traslationX,traslationY),gameC,traslationX,traslationY)
 }

@@ -1,13 +1,14 @@
 package view.scenes
 
 import Utility.{GUIObjectFactory, TransitionFactory}
-import controller.{BattleController, GameController}
+import controller.{BattleController, GameController, MusicPlayer, SoundType}
 import model._
 import scalafx.Includes._
 import scalafx.scene.control.Button
 import scalafx.scene.layout.Pane
 import scalafx.stage.Stage
 import scalafx.util.Duration
+
 import language.postfixOps
 import view.scenes.component.{BattlePlayerRepresentation, CardComponent}
 
@@ -59,6 +60,8 @@ class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy,
   }
 
   root = GUIObjectFactory.paneFactory(userCardIndicators ++ userHandCard.map(x => x.clickableCard) ++ userHandCard.map(x => x.cardLevel) ++ userHandCard.map(x => x.cardName) ++ userHandCard.map(x => x.cardDamage) ++ List(cpuCardIndicator, userDeck, cpuDeck, cpuHandCard.clickableCard, cpuHandCard.cardName, cpuHandCard.cardDamage, cpuHandCard.cardLevel, battleField), "common", "battleScene")
+
+  MusicPlayer.play(SoundType.BattleSound)
 
   battleController.drawCard(enemy)
 

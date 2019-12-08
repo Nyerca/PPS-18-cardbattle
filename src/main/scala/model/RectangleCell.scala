@@ -22,6 +22,7 @@ trait RectangleCell extends Serializable with Cell {
   def _x: Double
   def x: Double
   def elementY: Double
+  def setDamage():Unit
 
   def canEqual(other: Any): Boolean
   def url: String
@@ -92,7 +93,7 @@ class RectangleCellImpl (override val top: Boolean, override val right: Boolean,
   override def rotation: Int = _rotation
 
 
-  def setDamage(): Unit = {
+  override def setDamage(): Unit = {
     _url = _url.substring(0, _url.length - 4) + "Dmg.png"
   }
 
@@ -178,7 +179,7 @@ object RectangleCell {
     }
     val rectcell=  new RectangleCellImpl(top, right, bottom, left, _x= rngX, elementY=rngY)
     var probEnemy = 0.1
-    var probStatue = 1
+    var probStatue = 0.1
     val probDmg = 0.3
 
 
@@ -220,7 +221,9 @@ object RectangleCell {
       bottom = math.random()>0.5
       left = math.random()>0.5
     }
-    new RectangleCellImpl(top, right, bottom, left, _x= 0, elementY=0)
+    val re = new RectangleCellImpl(top, right, bottom, left, _x= 0, elementY=0)
+    if(math.random() <= 0.4) re.setDamage()
+    re
   }
 
   def createImage(url: String, rotation: Double): ImagePattern = {
