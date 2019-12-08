@@ -7,6 +7,8 @@ import scala.util.Random
 
 trait BattleController {
 
+  MusicPlayer.play(SoundType.BattleSound)
+
   def user: User
 
   user.battleDeck = Random.shuffle(user.battleDeck)

@@ -1,6 +1,5 @@
 package view.scenes
 
-import AudioPlayer1.Launcher.{getClass, stage}
 import controller.MusicPlayer.mediaPlayer
 import controller._
 import exception._
@@ -47,6 +46,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
       alert.setGraphic(new ImageView(new Image("statue.png")))
       alert.setHeaderText("Would you like to heal donating " + money + " golds?")
       alert.setContentText("ITEM")
+
 
 
       //alert.setOnShown(() => {println("caciao")})
@@ -121,14 +121,15 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     max = 1
     value = 0
     id = sliderId
+    value <==> MusicPlayer.observableVolume
   }
 
   var volumeSlider: Slider = createSlider("volumeSlider")
 
-  private def addListenersAndBindings(mp: MediaPlayer): Unit = {
+  /*private def addListenersAndBindings(mp: MediaPlayer): Unit = {
     volumeSlider.value <==> mp.volume
   }
-  addListenersAndBindings(MusicPlayer.mediaPlayer)
+  addListenersAndBindings(MusicPlayer.mediaPlayer)*/
 
   var menu: VBox = new VBox {
     val toolbar = new ToolBar()
