@@ -15,7 +15,7 @@ object Type {
 }
 
 
-trait Card {
+trait Card  extends Serializable {
   var level: Int
   var value: Int
   def name: String

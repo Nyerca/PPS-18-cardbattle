@@ -7,6 +7,7 @@ import scala.collection.mutable.ListBuffer
 trait Dashboard {
   def cells: ListBuffer[RectangleWithCell]
   def player: PlayerRepresentation
+  def player_(newPlayer: PlayerRepresentation):Unit
 
   def toString(): String
   def setCells(newList: ListBuffer[RectangleWithCell])
@@ -14,17 +15,23 @@ trait Dashboard {
   def searchPosition(newX : Double, newY : Double, movement: Move): Option[RectangleCell]
   def traslationX: Double
   def traslationY: Double
+  def translationX_(newVal: Double):Unit
+  def translationY_(newVal: Double):Unit
 
   def reset(list: ListBuffer[RectangleWithCell]): Unit
 
   def move(movement : Move, fun:(RectangleCell, String, Boolean) => Unit): Unit
 }
 
-class DashboardImpl (var cells: ListBuffer[RectangleWithCell], override val player: PlayerRepresentation) extends  Dashboard {
+class DashboardImpl (var cells: ListBuffer[RectangleWithCell]) extends  Dashboard {
+
+  var player:PlayerRepresentation = _
 
   override def toString :String = {
     "Player: (" + player.position.x + ", " + player.position.getY + ")" + "  Translation: ("+ _traslationX + ", " +_traslationY + ")" + cells
   }
+
+  override def player_(newPlayer: PlayerRepresentation):Unit = player = newPlayer
 
   override def setCells(newList: ListBuffer[RectangleWithCell]) { cells = newList}
 
@@ -41,6 +48,8 @@ class DashboardImpl (var cells: ListBuffer[RectangleWithCell], override val play
   private var _traslationY = 0.0
   override def traslationX: Double = _traslationX
   override def traslationY: Double = _traslationY
+  override def translationX_(newVal: Double):Unit = _traslationX = newVal
+  override def translationY_(newVal: Double):Unit = _traslationY = newVal
 
   override def reset(list: ListBuffer[RectangleWithCell]): Unit = {
     cells = list

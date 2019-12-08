@@ -18,7 +18,6 @@ class MainScene(override val parentStage: Stage) extends BaseScene {
   }, GUIObjectFactory.DEFAULT_STYLE, "New Game")("mainPageButton")
 
   val loadGame: Button = GUIObjectFactory.buttonFactory(950, 600, mouseTransparency = false, handle {
-    gameController.difficulty = setDifficulty
     gameController.setUserInformation(OperationType.LoadGame, parentStage)
     gameController.setScene(this)
   }, GUIObjectFactory.DEFAULT_STYLE, "Load Game")("mainPageButton")
