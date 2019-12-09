@@ -1,7 +1,10 @@
 package view.scenes
 
-import controller.{GameController, MapController, MapControllerImpl}
+import controller.MusicPlayer.mediaPlayer
+import controller._
 import exception._
+import javafx.beans.property.{SimpleDoubleProperty, SimpleStringProperty}
+import javafx.event.{ActionEvent, EventHandler}
 import javafx.scene.control.Alert.AlertType
 import javafx.scene.input.MouseEvent
 import javafx.scene.paint.ImagePattern
@@ -18,25 +21,115 @@ import scalafx.stage.Stage
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
 import model.Cell
+import scalafx.animation.{Interpolator, TranslateTransition}
+import scalafx.application.JFXApp.PrimaryStage
+import scalafx.application.Platform
 import scalafx.scene.control.ScrollPane.ScrollBarPolicy
+import scalafx.scene.media.{Media, MediaPlayer}
+import scalafx.scene.text.Text
+import scalafx.util.Duration
 
-class MapScene (override val parentStage: Stage, var _controller : MapController, var gameC :GameController) extends BaseScene{
+class MapScene (override val parentStage: Stage, var _controller : MapController, var gameC :GameController,traslationX : Double = 0, traslationY: Double = 0) extends BaseScene{
   stylesheets.add("mapStyle.css")
 
-  val _pane = new Pane {
-    children = _controller.list
-    maxHeight = 800
-    for(el <- _controller.getAllEnemies() ) {
-      val cell = new PlayerRepresentation(el.position, el.url)
 
-      children.append(icon(cell, 100, 90))
-    }
+
+  val _pane = new Pane {
+    maxHeight = 800
   }
 
-  def addToToolbar(toolbar: ToolBar, btn: Button, isLast:Boolean): Unit = {
+
+  def showStatueAlert(money: Int): Unit = {
+    Platform.runLater(() -> {
+      val alert = new Alert(AlertType.CONFIRMATION)
+      alert.setTitle("God statue")
+      alert.setGraphic(new ImageView(new Image("statue.png")))
+      alert.setHeaderText("Would you like to heal donating " + money + " golds?")
+      alert.setContentText("ITEM")
+
+
+
+      //alert.setOnShown(() => {println("caciao")})
+      //alert.show()
+      val res = alert.showAndWait();
+      // alert is exited, no button has been pressed.
+      if( res.isDefined && res.get == ButtonType.OK) {
+        println("USER_Money: " + gameC.user.coins)
+        if(gameC.user.coins >= money) {
+          gameC.user.coins= gameC.user.coins - money
+          gameC.user.actualHealthPoint = gameC.user.totalHealthPoint
+          updateHP();
+        } else {
+          println("You haven't got enough money!")
+        }
+      }
+    });
+
+
+  }
+
+  def addToToolbar(toolbar: ToolBar, btn: Node, isLast:Boolean): Unit = {
     toolbar.getItems.add(btn)
     if(!isLast) toolbar.getItems.add(new Separator())
   }
+
+  private val observableHealthPoint = (new SimpleDoubleProperty(gameC.user.actualHealthPoint.toDouble / gameC.user.totalHealthPoint.toDouble), new SimpleStringProperty("Player: " + gameC.user.actualHealthPoint + "hp"))
+
+  def updateHP(): Unit = {
+    val ratio: Double = gameC.user.actualHealthPoint.toDouble / gameC.user.totalHealthPoint.toDouble
+    println("LIFE IS: " + gameC.user.actualHealthPoint)
+    observableHealthPoint._1.set(if ( ratio > 0 ) ratio else 0)
+    observableHealthPoint._2.set(if ( ratio > 0 ) "Player: " + gameC.user.actualHealthPoint + "hp" else "Player: 0hp")
+  }
+
+  def updateParameters(): Unit = {
+    updateHP();
+    println("NEW SIZE: " + _controller.getAllEnemies().size)
+    remainingEnemies.set("Enemies: " + _controller.getAllEnemies().size)
+    observableGold.set("Gold: " +gameC.user.coins+ "x")
+    observableLevel.set("Level: " + gameC.user.level)
+  }
+
+  var life = new StackPane {
+    children = List(new ProgressBar {
+      progress <== observableHealthPoint._1
+      styleClass.add("life")
+    }, new Label {
+      styleClass.add("title")
+      text <== observableHealthPoint._2
+    })
+  }
+
+  private val remainingEnemies = new SimpleStringProperty("Enemies: " + _controller.getAllEnemies().size)
+  var enemies = new Label{text <== remainingEnemies}
+
+  private val observableGold = new SimpleStringProperty("Gold: " +gameC.user.coins+ "x")
+  var gold = new Label{text <== observableGold}
+
+  private val observableLevel = new SimpleStringProperty("Level: " + gameC.user.level)
+  var level = new Label{text <== observableLevel}
+
+  private def setDifficulty: Difficulty = {
+    new ChoiceDialog(Difficulty.Medium, List(Difficulty.Easy, Difficulty.Medium, Difficulty.Hard)) {
+      title = "Select difficulty"
+      headerText = "Select difficulty"
+    }.showAndWait().get
+  }
+
+  private def createSlider(sliderId: String): Slider = new Slider {
+    min = 0
+    max = 1
+    value = 0
+    id = sliderId
+    value <==> MusicPlayer.observableVolume
+  }
+
+  var volumeSlider: Slider = createSlider("volumeSlider")
+
+  /*private def addListenersAndBindings(mp: MediaPlayer): Unit = {
+    volumeSlider.value <==> mp.volume
+  }
+  addListenersAndBindings(MusicPlayer.mediaPlayer)*/
 
   var menu: VBox = new VBox {
     val toolbar = new ToolBar()
@@ -44,20 +137,29 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
       onAction = () => parentStage.scene_=(EquipmentScene(parentStage, gameC))
       layoutX = 110
     }, false)
-    addToToolbar(toolbar, new Button("Shop"){onAction = () => parentStage.scene_=(ShopScene(parentStage))}, false)
     addToToolbar(toolbar, new Button("Save"){onAction = () => _controller.handleSave()}, false)
+    addToToolbar(toolbar, new Button("Option"){onAction = () =>
+gameC.difficulty = setDifficulty
+    }, false)
     addToToolbar(toolbar, new Button("Quit"){
-      onAction = () => {  val alert = new Alert(AlertType.INFORMATION)
-        alert.setTitle("Item Obtained")
-        alert.setGraphic(new ImageView(new Image("vamp.png")))
-        alert.setHeaderText("You obtained a new item!")
-        alert.setContentText("ITEM")
-        alert.showAndWait();}
-    }, true)
+      onAction = () => {
+        System.exit(0)
+      }
+    }, false)
+
+
+    addToToolbar(toolbar, life, false)
+    addToToolbar(toolbar, level, false)
+
+    addToToolbar(toolbar, gold, true)
+    addToToolbar(toolbar, new ImageView(new Image("coin.png")), false)
+    addToToolbar(toolbar, enemies, false)
+    addToToolbar(toolbar, volumeSlider, true)
 
     children = toolbar
     minWidth = 1200
   }
+
 
 
   def setMenu(): Unit = {
@@ -113,25 +215,33 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
   }
 
 
-  val _bpane: BorderPane = new BorderPane {
+  var _bpane: BorderPane = new BorderPane {
     top = menu
     center = _pane
     bottom = bottomPane
   }
 
-  def bpane: BorderPane = _bpane
+  //_pane.layoutX_=(-200)
 
+  def bpane: BorderPane = _bpane
   _controller.view_(this)
 
   def setPaneChildren(list :ListBuffer[RectangleWithCell], tmpRect : Option[RectangleCell]): Unit = {
     val listTmp = new ListBuffer[Node]()
     for (el <- list) yield {
       listTmp.append(el)
+      /*
       if(el.rectCell.enemy._2.isDefined) {
         val tmp = el.rectCell.enemy._2.get;
 
         val cell = new PlayerRepresentation(tmp.position, tmp.url)
         listTmp.append(icon(cell, 100, 90))
+      }
+      */
+      if(el.rectCell.mapEvent.isDefined) {
+        if(el.rectCell.mapEvent.get.callEvent.isInstanceOf[Enemy]) listTmp.append(icon(el.rectCell.mapEvent.get.playerRepresentation, 100, 90))
+        if(el.rectCell.mapEvent.get.callEvent.isInstanceOf[Statue]) listTmp.append(icon(el.rectCell.mapEvent.get.playerRepresentation, 38, 110))
+        if(el.rectCell.mapEvent.get.callEvent.isInstanceOf[Pyramid]) listTmp.append(icon(el.rectCell.mapEvent.get.playerRepresentation, 80, 110))
       }
     }
     if(tmpRect.isDefined) listTmp.append(new RectangleWithCell(tmpRect.get.getWidth, tmpRect.get.getHeight, tmpRect.get.x, tmpRect.get.getY,tmpRect.get) {
@@ -140,10 +250,13 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
     _pane.children =listTmp
   }
+
+
   def setBPane(): Unit = {
     var addList = createBottomCard()
     bottomPane.children = addList
   }
+
 
   def icon(player: PlayerRepresentation, elemWidth: Double = 60, elemHeight: Double = 80 ): Rectangle = {
     new Rectangle() {
@@ -155,13 +268,20 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     }
   }
 
-  var playerImg = icon(_controller.player)
+  var playerImg = new Rectangle() {
+    x=_controller.list.head.rectCell.x+_controller.list.head.rectCell.getWidth/2 - 60/2
+    y=(_controller.list.head.rectCell.getY+_controller.list.head.rectCell.getHeight/2)-(80-10)
+    width = 60
+    height = 80
+    fill_=(new ImagePattern(new Image(_controller.player.url)))
+  }
   def playerImg_(player: PlayerRepresentation):Unit = {playerImg.fill_=(new ImagePattern(new Image(player.url)))}
 
-  val paneWithPlayer  = new Pane {
+  val playerPane = new Pane {
     children = _controller.list
     children.append(_bpane)
     children.append(playerImg)
+
     id = "rootPane"
 
     onKeyPressed = (ke : KeyEvent) =>  {
@@ -184,8 +304,12 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
       }
     }
   }
+  _pane.translateX=traslationX
+  _pane.translateY=traslationY
 
-  root = paneWithPlayer
+  setPaneChildren(_controller.list, Option.empty)
+  root = playerPane
+
 
 
   def changeScene(user:User, enemy:Enemy): Unit = {
@@ -200,4 +324,5 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
 object MapScene {
   def apply(parentStage: Stage, gameC : GameController): MapScene = new MapScene(parentStage, new MapControllerImpl(gameC),gameC)
+  def apply(parentStage: Stage, gameC : GameController, list:ListBuffer[RectangleWithCell],startingDefined : Option[RectangleCell], traslationX : Double, traslationY: Double): MapScene = new MapScene(parentStage, new MapControllerImpl(gameC, list, startingDefined,traslationX,traslationY),gameC,traslationX,traslationY)
 }

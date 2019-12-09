@@ -1,13 +1,14 @@
 package view.scenes
 
 import Utility.{GUIObjectFactory, TransitionFactory}
-import controller.{BattleController, GameController}
+import controller.{BattleController, GameController, MusicPlayer, SoundType}
 import model._
 import scalafx.Includes._
 import scalafx.scene.control.Button
 import scalafx.scene.layout.Pane
 import scalafx.stage.Stage
 import scalafx.util.Duration
+
 import language.postfixOps
 import view.scenes.component.{BattlePlayerRepresentation, CardComponent}
 

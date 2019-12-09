@@ -15,6 +15,11 @@
      -fx-pref-width:1200;
  }
 
+.equipSelectedCard {
+
+ -fx-effect: dropshadow(three-pass-box, green, 30, 0.5, 0, 0);
+}
+
 
 /***** Map ****/
 .bottomButton {
@@ -48,6 +53,12 @@
          -fx-border-image-slice: 25, 30;
 
 }
+
+.life {
+  -fx-pref-width: 200;
+  -fx-accent: green;
+}
+
 
 
 /***** Shop ****/

@@ -7,6 +7,8 @@ import scala.util.Random
 
 trait BattleController {
 
+  MusicPlayer.play(SoundType.BattleSound)
+
   def user: User
 
   user.battleDeck = Random.shuffle(user.battleDeck)
@@ -38,6 +40,7 @@ trait BattleController {
   def checkWinner(player: Player): Unit = player match {
     case _: User if user.actualHealthPoint <= 0 => battleScene fadeSceneChanging enemy
     case _: Enemy if user.actualHealthPoint > 0 && enemy.actualHealthPoint <= 0 =>
+      user.coins += enemy.reward
       user.addExperience(enemy experience)
       battleScene fadeSceneChanging user
     case _ => ;

@@ -1,6 +1,6 @@
 package model
 
-trait Player {
+trait Player extends Serializable {
   def name: String
   def level: Int
   def image: String
@@ -32,7 +32,7 @@ class User(override val name: String, override val image: String, var level: Int
   }
 }
 
-case class Enemy(override val name: String, override val level: Int, override val image: String, var battleDeck: List[Card], override val totalHealthPoint: Int, var actualHealthPoint: Int, var experience: Int, reward: Int) extends Player
+case class Enemy(override val name: String, override val level: Int, override val image: String, var battleDeck: List[Card], override val totalHealthPoint: Int, var actualHealthPoint: Int, var experience: Int, reward: Int) extends Player with CellEvent
 
 object Player {
   def userFactory(name: String, image: String, allCards: List[Card], level: Int = 1, healthPoint: Int = 10, missingExperience: Int = 1, coins: Int = 0): User = new User(name, image, level, missingExperience, allCards, healthPoint, healthPoint, coins)

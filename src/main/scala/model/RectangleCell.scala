@@ -22,6 +22,7 @@ trait RectangleCell extends Serializable with Cell {
   def _x: Double
   def x: Double
   def elementY: Double
+  def setDamage():Unit
 
   def canEqual(other: Any): Boolean
   def url: String
@@ -34,16 +35,23 @@ trait RectangleCell extends Serializable with Cell {
   def x_(newX: Double): Unit
   def setY(newY: Double): Unit
 
-  def enemy:(Option[Enemy], Option[PlayerRepresentation])
-  def enemy_(enemy: Option[Enemy], representation : Option[PlayerRepresentation]): Unit
+  //def enemy:(Option[Enemy], Option[PlayerRepresentation])
+  //def enemy_(enemy: Option[Enemy], representation : Option[PlayerRepresentation]): Unit
   def isMoveAllowed(movement : Move): Boolean
+
+  def mapEvent:Option[MapEvent]
+  def mapEvent_(cellEve: Option[MapEvent]): Unit
 }
 
 
 class RectangleCellImpl (override val top: Boolean, override val right: Boolean, override val bottom: Boolean, override val left: Boolean, override val elementWidth: Double = 200, override val elementHeight: Double = 200, var _x: Double, var elementY:Double) extends RectangleCell  {
-  var _enemy: (Option[Enemy],Option[PlayerRepresentation]) = (Option.empty, Option.empty)
-  override def enemy:(Option[Enemy], Option[PlayerRepresentation]) = _enemy
-  override def enemy_(enemy: Option[Enemy], representation : Option[PlayerRepresentation]): Unit = {_enemy = (enemy, representation) }
+  var _mapEvent:Option[MapEvent] = Option.empty
+  override def mapEvent:Option[MapEvent] = _mapEvent
+  override def mapEvent_(cellEve: Option[MapEvent]): Unit = {_mapEvent = cellEve }
+
+  //var _enemy: (Option[Enemy],Option[PlayerRepresentation]) = (Option.empty, Option.empty)
+  //override def enemy:(Option[Enemy], Option[PlayerRepresentation]) = _enemy
+  //override def enemy_(enemy: Option[Enemy], representation : Option[PlayerRepresentation]): Unit = {_enemy = (enemy, representation) }
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[RectangleCell]
 
@@ -65,7 +73,7 @@ class RectangleCellImpl (override val top: Boolean, override val right: Boolean,
   }
 
   override def toString :String = {
-    "Rectangle ("+_x + ", " +elementY+") T: " + top + " R: " + right + " B: " + bottom + " L: " + left + " enemy: " + enemy._2.isDefined
+    "Rectangle ("+_x + ", " +elementY+") T: " + top + " R: " + right + " B: " + bottom + " L: " + left + " enemy: " + _mapEvent
   }
 
 
@@ -85,6 +93,9 @@ class RectangleCellImpl (override val top: Boolean, override val right: Boolean,
   override def rotation: Int = _rotation
 
 
+  override def setDamage(): Unit = {
+    _url = _url.substring(0, _url.length - 4) + "Dmg.png"
+  }
 
 
   if(top && left && right && bottom) {
@@ -142,11 +153,11 @@ class RectangleCellImpl (override val top: Boolean, override val right: Boolean,
 }
 
 object RectangleCell {
-  def generateRandom(gameC: GameController, excludedValues : Map[Int,ListBuffer[Int]]) : RectangleCell = {
+  def generateRandom(gameC: GameController, excludedValues : Map[Int,ListBuffer[Int]], iteration: Int) : RectangleCell = {
     var rngX = 400
     var rngY = 200
     while(excludedValues.contains(rngX) && excludedValues.get(rngX).get.contains(rngY)) {
-      rngX = Random.nextInt(8) * 200
+      rngX = Random.nextInt(6) * 200
       rngY = Random.nextInt(4) * 200
     }
     var top:Boolean = false
@@ -160,11 +171,43 @@ object RectangleCell {
       left = math.random()>0.5
     }
     println("Rectangle ("+rngX + ", " +rngY+") T: " + top + " R: " + right + " B: " + bottom + " L: " + left)
+    if(iteration==0 || iteration==3) {
+      top=true
+      right = true
+      left=true
+      bottom=true
+    }
     val rectcell=  new RectangleCellImpl(top, right, bottom, left, _x= rngX, elementY=rngY)
     var probEnemy = 0.1
-    if(excludedValues.size == 1) probEnemy = 1
-    if( math.random()<=probEnemy) {val enem = gameC.spawnEnemy(4); val enemy = new PlayerRepresentation(rectcell, enem.image);  rectcell.enemy_(Option(enem),Option(enemy)) }
+    var probStatue = 0.1
+    val probDmg = 0.3
 
+
+    if(iteration == 1) probEnemy = 1
+    if(iteration == 2) {
+      probEnemy=0
+      probStatue=1
+    }
+    if(iteration ==3) {
+      println("PYRAMIDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD")
+      val pyramid = new Pyramid()
+      rectcell.mapEvent_(Option(MapEvent.createMapEvent(pyramid, new PlayerRepresentation(rectcell, "pyramid.png"))) )
+    } else {
+      if (math.random() <= probEnemy) {
+        val enem = gameC.spawnEnemy(4);
+        val enemy = new PlayerRepresentation(rectcell, enem.image);
+        rectcell.mapEvent_(Option(MapEvent.createMapEvent(enem, enemy)))
+        //rectcell.enemy_(Option(enem),Option(enemy))
+      } else if (math.random() <= probStatue) {
+        println("STATUEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+        val statue = new Statue(10)
+        rectcell.mapEvent_(Option(MapEvent.createMapEvent(statue, new PlayerRepresentation(rectcell, "statue.png"))))
+      }
+    }
+    if (iteration > 3 && math.random() <= probDmg) {
+      rectcell.setDamage();
+    }
+    println(rectcell)
     rectcell
   }
   def generateRandomCard() : RectangleCellImpl = {
@@ -178,7 +221,9 @@ object RectangleCell {
       bottom = math.random()>0.5
       left = math.random()>0.5
     }
-    new RectangleCellImpl(top, right, bottom, left, _x= 0, elementY=0)
+    val re = new RectangleCellImpl(top, right, bottom, left, _x= 0, elementY=0)
+    if(math.random() <= 0.4) re.setDamage()
+    re
   }
 
   def createImage(url: String, rotation: Double): ImagePattern = {

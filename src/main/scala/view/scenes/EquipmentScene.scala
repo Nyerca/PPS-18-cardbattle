@@ -1,8 +1,10 @@
 package view.scenes
 
 import controller.GameController
+import javafx.beans.property.SimpleStringProperty
 import javafx.scene.layout.Background
 import javafx.scene.paint.ImagePattern
+import model.Card
 import scalafx.Includes._
 import scalafx.geometry.Pos
 import scalafx.scene.control.ScrollPane.ScrollBarPolicy
@@ -48,33 +50,63 @@ class EquipmentScene(override val parentStage: Stage, gameController: GameContro
     }
   }
 */
-  def createCardPane(valX:Double, valY:Double): Pane = {
+
+
+  def createCardPane(card: Card): Pane = {
     new Pane {
       children = new ListBuffer[Node]
+
       maxHeight = 800
-      val c = new CardComponentImpl(0,0, false,handle{println("ciao")})
-      c.setCardInformation(gameController.allCards.head)
+      val c = new CardComponentImpl(0,0, false,handle{
+        println("BATTLEDECK")
+        println(gameController.user.battleDeck.map(el => el.name))
+
+        if(gameController.user.battleDeck.contains(card)) {
+          gameController.user.battleDeck = gameController.user.battleDeck.filter(c => c != card)
+          btn.styleClass.remove("equipSelectedCard")
+        } else {
+          gameController.user.battleDeck = card :: gameController.user.battleDeck
+          btn.styleClass.add("equipSelectedCard")
+        }
+        setCards()
+      })
+      c.setCardInformation(card)
       val btn: Button = c.clickableCard
+      if(gameController.user.battleDeck.contains(card)) btn.styleClass.add("equipSelectedCard")
+
       children.append(btn)
+
+      children.append(c.cardLevel)
+      children.append(c.cardName)
+      children.append(c.cardDamage)
     }
   }
 
-  def addCard(gridPane: GridPane, num : Integer): Unit = {
-    for(i<- 0 to num - 1) gridPane.add(createCardPane(0,0), i % 4, i / 4);
+  var index = 0;
+
+  def addCard(gridPane: GridPane, card: Card): Unit = {
+    gridPane.add(createCardPane(card), index % 4, index / 4);
+    index=index+1;
   }
 
   var gridPane = new GridPane() {id="grid"}
-  addCard(gridPane, 12)
+  gameController.user.allCards.foreach(c => addCard(gridPane, c))
 
   val toolbar = new ToolBar()
-  val text2 = new Text(gameController.user.battleDeck.size + " /")
+  private val observableCards = new SimpleStringProperty(gameController.user.battleDeck.size+ " /")
+  var cards = new Label{text <== observableCards}
+def setCards() = observableCards.set(gameController.user.battleDeck.size+ " /")
+
   val text3 = new Text("8   ")
   toolbar.getItems().add(new Text("CARDS:         "))
-  toolbar.getItems().add(text2);
+  toolbar.getItems().add(cards);
   toolbar.getItems().add(text3);
   toolbar.getItems().add(new ImageView(new Image("cardSprite.png")));
   private def changeScene(): Unit = gameController.setScene(this)
-  val back = new Button("Back") {onAction = () => changeScene}
+  val back = new Button("Back") {onAction = () =>
+    if(gameController.user.battleDeck.size == 8) changeScene
+    else println("You have to take 8 cards in order to procede.")
+  }
   toolbar.getItems().add(back);
 
   val cardsPane = new BorderPane() {

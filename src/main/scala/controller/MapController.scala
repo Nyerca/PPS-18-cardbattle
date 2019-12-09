@@ -1,17 +1,21 @@
 package controller
 
 import java.io.{FileOutputStream, ObjectOutputStream}
+
 import exception.DoubleMovementException
 import javafx.scene.input.MouseEvent
-import model.{Bottom, Cell, EnemyCell, Left, PlayerRepresentation, RectangleCell, RectangleCellImpl, RectangleWithCell, Right, Top}
+import model.{Bottom, Cell, Enemy, EnemyCell, Left, MapEvent, PlayerRepresentation, Pyramid, RectangleCell, RectangleCellImpl, RectangleWithCell, Right, Statue, Top}
 import scalafx.Includes._
 import scalafx.scene.control.Button
 import scalafx.scene.image.ImageView
 import scalafx.scene.input.KeyCode
 import view.scenes.MapScene
+
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
 import model.Placeable._
+import scalafx.animation.{Interpolator, TranslateTransition}
+import scalafx.util.Duration
 
 trait MapController {
   def gameC: GameController
@@ -28,36 +32,60 @@ trait MapController {
   def addToList(rect: RectangleWithCell): Unit
 
   def getAllEnemies(): ListBuffer[PlayerRepresentation]
+  def getAllStatues(): ListBuffer[PlayerRepresentation]
+  def getPyramid(): PlayerRepresentation
   def handleSave(): Unit
   def handleKey(keyCode : KeyCode): Unit
   def handleMouseClicked(e:MouseEvent): Unit
+  def reset():Unit
 }
 
 
-class MapControllerImpl (override val gameC : GameController, var _list:ListBuffer[RectangleWithCell], var startingDefined : Option[RectangleCell]) extends MapController {
+class MapControllerImpl (override val gameC : GameController, var _list:ListBuffer[RectangleWithCell], var startingDefined : Option[RectangleCell], traslationX:Double, traslationY:Double) extends MapController {
 
-  def this(gameC : GameController) {this(gameC,MapController.setup(gameC),Option.empty)}
+  def this(gameC : GameController) {this(gameC,MapController.setup(gameC),Option.empty,0,0)}
+
+  println("traslationX: " + traslationX)
+
 
   var selected:Option[Cell] = Option.empty
   override def selected_(element: Option[Cell]):Unit = selected = element
 
   override def list:ListBuffer[RectangleWithCell] = _list
+
+
   override def removeEnemyCell(): Unit = {
     println("POOOOOOOOOOOOOOOOS: " + _player.position)
-    //var outElem: PlayerRepresentation = _
-    for { el <- list; element = el.rectCell.enemy._2; if element.isDefined} yield println("UGUALE a: " + element.get)
 
-    val elem: Option[RectangleWithCell] = list.find(rc => rc.rectCell.enemy._2.isDefined && rc.rectCell == _player.position)
+    //var outElem: PlayerRepresentation = _
+
+    //for { el <- list; element = el.rectCell.enemy._2; if element.isDefined} yield println("UGUALE a: " + element.get)
+
+    val elem: Option[RectangleWithCell] = list.find(rc => rc.rectCell.mapEvent.isDefined && rc.rectCell == _player.position)
     println("FIND: " + elem)
 
     //list.remove(list.indexOf(list.find(rc => rc.rectCell == _player.position)))
 
-  if(elem.isDefined) {
-    elem.get.rectCell.enemy_(Option.empty, Option.empty)
+  if(elem.isDefined && elem.get.rectCell.mapEvent.get.callEvent.isInstanceOf[Enemy]) {
+    elem.get.rectCell.mapEvent_(Option.empty)
     postInsert()
   }
 
-      if(getAllEnemies.size == 0) println("No more enemies.......")
+    view.updateParameters()
+
+      if(getAllEnemies.size == 0) {
+        println("No more enemies.......")
+
+        for { el <- list; element = el.rectCell.mapEvent; if element.isDefined && element.get.callEvent.isInstanceOf[Pyramid]} yield{
+
+          val pyramid: Pyramid = el.rectCell.mapEvent.get.callEvent.asInstanceOf[Pyramid]
+          el.rectCell.mapEvent_(Option(MapEvent.createMapEvent(pyramid, new PlayerRepresentation(el.rectCell, "pyramidDoor.png"))))
+
+        }
+        postInsert()
+
+
+      }
 
     //outList
   }
@@ -66,30 +94,39 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
     dashboard.setCells(_list)
   }
 
-/*
-  var _player : PlayerWithCell = _
-  startingDefined match {
-    case Some(rect: RectangleCell) => _player = new PlayerWithCell(rect, "bot.png")
-    case _ => _player = new PlayerWithCell(list.head.rectCell, "bot.png")
-  }
-  _player.setFill()
-  override def player: PlayerWithCell = _player
-*/
+  var dashboard = new DashboardImpl(list)
+dashboard.translationX_(traslationX)
+  dashboard.translationY_(traslationY)
+
 var _player : PlayerRepresentation = _
   startingDefined match {
-    case Some(rect: RectangleCell) => _player = new PlayerRepresentation(rect, "bot.png")
+    case Some(rect: RectangleCell) => {
+      _player = new PlayerRepresentation(dashboard.searchPosition(rect.x, rect.getY).get, "bot.png")
+    }
     case _ => _player = new PlayerRepresentation(list.head.rectCell, "bot.png")
   }
   override def player: PlayerRepresentation = _player
 
-  val dashboard = new DashboardImpl(list, _player)
+
+  dashboard.player_(_player)
+  println("DASHBOARD: " + dashboard.toString)
+
 
   var view: MapScene = _
   override def view_ (newView : MapScene): Unit = {
     view = newView
+
     //println("VIEW: " + view)
     MovementAnimation.setAnimationNode(view.bpane)
     view.setMenu()
+  }
+
+  override def reset(): Unit = {
+
+    val newMap =  MapScene(view.parentStage, gameC)
+    gameC.gameMap = newMap
+    gameC.setScene(view, newMap)
+
   }
 
 
@@ -104,13 +141,26 @@ var _player : PlayerRepresentation = _
 
   def afterMovement(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean): Unit = isEnded match {
     case true =>
+      println("TRASLATION: " +  view.bpane.translateX.toDouble + " " + view.bpane.translateY.toDouble)
+
+      if(newRectangle.url.contains("Dmg")) {
+        gameC.user.actualHealthPoint = gameC.user.actualHealthPoint - 1
+        view.updateHP()
+      }
       player.position_(newRectangle, stringUrl)
       view.playerImg_(player)
       //println("--------------------------------")
       //println(player._position)
-      if(player._position.enemy._2.isDefined) {
-        view.changeScene(gameC.user, player._position.enemy._1.get)
-       // _view.changeScene()
+      if(player._position.mapEvent.isDefined) {
+        if(player._position.mapEvent.get.callEvent.isInstanceOf[Enemy]) view.changeScene(gameC.user, player._position.mapEvent.get.callEvent.asInstanceOf[Enemy])
+        else if(player._position.mapEvent.get.callEvent.isInstanceOf[Statue]) view.showStatueAlert(5);
+        else if(player._position.mapEvent.get.callEvent.isInstanceOf[Pyramid]) {
+          if(player._position.mapEvent.get.playerRepresentation.url.contains("Door")) {
+            reset()
+        }
+        }
+
+        // _view.changeScene()
       }
     case _ =>
       player.url_(stringUrl)
@@ -121,18 +171,27 @@ var _player : PlayerRepresentation = _
 
   override def handleKey(keyCode : KeyCode): Unit = {
     keyCode.getName match {
-      case "Up" => if(checkAnimationEnd("top")) dashboard.move(Top, afterMovement) ;
-      case "Left" => if(checkAnimationEnd("left")) dashboard.move(Left, afterMovement) ;
-      case "Down" => if(checkAnimationEnd("bot")) dashboard.move(Bottom, afterMovement)
-      case "Right" => if(checkAnimationEnd("right")) dashboard.move(Right, afterMovement) ;
+      case "W" => if(checkAnimationEnd("top")) dashboard.move(Top, afterMovement) ;
+      case "A" => if(checkAnimationEnd("left")) dashboard.move(Left, afterMovement) ;
+      case "S" => if(checkAnimationEnd("bot")) dashboard.move(Bottom, afterMovement)
+      case "D" => if(checkAnimationEnd("right")) dashboard.move(Right, afterMovement) ;
       case _ => {}
     }
   }
 
   override def getAllEnemies(): ListBuffer[PlayerRepresentation] = {
     val outList = new ListBuffer[PlayerRepresentation]
-    for { el <- list; element = el.rectCell.enemy._2; if element.isDefined} yield outList.append(element.get)
+    for { el <- list; element = el.rectCell.mapEvent; if element.isDefined && element.get.callEvent.isInstanceOf[Enemy]} yield outList.append(element.get.playerRepresentation)
     outList
+  }
+  override def getAllStatues(): ListBuffer[PlayerRepresentation] = {
+    val outList = new ListBuffer[PlayerRepresentation]
+    for { el <- list; element = el.rectCell.mapEvent; if element.isDefined && element.get.callEvent.isInstanceOf[Statue]} yield outList.append(element.get.playerRepresentation)
+    println("STATUE LIST: " + outList)
+    outList
+  }
+  override def getPyramid(): PlayerRepresentation = {
+    list.find(p=> p.rectCell.mapEvent.isDefined && p.rectCell.mapEvent.get.callEvent.isInstanceOf[Pyramid]).get.rectCell.mapEvent.get.playerRepresentation
   }
 
   override def handleSave(): Unit = {
@@ -142,51 +201,37 @@ var _player : PlayerRepresentation = _
     for(el <-list)  outList.append(el.rectCell)
     output.writeObject(outList)
     output.writeObject(player)
+    output.writeObject(gameC.user)
+    output.writeObject(gameC.difficulty)
+    output.writeObject(dashboard.traslationX)
+    output.writeObject(dashboard.traslationY)
     output.close()
   }
 
-/*
-  override def createBottomCard(): ListBuffer[Button] = {
-    val tmpList = ListBuffer[Button]()
-    val btn: Button = new Button {
-      val re = new RectangleCellImpl(true, true, true, true, _x= 0.0, elementY=0.0)
-      onAction = () => selected = Option(re)
-      defaultButton = true
-      graphic = new ImageView(RectangleCell.createImage(re.url, re.rotation).getImage)
-    }
-    tmpList.append(btn)
-
-    for(i<-0 until 4) {
-      val btn_tmp: Button = new Button {
-        var re: Cell = _
-        if(math.random() <= 0.8) {
-          re = RectangleCell.generateRandomCard()
-          graphic = new ImageView(re.image)
-        } else {
-          re = new EnemyCell(gameC.spawnEnemy(Random.nextInt(4)))
-          graphic = new ImageView(re.image)
-        }
-        onAction = () => selected = Option(re)
-        defaultButton = true
-      }
-      tmpList.append(btn_tmp)
-    }
-    tmpList
-  }
-  */
-
-
   override def postInsert(): Unit = {
+    view.updateParameters()
+    if(getAllEnemies.size > 0) {
+
+      for { el <- list; element = el.rectCell.mapEvent; if element.isDefined && element.get.callEvent.isInstanceOf[Pyramid]} yield{
+
+        val pyramid: Pyramid = el.rectCell.mapEvent.get.callEvent.asInstanceOf[Pyramid]
+        el.rectCell.mapEvent_(Option(MapEvent.createMapEvent(pyramid, new PlayerRepresentation(el.rectCell, "pyramid.png"))))
+
+      }
+
+    }
     view.setPaneChildren(list, Option.empty)
     selected = Option.empty
     view.setBPane()
   }
 
 
+
   import model.Monoid._
 
   override def handleMouseClicked(e:MouseEvent): Unit = {
     val cell = dashboard.searchPosition(e.x - dashboard.traslationX, e.y - dashboard.traslationY)
+    println("CLICKED : " + cell)
     selected match {
       case Some(rc:RectangleCell) =>
         rc.x_(sum(e.x, dashboard.traslationX))
@@ -204,13 +249,13 @@ object MapController {
   def setup(gameC: GameController): ListBuffer[RectangleWithCell] = {
     val list = new ListBuffer[RectangleWithCell]()
 
-    val tmp = Random.nextInt(10) + 2
+    val tmp = Random.nextInt(6) + 4
 
     var excludedValues: Map[Int,ListBuffer[Int]] = Map()
     val tmplist = new ListBuffer[Int]()
 
-    for(_<-0 until tmp) {
-      val rect = RectangleCell.generateRandom(gameC,excludedValues)
+    for(i<-0 until tmp) {
+      val rect = RectangleCell.generateRandom(gameC,excludedValues, i)
 
       list.append(new RectangleWithCell(rect.getWidth, rect.getHeight, rect.x, rect.getY, rect) {
         fill = RectangleCell.createImage(rect.url, rect.rotation)
