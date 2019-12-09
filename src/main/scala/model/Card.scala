@@ -14,30 +14,23 @@ object Type {
   case object Physic extends Type
 }
 
-
-trait Card  extends Serializable {
-  var level: Int
-  var value: Int
+trait Card  {
+  def level: Int
+  def value: Int
   def name: String
   def image: String
   def family: (Category, Type)
   def cardMissingForNextLevel: Int
-  def incrementCardNumber(): Option[Int]
+  def ++(card: Card): Card
 }
 
-case class CardImpl(override val name: String, override val image: String, var level: Int, override val family: (Category,Type), var value: Int, var cardMissingForNextLevel: Int) extends Card {
-  override def incrementCardNumber(): Option[Int] = cardMissingForNextLevel - 1 match {
-    case 0 =>
-      level += 1
-      value += 3
-      cardMissingForNextLevel = level
-      Some(level)
-    case _ =>
-      cardMissingForNextLevel -= 1
-      None
+case class ConcreteCard(override val name: String, override val image: String, override val level: Int, override val family: (Category,Type), override val value: Int, override val cardMissingForNextLevel: Int) extends Serializable with Card {
+  override def ++(card: Card): Card = {
+    if (cardMissingForNextLevel - 1 == 0) {
+      ConcreteCard(name, image, level + 1, family, value + 3, level + 1)
+    } else {
+      ConcreteCard(name, image, level, family, value, cardMissingForNextLevel - 1)
+    }
   }
 }
 
-object Card {
-  def apply(name: String, image: String, family: (Category,Type), level: Int = 1, value: Int = 0): Card = CardImpl(name, image, level, family, 2 * level + value, level)
-}

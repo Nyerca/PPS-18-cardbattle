@@ -1,16 +1,17 @@
 
 
 
-import scala.language.postfixOps
-import model.{Card, Category, Player, Type, User}
+import model._
 import org.junit.runner.RunWith
 import org.scalatest.{FunSpec, Matchers}
 import org.scalatestplus.junit.JUnitRunner
 
+import scala.language.postfixOps
+
 @RunWith(classOf[JUnitRunner])
 class BattleTest extends FunSpec with Matchers {
 
-  describe("base card") {
+  /*describe("base card") {
     val card = Card("fireBall", "", (Category.Attack, Type.Magic))
     it("should have level 1") {
       assert(card.level == 1)
@@ -23,11 +24,11 @@ class BattleTest extends FunSpec with Matchers {
       card.incrementCardNumber()
       assert(card.level == 2)
     }
-  }
+  }*/
 
   describe("base user")  {
     val baseUser: User = Player.userFactory("user", "", List())
-    val card = Card("fireBall", "", (Category.Attack, Type.Magic))
+    val card = ConcreteCard("fireBall", "", 1, (Category.Attack, Type.Magic),2 ,2)
 
     it("should initially have empty deck ") {
         assert(baseUser.battleDeck.isEmpty)
@@ -45,6 +46,8 @@ class BattleTest extends FunSpec with Matchers {
       baseUser gainCard card
       baseUser gainCard card
       baseUser gainCard card
+      assert(baseUser.allCards.head.level == 2)
+      assert(baseUser.allCards.head.cardMissingForNextLevel == 1)
       assert(baseUser.allCards.size == 1)
     }
     it("should have his/her level increased when missing experience turn to 0") {

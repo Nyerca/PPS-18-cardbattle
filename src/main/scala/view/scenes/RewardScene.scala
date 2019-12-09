@@ -22,7 +22,7 @@ class RewardScene(override val parentStage: Stage, gameController: GameControlle
   ) yield CardComponent(marginX = 115 + (n * 385), marginY = 300, mouseTransparency = false, action = handle {
     rewards(n).fadeOutAll()
     rewards.foreach(cc => cc.clickableCard.mouseTransparent = true)
-    getInformationMessage(gameController.user.gainCard(rewards(n).card), rewards(n).card)
+    getInformationMessage(gameController.user.gainCard(rewards(n).card))
     gameController.setScene(this)
   })
 
@@ -32,9 +32,17 @@ class RewardScene(override val parentStage: Stage, gameController: GameControlle
 
   root = GUIObjectFactory.paneFactory(rewards.map(x => x.cardDamage) ++ rewards.map(x => x.cardLevel) ++ rewards.map(x => x.clickableCard) ++ rewards.map(x => x.cardName) :+ title, "common", "battleScene")
 
-  private def getInformationMessage(level: Option[Int], card: Card): Option[ButtonType] = level match {
-    case Some(n) => GUIObjectFactory.alertFactory(AlertType.Information, parentStage, "Card level up", "Congratulations, " + card.name + " raised level " + n).showAndWait()
+  private def getInformationMessage(card: Option[Card]): Option[ButtonType] = card match {
+    case Some(c) =>  checkForLevelUp(c)
     case _ => GUIObjectFactory.alertFactory(AlertType.Information, parentStage, "Card gained","Congratulations, you gained a card").showAndWait()
+  }
+
+  private def checkForLevelUp(card: Card): Option[ButtonType] = {
+    if (card.level == card.cardMissingForNextLevel) {
+      GUIObjectFactory.alertFactory(AlertType.Information, parentStage, "Card level up", "Congratulations, " + card.name + " raised level " + card.level).showAndWait()
+    } else {
+      GUIObjectFactory.alertFactory(AlertType.Information, parentStage, "Card gained","Congratulations, you gained a card").showAndWait()
+    }
   }
 }
 
