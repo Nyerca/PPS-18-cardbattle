@@ -12,7 +12,7 @@ class MainScene(override val parentStage: Stage) extends BaseScene {
   stylesheets.add("style.css")
 
   val newGame: Button = GUIObjectFactory.buttonFactory(950, 400, mouseTransparency = false, handle{
-    gameController.difficulty = setDifficulty
+    gameController.difficulty = setDifficulty.getOrElse(Difficulty.Medium)
     gameController.setUserInformation(OperationType.NewGame, parentStage)
     gameController.setScene(this)
   }, GUIObjectFactory.DEFAULT_STYLE, "New Game")("mainPageButton")
@@ -24,11 +24,11 @@ class MainScene(override val parentStage: Stage) extends BaseScene {
 
   root = GUIObjectFactory.paneFactory(List(newGame, loadGame),"common","mainPane")
 
-  private def setDifficulty: Difficulty = {
+  private def setDifficulty: Option[Difficulty] = {
     new ChoiceDialog(Difficulty.Medium, List(Difficulty.Easy, Difficulty.Medium, Difficulty.Hard)) {
       title = "Select difficulty"
       headerText = "Select difficulty"
-    }.showAndWait().get
+    }.showAndWait()
   }
 }
 
