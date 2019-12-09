@@ -15,11 +15,14 @@ import scalafx.scene.input.KeyEvent
 import scalafx.scene.layout._
 import scalafx.scene.shape.Rectangle
 import scalafx.stage.Stage
+
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
 import model.Cell
+import scalafx.animation.{Interpolator, TranslateTransition}
 import scalafx.application.Platform
 import scalafx.scene.media.MediaPlayer
+import scalafx.util.Duration
 
 
 class MapScene (override val parentStage: Stage, var _controller : MapController, var gameC :GameController,traslationX : Double = 0, traslationY: Double = 0) extends BaseScene{
@@ -44,10 +47,12 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
   private val observableGold = new SimpleStringProperty("Gold: " +gameC.user.coins+ "x")
   private val gold: Label = new Label{text <== observableGold}
 
-  private val observableLevel = new SimpleStringProperty("Level: " + gameC.user.level)
+  private val observableLevel = new SimpleStringProperty("Player level: " + gameC.user.level)
   private val level: Label = new Label{text <== observableLevel}
 
   var volumeSlider: Slider = createSlider("volumeSlider")
+
+  val backToMainMenu  = gameC.setScene(this, MainScene(parentStage))
 
   private val menu: VBox = new VBox {
     val toolbar = new ToolBar()
@@ -57,7 +62,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     }, isLast = false)
     addToToolbar(toolbar, new Button("Save"){onAction = () => _controller.handleSave()}, isLast = false)
     addToToolbar(toolbar, new Button("Option"){onAction = () => gameC.difficulty = setDifficulty}, isLast = false)
-    addToToolbar(toolbar, new Button("Quit"){onAction = () => System.exit(0)}, isLast = false)
+    addToToolbar(toolbar, new Button("Quit"){onAction = () => parentStage.scene_=(MainScene(parentStage))}, isLast = false)
     addToToolbar(toolbar, life, isLast = false)
     addToToolbar(toolbar, level, isLast = false)
     addToToolbar(toolbar, gold, isLast = true)
@@ -129,19 +134,65 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
   setPaneChildren(_controller.list, Option.empty)
   root = playerPane
 
+  val animationImg = new Rectangle() {
+    x=_controller.list.head.rectCell.x+_controller.list.head.rectCell.getWidth/2 - 82/2
+    y=(_controller.list.head.rectCell.y+_controller.list.head.rectCell.getHeight/2)-(95-20)
+    width = 80
+    height = 100
+    fill_=(null)
+  }
+  playerPane.children.append(animationImg)
+
+  private val anim : TranslateTransition = new TranslateTransition {
+    duration = Duration(200.0)
+    interpolator = Interpolator.Linear
+    node = playerPane
+    onFinished_=(e => {
+      println("FINISHED")
+      animationImg.fill_=(new ImagePattern(new Image("lev_2.png")))
+      onFinished_=(e => {
+        println("FINISHED2")
+        animationImg.fill_=(new ImagePattern(new Image("lev_3.png")))
+        onFinished_=(e => {
+          println("FINISHED3")
+          animationImg.fill_=(new ImagePattern(new Image("lev_2.png")))
+          onFinished_=(e => {
+            println("FINISHED2")
+            animationImg.fill_=(new ImagePattern(new Image("lev_1.png")))
+            onFinished_=(e => {
+              println("FINISHED1")
+              animationImg.fill_=(null)
+            })
+            anim.play()
+          })
+          anim.play()
+        })
+        anim.play()
+      })
+      anim.play()
+    })
+  }
+
+  def playLevelUpAnimation(): Unit = {
+    animationImg.fill_=(new ImagePattern(new Image("lev_1.png")))
+    anim.play()
+  }
+
+
   def setMenu(): Unit = _pane.toBack()
 
   def updateHP(): Unit = {
     val ratio: Double = gameC.user.actualHealthPoint.toDouble / gameC.user.totalHealthPoint.toDouble
-    observableHealthPoint._1.set(if ( ratio > 0 ) ratio else 0)
-    observableHealthPoint._2.set(if ( ratio > 0 ) "Player: " + gameC.user.actualHealthPoint + "hp" else "Player: 0hp")
+    if(ratio == 0)  gameC.setScene(this,GameOverScene(parentStage, gameC))
+    observableHealthPoint._1.set(ratio)
+    observableHealthPoint._2.set("Player: " + gameC.user.actualHealthPoint + "hp")
   }
 
   def updateParameters(): Unit = {
     updateHP()
     remainingEnemies.set("Enemies: " + _controller.getAllEnemies.size)
     observableGold.set("Gold: " +gameC.user.coins+ "x")
-    observableLevel.set("Level: " + gameC.user.level)
+    observableLevel.set("Player level: " + gameC.user.level)
   }
 
   def showStatueAlert(money: Int): Unit = {

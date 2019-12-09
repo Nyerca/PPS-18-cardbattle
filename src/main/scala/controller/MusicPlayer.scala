@@ -9,7 +9,6 @@ import scalafx.Includes._
 trait SoundType
 
 object SoundType {
-  case object MainMenuSound extends SoundType
   case object MapSound extends SoundType
   case object BattleSound extends SoundType
   case object WinningSound extends SoundType
@@ -30,11 +29,10 @@ object MusicPlayer {
   }
 
   private def setMedia(soundType: SoundType): Option[MediaPlayer] = soundType match {
-    case MainMenuSound => Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/mainMusic.mp3").toString)))
-    case MapSound => Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Theme1.m4a").toString)))
+    case MapSound => Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Dungeon1.m4a").toString)))
     case BattleSound => Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Battle1.m4a").toString)))
-    case WinningSound => Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Theme1.m4a").toString)))
-    case LoseSound => Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Theme1.m4a").toString)))
+    case WinningSound => Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Winning.m4a").toString)))
+    case LoseSound => Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Losing.m4a").toString)))
   }
 
   private def checkExistence(mediaPlayer: Option[MediaPlayer]): Unit = mediaPlayer match {

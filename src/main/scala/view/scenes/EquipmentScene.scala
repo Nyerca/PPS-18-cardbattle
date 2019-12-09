@@ -26,13 +26,12 @@ class EquipmentScene(override val parentStage: Stage, gameController: GameContro
   stylesheets.add("mapStyle.css")
   stylesheets.add("style.css")
 
-  def createCardPane(card: Card): Pane = {
+  private def createCardPane(card: Card): Pane = {
     new Pane {
       children = new ListBuffer[Node]
 
       maxHeight = 800
       val c = new CardComponentImpl(0,0, false,handle{
-        println("BATTLEDECK")
         println(gameController.user.battleDeck.map(el => el.name))
 
         if(gameController.user.battleDeck.contains(card)) {
@@ -56,32 +55,31 @@ class EquipmentScene(override val parentStage: Stage, gameController: GameContro
     }
   }
 
-  var index = 0;
+  var index = 0
 
-  def addCard(gridPane: GridPane, card: Card): Unit = {
+  private def addCard(gridPane: GridPane, card: Card): Unit = {
     gridPane.add(createCardPane(card), index % 4, index / 4);
-    index=index+1;
+    index=index+1
   }
 
-  var gridPane = new GridPane() {id="grid"}
+  val gridPane = new GridPane() {id="grid"}
   gameController.user.allCards.foreach(c => addCard(gridPane, c))
 
-  val toolbar = new ToolBar()
+  private val toolbar = new ToolBar()
   private val observableCards = new SimpleStringProperty(gameController.user.battleDeck.size+ " /")
   var cards = new Label{text <== observableCards}
-def setCards() = observableCards.set(gameController.user.battleDeck.size+ " /")
+  private def setCards(): Unit = observableCards.set(gameController.user.battleDeck.size+ " /")
 
   val text3 = new Text("8   ")
-  toolbar.getItems().add(new Text("CARDS:         "))
-  toolbar.getItems().add(cards);
-  toolbar.getItems().add(text3);
-  toolbar.getItems().add(new ImageView(new Image("cardSprite.png")));
+  toolbar.getItems.add(new Text("CARDS:         "))
+  toolbar.getItems.add(cards)
+  toolbar.getItems.add(text3)
+  toolbar.getItems.add(new ImageView(new Image("cardSprite.png")));
   private def changeScene(): Unit = gameController.setScene(this)
-  val back = new Button("Back") {onAction = () =>
+  toolbar.getItems.add(new Button("Back") {onAction = () =>
     if(gameController.user.battleDeck.size == 8) changeScene
     else println("You have to take 8 cards in order to procede.")
-  }
-  toolbar.getItems().add(back);
+  })
 
   val cardsPane = new BorderPane() {
     top = toolbar
@@ -89,21 +87,12 @@ def setCards() = observableCards.set(gameController.user.battleDeck.size+ " /")
     id = "cardsPane"
   }
 
-  //var image =  new Image("shop.jpg")
-  //val bSize = new BackgroundSize(BackgroundSize.Auto, BackgroundSize.Auto, false, false, true, true);
-  //val bimg = new BackgroundImage(image, BackgroundRepeat.NoRepeat, BackgroundRepeat.NoRepeat, BackgroundPosition.Center, bSize)
-  //val background2 = new Background(bimg);
-  //bpane.background_=(background2)
-
-
   root = new ScrollPane() {
     hbarPolicy = ScrollBarPolicy.Never
     vbarPolicy = ScrollBarPolicy.AsNeeded
     id= "scrollPane"
     content = cardsPane
-    //pannable_=(true)
   }
-
 }
 
 object EquipmentScene {
