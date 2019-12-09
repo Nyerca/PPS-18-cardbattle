@@ -24,17 +24,12 @@ class User(override val name: String, override val image: String, var level: Int
     }
   }
 
-  def gainCard(card: Card): Option[Card] = allCards.find(c => c.name == card.name) match {
-    case Some(c) =>
-      val newCard = Monoid.sum(c, card)
-      allCards = newCard :: allCards.filter(c => c.name != card.name)
-      battleDeck = allCards.filter(cc => battleDeck.map(c => c.name).contains(cc.name))
-      Some(newCard)
+  def gainCard(card: Card): Option[Int] = allCards.find(c => c.name == card.name) match {
+    case Some(c) => c.incrementCardNumber()
     case _ =>
       allCards = card :: allCards
       None
   }
-
 }
 
 case class Enemy(override val name: String, override val level: Int, override val image: String, var battleDeck: List[Card], override val totalHealthPoint: Int, var actualHealthPoint: Int, var experience: Int, reward: Int) extends Player with CellEvent

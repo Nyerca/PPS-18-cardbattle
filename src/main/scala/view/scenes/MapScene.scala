@@ -112,9 +112,9 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
       try {
         _controller.handleKey(ke.code)
       } catch {
-        case _ : DoubleMovementException => //println("You can't move while the previus movement is still executing.")
-        case _ : MissingCellException => //println("You can't move on a missing cell.")
-        case _ : NoMovementException => //println("You can't move in that direction because your cell doesn't allow that.")
+        case _ : DoubleMovementException => println("You can't move while the previus movement is still executing.")
+        case _ : MissingCellException => println("You can't move on a missing cell.")
+        case _ : NoMovementException => println("You can't move in that direction because your cell doesn't allow that.")
       }
 
     }
@@ -122,9 +122,9 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
       try {
         _controller.handleMouseClicked(e)
       } catch {
-        case _ : DoubleCellException => //println("You can't place a cell on top of another cell.")
-        case _ : MissingCellException => //println("You can't place an enemy on a missing cell.")
-        case _ : DoubleEnemyException => //println("You can't place an enemy on top of another enemy.")
+        case _ : DoubleCellException => println("You can't place a cell on top of another cell.")
+        case _ : MissingCellException => println("You can't place an enemy on a missing cell.")
+        case _ : DoubleEnemyException => println("You can't place an enemy on top of another enemy.")
       }
     }
   }
