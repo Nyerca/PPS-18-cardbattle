@@ -9,11 +9,15 @@
 }
 
 #grid {
-     -fx-padding: 50 40 50 85;
-     -fx-hgap: 110;
-     -fx-vgap: 150;
-     -fx-pref-width:1200;
- }
+    -fx-padding: 50 40 50 85;
+    -fx-hgap: 110;
+    -fx-vgap: 150;
+    -fx-pref-width:1200;
+}
+
+.equipSelectedCard {
+    -fx-effect: dropshadow(three-pass-box, green, 30, 0.5, 0, 0);
+}
 
 
 /***** Map ****/
@@ -30,38 +34,39 @@
 
 
 #rootPane {
--fx-background-image: url("noroad.png");
--fx-background-size: 200, 200;
--fx-pref-width:1200;
--fx-pref-height:800;
+    -fx-background-image: url("/roads/noroad.png");
+    -fx-background-size: 200, 200;
+    -fx-pref-width:1200;
+    -fx-pref-height:800;
 }
 
 #bottomRngPane {
+    -fx-pref-width:500;
+    -fx-pref-height:100;
+    -fx-border-image-source: url("margin.png");
+    -fx-border-image-repeat: stretch, stretch;
+    -fx-border-image-repeat: stretch, stretch;
+    -fx-border-image-width: 5, 20;
+    -fx-border-image-slice: 25, 30;
+}
 
-        -fx-pref-width:500;
-        -fx-pref-height:100;
-        -fx-border-image-source: url("margin.png");
- -fx-border-image-repeat: stretch, stretch;
-
-         -fx-border-image-repeat: stretch, stretch;
-         -fx-border-image-width: 5, 20;
-         -fx-border-image-slice: 25, 30;
-
+.life {
+    -fx-pref-width: 200;
+    -fx-accent: green;
 }
 
 
 /***** Shop ****/
 
 #shopPane {
--fx-pref-width:1200;
-         -fx-pref-height:800;
+    -fx-pref-width:1200;
+    -fx-pref-height:800;
     -fx-background-image: url("shop.jpg");
     -fx-background-size: auto, auto;
-
 }
 
 #shopGrid {
-     -fx-padding: 10;
-     -fx-hgap: 220;
-     -fx-vgap: 140;
+    -fx-padding: 10;
+    -fx-hgap: 220;
+    -fx-vgap: 140;
  }

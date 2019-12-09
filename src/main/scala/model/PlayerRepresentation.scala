@@ -13,8 +13,6 @@ class PlayerRepresentation  (var _position : RectangleCell, var _url :  String) 
   def position: RectangleCell = _position
   def position_ (value:RectangleCell, url: String) :Unit = {
     _position = value
-    //println("New player position: (" + _position.getX + ", "+ _position.getY+ ")")
-
     _url = url
   }
 
@@ -22,10 +20,3 @@ class PlayerRepresentation  (var _position : RectangleCell, var _url :  String) 
     "Url: " + _url + " Position: " + _position
   }
 }
-/*
-object PlayerRepresentation {
-  def createPlayerCell( position : RectangleCell, url : String, elemWidth: Double = 60, elemHeight: Double = 80): PlayerWithCell = {
-    new PlayerWithCell(position, url, elemWidth, elemHeight)
-  }
-}
-*/

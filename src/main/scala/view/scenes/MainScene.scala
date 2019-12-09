@@ -1,30 +1,35 @@
 package view.scenes
 
-import controller.{GameController, OperationType}
+import Utility.GUIObjectFactory
+import controller.{Difficulty, GameController, OperationType}
 import scalafx.Includes._
-import scalafx.scene.control.Button
-import scalafx.scene.layout.BorderPane
+import scalafx.scene.control.{Button, ChoiceDialog}
 import scalafx.stage.Stage
 
 class MainScene(override val parentStage: Stage) extends BaseScene {
   private val gameController: GameController = GameController()
 
-
   stylesheets.add("style.css")
-  root = new BorderPane {
-    styleClass.add("common")
-    id = "mainPane"
-    bottom = new Button {
-      id = "playButton"
-      translateX = 530
-      translateY = -45
-      onAction = handle {
-        gameController.setUserInformation(OperationType.NewGame, parentStage)
-        changeScene()
-      }
-    }
+
+  val newGame: Button = GUIObjectFactory.buttonFactory(950, 400, mouseTransparency = false, handle{
+    gameController.difficulty = setDifficulty
+    gameController.setUserInformation(OperationType.NewGame, parentStage)
+    gameController.setScene(this)
+  }, GUIObjectFactory.DEFAULT_STYLE, "New Game")("mainPageButton")
+
+  val loadGame: Button = GUIObjectFactory.buttonFactory(950, 600, mouseTransparency = false, handle {
+    gameController.setUserInformation(OperationType.LoadGame, parentStage)
+    gameController.setScene(this)
+  }, GUIObjectFactory.DEFAULT_STYLE, "Load Game")("mainPageButton")
+
+  root = GUIObjectFactory.paneFactory(List(newGame, loadGame),"common","mainPane")
+
+  private def setDifficulty: Difficulty = {
+    new ChoiceDialog(Difficulty.Medium, List(Difficulty.Easy, Difficulty.Medium, Difficulty.Hard)) {
+      title = "Select difficulty"
+      headerText = "Select difficulty"
+    }.showAndWait().get
   }
-  private def changeScene(): Unit = gameController.setMapScene(this)
 }
 
 object MainScene {

@@ -14,6 +14,6 @@ class RectangleWithCell(val elementWidth: Double = 200, val elementHeight: Doubl
 
   def isRectangle(posX: Double, posY: Double): Boolean = {
     if(this.getX <= posX && this.getY <= posY && this.getX + this.getWidth > posX && this.getY + this.getHeight > posY) return true
-    return false
+    false
   }
 }
