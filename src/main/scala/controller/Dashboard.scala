@@ -27,7 +27,7 @@ class DashboardImpl (var cells: ListBuffer[RectangleWithCell]) extends  Dashboar
 
   override def player_(newPlayer: PlayerRepresentation):Unit = player = newPlayer
 
-  override def setCells(newList: ListBuffer[RectangleWithCell]) { cells = newList}
+  override def setCells(newList: ListBuffer[RectangleWithCell]): Unit = { cells = newList}
 
   override def searchPosition(newX : Double, newY : Double): Option[RectangleCell] = {
     (for (rectangle <- cells if rectangle.isRectangle(newX, newY)) yield rectangle.rectCell).headOption

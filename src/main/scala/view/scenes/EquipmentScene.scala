@@ -21,10 +21,11 @@ class EquipmentScene(override val parentStage: Stage, gameController: GameContro
   stylesheets.add("mapStyle.css")
   stylesheets.add("style.css")
 
+
+
   private def createCardPane(card: Card): Pane = {
     new Pane {
       children = new ListBuffer[Node]
-
       maxHeight = 800
       val c = new CardComponentImpl(0,0, false,handle{
         println(gameController.user.battleDeck.map(el => el.name))
@@ -50,7 +51,7 @@ class EquipmentScene(override val parentStage: Stage, gameController: GameContro
     }
   }
 
-  var index = 0
+  private var index = 0
 
   private def addCard(gridPane: GridPane, card: Card): Unit = {
     gridPane.add(createCardPane(card), index % 4, index / 4)
@@ -62,7 +63,7 @@ class EquipmentScene(override val parentStage: Stage, gameController: GameContro
 
   private val toolbar = new ToolBar()
   private val observableCards = new SimpleStringProperty(gameController.user.battleDeck.size+ " /")
-  private var cards: Label = new Label{text <== observableCards}
+  private val cards: Label = new Label{text <== observableCards}
   private def setCards(): Unit = observableCards.set(gameController.user.battleDeck.size+ " /")
 
   toolbar.getItems.add(new Text("CARDS:         "))
@@ -76,17 +77,15 @@ class EquipmentScene(override val parentStage: Stage, gameController: GameContro
   }
   toolbar.getItems.add(btn)
 
-  private val cardsPane: BorderPane = new BorderPane() {
-    top = toolbar
-    center = gridPane
-    id = "cardsPane"
-  }
-
   root = new ScrollPane() {
     hbarPolicy = ScrollBarPolicy.Never
     vbarPolicy = ScrollBarPolicy.AsNeeded
     id= "scrollPane"
-    content = cardsPane
+    content = new BorderPane() {
+      top = toolbar
+      center = gridPane
+      id = "cardsPane"
+    }
   }
 }
 

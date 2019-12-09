@@ -200,7 +200,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
         if(gameC.user.coins >= money) {
           gameC.user.coins= gameC.user.coins - money
           gameC.user.actualHealthPoint = gameC.user.totalHealthPoint
-          updateHP()
+          updateParameters()
         } else {
           println("You haven't got enough money!")
         }
