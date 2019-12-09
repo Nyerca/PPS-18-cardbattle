@@ -2,7 +2,9 @@ package controller
 
 import controller.SoundType._
 import javafx.beans.property.SimpleDoubleProperty
+import scalafx.scene.media.MediaPlayer.Status
 import scalafx.scene.media.{Media, MediaPlayer}
+import scalafx.Includes._
 
 trait SoundType
 
@@ -15,21 +17,31 @@ object SoundType {
 }
 
 object MusicPlayer {
-  var mediaPlayer :MediaPlayer = _
+  var mediaPlayer: Option[MediaPlayer] = None
   var observableVolume = new SimpleDoubleProperty(0.5)
-  observableVolume.addListener(_ => mediaPlayer.volume = observableVolume.get)
+  observableVolume.addListener(_ => mediaPlayer.get.volume = observableVolume.get)
 
   def play(soundType:SoundType): Unit = {
-    if (mediaPlayer != null) mediaPlayer.pause()
+    getMediaPlayerStatus(mediaPlayer)
     soundType match {
-      case MainMenuSound => mediaPlayer = new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/mainMusic.mp3").toString))
-      case MapSound => mediaPlayer = new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Theme1.m4a").toString))
-      case BattleSound => mediaPlayer = new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Battle1.m4a").toString))
-      case WinningSound => mediaPlayer = new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Theme1.m4a").toString))
-      case LoseSound => mediaPlayer = new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Theme1.m4a").toString))
+      case MainMenuSound => mediaPlayer = Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/mainMusic.mp3").toString)))
+      case MapSound => mediaPlayer = Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Theme1.m4a").toString)))
+      case BattleSound => mediaPlayer = Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Battle1.m4a").toString)))
+      case WinningSound => mediaPlayer = Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Theme1.m4a").toString)))
+      case LoseSound => mediaPlayer = Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Theme1.m4a").toString)))
     }
-    mediaPlayer.volume = observableVolume.get
-    mediaPlayer.cycleCount = MediaPlayer.Indefinite
-    mediaPlayer.play()
+    mediaPlayer.get.volume = observableVolume.get
+    mediaPlayer.get.cycleCount = MediaPlayer.Indefinite
+    mediaPlayer.get.play()
+  }
+
+  private def getMediaPlayerStatus(mediaPlayer: Option[MediaPlayer]): Unit = mediaPlayer match {
+    case Some(mp) => checkMediaStatus(mp.status.value)
+    case _ => ;
+  }
+
+  private def checkMediaStatus(status: MediaPlayer.Status): Unit = status match {
+    case Status.Playing => mediaPlayer.get.pause()
+    case _ => ;
   }
 }
