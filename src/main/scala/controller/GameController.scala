@@ -64,6 +64,7 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
   override def setScene(fromScene: BaseScene, toScene: BaseScene): Unit =  toScene match {
     case map: MapScene =>
       fromScene.changeScene(map)
+      MusicPlayer.play(SoundType.MapSound)
       map.removeEnemyCell()
       checkUserLevelUp
     case _ => fromScene.changeScene(toScene)
@@ -72,10 +73,8 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
   override def setUserInformation(operationType: OperationType, parentStage: Stage): Unit = operationType match {
     case OperationType.NewGame =>
       user = Player.userFactory("Player 1", "images/user.png", Random.shuffle(allCards).take(8))
-      MusicPlayer.play(SoundType.MapSound)
       gameMap = MapScene(parentStage, this)
-
-    case _ =>{MusicPlayer.play(SoundType.MapSound); loadData(parentStage)}
+    case _ => loadData(parentStage)
   }
 
   override def spawnEnemy(randomIndex: Int): Enemy = difficulty match {

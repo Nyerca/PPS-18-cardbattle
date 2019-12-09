@@ -48,7 +48,6 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
   private val level: Label = new Label{text <== observableLevel}
 
   var volumeSlider: Slider = createSlider("volumeSlider")
-  addListenersAndBindings(MusicPlayer.mediaPlayer)
 
   private val menu: VBox = new VBox {
     val toolbar = new ToolBar()
@@ -114,7 +113,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
       }
 
     }
-   onMouseClicked = (e: MouseEvent) => {
+    onMouseClicked = (e: MouseEvent) => {
       try {
         _controller.handleMouseClicked(e)
       } catch {
@@ -213,10 +212,9 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
   private def createSlider(sliderId: String): Slider = new Slider {
     min = 0
     max = 1
-    value = 0
+    value <==> MusicPlayer.observableVolume
     id = sliderId
   }
-  private def addListenersAndBindings(mp: MediaPlayer): Unit = volumeSlider.value <==> mp.volume
 
   def addToToolbar(toolbar: ToolBar, btn: Node, isLast:Boolean): Unit = {
     toolbar.getItems.add(btn)
