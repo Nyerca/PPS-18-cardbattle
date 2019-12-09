@@ -23,16 +23,18 @@ object MusicPlayer {
 
   def play(soundType:SoundType): Unit = {
     checkExistence(mediaPlayer)
-    soundType match {
-      case MainMenuSound => mediaPlayer = Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/mainMusic.mp3").toString)))
-      case MapSound => mediaPlayer = Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Theme1.m4a").toString)))
-      case BattleSound => mediaPlayer = Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Battle1.m4a").toString)))
-      case WinningSound => mediaPlayer = Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Theme1.m4a").toString)))
-      case LoseSound => mediaPlayer = Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Theme1.m4a").toString)))
-    }
+    mediaPlayer = setMedia(soundType)
     mediaPlayer.get.volume = observableVolume.get
     mediaPlayer.get.cycleCount = MediaPlayer.Indefinite
     mediaPlayer.get.play()
+  }
+
+  private def setMedia(soundType: SoundType): Option[MediaPlayer] = soundType match {
+    case MainMenuSound => Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/mainMusic.mp3").toString)))
+    case MapSound => Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Theme1.m4a").toString)))
+    case BattleSound => Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Battle1.m4a").toString)))
+    case WinningSound => Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Theme1.m4a").toString)))
+    case LoseSound => Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Theme1.m4a").toString)))
   }
 
   private def checkExistence(mediaPlayer: Option[MediaPlayer]): Unit = mediaPlayer match {
