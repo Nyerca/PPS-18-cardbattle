@@ -15,7 +15,7 @@ object Type {
 }
 
 
-trait Card {
+trait Card  extends Serializable {
   var level: Int
   var value: Int
   def name: String
@@ -30,7 +30,7 @@ case class CardImpl(override val name: String, override val image: String, var l
     case 0 =>
       level += 1
       value += 3
-      cardMissingForNextLevel = 2 * level
+      cardMissingForNextLevel = level
       Some(level)
     case _ =>
       cardMissingForNextLevel -= 1
@@ -39,5 +39,5 @@ case class CardImpl(override val name: String, override val image: String, var l
 }
 
 object Card {
-  def apply(name: String, image: String, family: (Category,Type), level: Int = 1, value: Int = 0): Card = CardImpl(name, image, level, family, 2 * level + value, 2 * level)
+  def apply(name: String, image: String, family: (Category,Type), level: Int = 1, value: Int = 0): Card = CardImpl(name, image, level, family, 2 * level + value, level)
 }

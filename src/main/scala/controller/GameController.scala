@@ -1,18 +1,23 @@
 package controller
 
+import java.io.{FileInputStream, ObjectInputStream}
+
 import Utility.GameObjectFactory.createCards
 import Utility.{GUIObjectFactory, GameObjectFactory}
-import model.{Card, Enemy, Player, User}
+import controller.SoundType.MainMenuSound
+import model._
 import scalafx.scene.control.Alert.AlertType
 import scalafx.stage.Stage
 import view.scenes.{BaseScene, MapScene}
 
+import scala.collection.mutable.ListBuffer
 import scala.util.Random
+import scalafx.Includes._
 
 trait OperationType
 
 object OperationType {
-  case object Load extends OperationType
+  case object LoadGame extends OperationType
   case object NewGame extends OperationType
 }
 
@@ -36,18 +41,18 @@ object Difficulty {
 
 trait GameController {
   var gameMap: MapScene = _
+
   var user: User = _
+
   val allCards: List[Card] = GameObjectFactory.createCards(1)
 
-  def difficulty: Difficulty
+  var difficulty: Difficulty
 
   def setScene(fromScene: BaseScene, toScene: BaseScene = gameMap): Unit
 
   def setUserInformation(operationType: OperationType, parentStage: Stage): Unit
 
   def spawnEnemy(randomIndex: Int): Enemy
-
-
 }
 
 
@@ -58,6 +63,7 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
   override def setScene(fromScene: BaseScene, toScene: BaseScene): Unit =  toScene match {
     case map: MapScene =>
       fromScene.changeScene(map)
+      MusicPlayer.play(SoundType.MapSound)
       map.removeEnemyCell()
       checkUserLevelUp
     case _ => fromScene.changeScene(toScene)
@@ -67,7 +73,7 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
     case OperationType.NewGame =>
       user = Player.userFactory("Player 1", "images/user.png", Random.shuffle(allCards).take(8))
       gameMap = MapScene(parentStage, this)
-    case _ => loadData
+    case _ => loadData(parentStage)
   }
 
   override def spawnEnemy(randomIndex: Int): Enemy = difficulty match {
@@ -77,12 +83,35 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
   }
 
 
-  private def loadData: Unit = ???
+  private def loadData(parentStage: Stage): Unit = {
+    val input = new ObjectInputStream(new FileInputStream("./src/main/saves/save2.txt"))
+    val list  : ListBuffer[RectangleCell] = input.readObject().asInstanceOf[ListBuffer[RectangleCell]]
+    val player : PlayerRepresentation = input.readObject().asInstanceOf[PlayerRepresentation]
+    user = input.readObject().asInstanceOf[User]
+   difficulty = input.readObject().asInstanceOf[Difficulty]
+
+    println("DIFFICULTY: " + difficulty)
+    val traslationX = input.readObject().asInstanceOf[Double]
+    val traslationY = input.readObject().asInstanceOf[Double]
+    input.close()
+
+    val lis :ListBuffer[RectangleWithCell] = new ListBuffer[RectangleWithCell]
+    for (tmpRect <- list) {
+      lis.append(new RectangleWithCell(tmpRect.getWidth, tmpRect.getHeight, tmpRect.x, tmpRect.y,tmpRect) {
+        fill = RectangleCell.createImage(tmpRect.url, tmpRect.rotation)
+      } )
+    }
+
+    gameMap = MapScene(parentStage, this, lis, Option(player.position),traslationX,traslationY)
+    gameMap.setPaneChildren(lis, Option.empty)
+
+  }
 
   private def checkUserLevelUp: Unit = user.experience match {
     case n if n <= 0 =>
-      user.experience = 5 * user.level - n
-      GUIObjectFactory.alertFactory(AlertType.Information, gameMap.parentStage, "User level up", "Congratulations, you raised level " + user.level).showAndWait()
+      user.experience = 3 * user.level - n
+      gameMap.playLevelUpAnimation()
+      //GUIObjectFactory.alertFactory(AlertType.Information, gameMap.parentStage, "User level up", "Congratulations, you raised level " + user.level).showAndWait()
     case _ => ;
   }
 
