@@ -45,7 +45,7 @@ trait BattleController {
       MusicPlayer.play(LoseSound)
     case _: Enemy if user.actualHealthPoint > 0 && enemy.actualHealthPoint <= 0 =>
       user.coins += enemy.reward
-      user.addExperience(enemy experience)
+      user ++ enemy
       battleScene fadeSceneChanging user
       MusicPlayer.play(WinningSound)
     case _ => ;
