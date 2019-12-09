@@ -7,7 +7,7 @@ import Utility.{GUIObjectFactory, GameObjectFactory}
 import model._
 import scalafx.scene.control.Alert.AlertType
 import scalafx.stage.Stage
-import view.scenes.{BaseScene, MapScene}
+import view.scenes.{BaseScene, BattleScene, EquipmentScene, GameOverScene, MapScene, RewardScene}
 
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
@@ -61,13 +61,21 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
 
   private var enemyCount: Map[EnemyType, Int] = Map(EnemyType.Sphinx -> -1, EnemyType.Cobra -> -1, EnemyType.EgyptWarrior -> -1, EnemyType.Griffin -> -1, EnemyType.YellowBlob -> -1)
 
-  override def setScene(fromScene: BaseScene, toScene: BaseScene): Unit =  toScene match {
-    case map: MapScene =>
-      fromScene.changeScene(map)
-      MusicPlayer.play(SoundType.MapSound)
-      map.removeEnemyCell()
-      checkUserLevelUp
-    case _ => fromScene.changeScene(toScene)
+
+  override def setScene(fromScene: BaseScene, toScene: BaseScene): Unit =  {
+    fromScene match {
+      case _: EquipmentScene => ;
+      case _: GameOverScene => MusicPlayer.mediaPlayer.get.pause()
+      case _: BattleScene => MusicPlayer.play(SoundType.LoseSound)
+      case _: RewardScene =>
+        MusicPlayer.play(SoundType.MapSound)
+        gameMap.removeEnemyCell()
+        checkUserLevelUp
+      case _ =>
+        fromScene.changeScene(gameMap)
+        MusicPlayer.play(SoundType.MapSound)
+    }
+    fromScene.changeScene(toScene)
   }
 
   override def setUserInformation(operationType: OperationType, parentStage: Stage): Unit = operationType match {
