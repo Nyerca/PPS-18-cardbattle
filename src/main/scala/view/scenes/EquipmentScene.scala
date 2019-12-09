@@ -2,21 +2,16 @@ package view.scenes
 
 import controller.GameController
 import javafx.beans.property.SimpleStringProperty
-import javafx.scene.layout.Background
-import javafx.scene.paint.ImagePattern
 import model.Card
 import scalafx.Includes._
-import scalafx.geometry.Pos
 import scalafx.scene.control.ScrollPane.ScrollBarPolicy
 import scalafx.scene.control._
 import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.layout._
-import scalafx.scene.paint.Color
-import scalafx.scene.shape.Rectangle
 import scalafx.scene.text.Text
-import scalafx.scene.{Node, Scene}
+import scalafx.scene.Node
 import scalafx.stage.Stage
-import view.scenes.component.{CardComponent, CardComponentImpl}
+import view.scenes.component.CardComponentImpl
 
 import scala.collection.mutable.ListBuffer
 
@@ -58,31 +53,30 @@ class EquipmentScene(override val parentStage: Stage, gameController: GameContro
   var index = 0
 
   private def addCard(gridPane: GridPane, card: Card): Unit = {
-    gridPane.add(createCardPane(card), index % 4, index / 4);
+    gridPane.add(createCardPane(card), index % 4, index / 4)
     index=index+1
   }
 
-  val gridPane = new GridPane() {id="grid"}
+  private val gridPane: GridPane = new GridPane() {id="grid"}
   gameController.user.allCards.foreach(c => addCard(gridPane, c))
 
   private val toolbar = new ToolBar()
   private val observableCards = new SimpleStringProperty(gameController.user.battleDeck.size+ " /")
-  var cards = new Label{text <== observableCards}
+  private var cards: Label = new Label{text <== observableCards}
   private def setCards(): Unit = observableCards.set(gameController.user.battleDeck.size+ " /")
 
-  val text3 = new Text("8   ")
   toolbar.getItems.add(new Text("CARDS:         "))
   toolbar.getItems.add(cards)
-  toolbar.getItems.add(text3)
+  toolbar.getItems.add(new Text("8   "))
   toolbar.getItems.add(new ImageView(new Image("cardSprite.png")));
   private def changeScene(): Unit = gameController.setScene(this)
-  val btn = new Button("Back") {onAction = () =>
-    if(gameController.user.battleDeck.size == 8) changeScene
+  private val btn: Button = new Button("Back") {onAction = () =>
+    if(gameController.user.battleDeck.size == 8) changeScene()
     else println("You have to take 8 cards in order to procede.")
   }
   toolbar.getItems.add(btn)
 
-  val cardsPane = new BorderPane() {
+  private val cardsPane: BorderPane = new BorderPane() {
     top = toolbar
     center = gridPane
     id = "cardsPane"

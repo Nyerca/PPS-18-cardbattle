@@ -136,9 +136,12 @@ class RectangleCellImpl (override val top: Boolean, override val right: Boolean,
 }
 
 object RectangleCell {
-  def generateRandom(gameC: GameController, excludedValues : Map[Int,ListBuffer[Int]], iteration: Int) : RectangleCell = {
-    var rngX = 400
-    var rngY = 200
+
+
+  /*
+  def generateRandom(gameC: GameController, excludedValues : Map[Int,List[Int]], iteration: Int) : RectangleCell = {
+    var rngX = STARTING_X
+    var rngY = STARTING_Y
     while(excludedValues.contains(rngX) && excludedValues.get(rngX).get.contains(rngY)) {
       rngX = Random.nextInt(6) * 200
       rngY = Random.nextInt(4) * 200
@@ -191,7 +194,9 @@ object RectangleCell {
     if (iteration > 3 && math.random() <= probDmg) rectcell.setDamage()
     //println(rectcell)
     rectcell
-  }
+  }*/
+
+
   def generateRandomCard() : RectangleCellImpl = {
     var top:Boolean = false
     var right:Boolean = false

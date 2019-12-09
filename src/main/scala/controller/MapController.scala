@@ -4,10 +4,11 @@ import java.io.{FileOutputStream, ObjectOutputStream}
 
 import exception.DoubleMovementException
 import javafx.scene.input.MouseEvent
-import model.{Bottom, Cell, Enemy, EnemyCell, Left, MapEvent, PlayerRepresentation, Pyramid, RectangleCell, RectangleCellImpl, RectangleWithCell, Right, Statue, Top}
+import model.{Bottom, Cell, EmptyPosition, Enemy, EnemyCell, EnemyPosition, Left, MapEvent, MapPosition, PlayerPosition, PlayerRepresentation, Pyramid, PyramidPosition, RectangleCell, RectangleCellImpl, RectangleWithCell, Right, Statue, StatuePosition, Top}
 import scalafx.Includes._
 import scalafx.scene.input.KeyCode
 import view.scenes.MapScene
+
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
 import model.Placeable._
@@ -184,13 +185,13 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
 }
 
 object MapController {
+/*
   def setup(gameC: GameController): ListBuffer[RectangleWithCell] = {
     val list = new ListBuffer[RectangleWithCell]()
-
     val tmp = Random.nextInt(6) + 4
 
-    var excludedValues: Map[Int,ListBuffer[Int]] = Map()
-    val tmplist = new ListBuffer[Int]()
+
+    var excludedValues: Map[Int,List[Int]] = Map()
 
     for(i<-0 until tmp) {
       val rect = RectangleCell.generateRandom(gameC,excludedValues, i)
@@ -199,13 +200,45 @@ object MapController {
         fill = RectangleCell.createImage(rect.url, rect.rotation)
       })
       if(!excludedValues.contains(rect.x.toInt)) {
-        val tmplist = new ListBuffer[Int]()
-        tmplist.append(rect.y.toInt)
-        excludedValues += (rect.x.toInt -> tmplist)
+        excludedValues += (rect.x.toInt -> List[Int](rect.y.toInt))
       } else {
-        excludedValues.get(rect.x.toInt).get.append(rect.y.toInt)
+        val tmplist: List[Int] = excludedValues.get(rect.x.toInt).get :+ rect.y.toInt
+        excludedValues += (rect.x.toInt -> tmplist)
       }
     }
     list
   }
+*/
+
+
+
+  def setup(gameC: GameController): ListBuffer[RectangleWithCell] = {
+    val list = new ListBuffer[RectangleWithCell]()
+
+    val rngCells = Random.nextInt(6)
+
+    var newList: List[MapPosition] =List(PlayerPosition, EnemyPosition, StatuePosition, PyramidPosition)
+    for(i<-0 until rngCells) {
+      val rnd = math.random()
+      if(rnd < 0.8) newList = newList:+EmptyPosition
+      else if(rnd <0.9) newList = newList:+StatuePosition
+      else newList = newList:+EnemyPosition
+    }
+
+    var excludedValues: Map[Int,List[Int]] = Map()
+    newList.foreach(el => {
+      val rect =  el.create(gameC,excludedValues)
+      list.append(new RectangleWithCell(rect.getWidth, rect.getHeight, rect.x, rect.y, rect) {
+        fill = RectangleCell.createImage(rect.url, rect.rotation)
+      })
+      if(!excludedValues.contains(rect.x.toInt)) {
+        excludedValues += (rect.x.toInt -> List[Int](rect.y.toInt))
+      } else {
+        val tmplist: List[Int] = excludedValues.get(rect.x.toInt).get :+ rect.y.toInt
+        excludedValues += (rect.x.toInt -> tmplist)
+      }
+    })
+    list
+  }
+
 }
