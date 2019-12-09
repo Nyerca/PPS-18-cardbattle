@@ -8,7 +8,6 @@ import model._
 import scalafx.scene.control.Alert.AlertType
 import scalafx.stage.Stage
 import view.scenes.{BaseScene, BattleScene, EquipmentScene, GameOverScene, MapScene, RewardScene}
-
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
 import scalafx.Includes._
@@ -93,11 +92,16 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
 
 
   private def loadData(parentStage: Stage): Unit = {
-    val input = new ObjectInputStream(new FileInputStream("./src/main/saves/save2.txt"))
-    val list  : ListBuffer[RectangleCell] = input.readObject().asInstanceOf[ListBuffer[RectangleCell]]
-    val player : PlayerRepresentation = input.readObject().asInstanceOf[PlayerRepresentation]
-    user = input.readObject().asInstanceOf[User]
-   difficulty = input.readObject().asInstanceOf[Difficulty]
+    import FileManager._
+    //val input = new ObjectInputStream(new FileInputStream("./src/main/saves/save2.txt"))
+    //input = new ObjectInputStream(new FileInputStream("./src/main/saves/save2.txt"))
+    //val list: ListBuffer[RectangleCell] = input.readObject().asInstanceOf[ListBuffer[RectangleCell]]
+    val list: ListBuffer[RectangleCell] = load[ListBuffer[RectangleCell]]
+    //val player : PlayerRepresentation = input.readObject().asInstanceOf[PlayerRepresentation]
+    val player: PlayerRepresentation = load[PlayerRepresentation]
+    user = load[User]
+    //difficulty = input.readObject().asInstanceOf[Difficulty]
+    difficulty = FileManager.load[Difficulty]
 
     println("DIFFICULTY: " + difficulty)
     val traslationX = input.readObject().asInstanceOf[Double]
