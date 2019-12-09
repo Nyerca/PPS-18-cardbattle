@@ -1,13 +1,14 @@
 package controller
 
+
 import java.io.{FileInputStream, ObjectInputStream}
 
 import Utility.GameObjectFactory.createCards
-import Utility.{GUIObjectFactory, GameObjectFactory}
+import Utility.GameObjectFactory
 import model._
-import scalafx.scene.control.Alert.AlertType
 import scalafx.stage.Stage
-import view.scenes.{BaseScene, BattleScene, EquipmentScene, GameOverScene, MapScene, RewardScene}
+import view.scenes.{BaseScene, BattleScene, EquipmentScene, MainScene, MapScene, RewardScene}
+
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
 import scalafx.Includes._
@@ -51,8 +52,6 @@ trait GameController {
   def setUserInformation(operationType: OperationType, parentStage: Stage): Unit
 
   def spawnEnemy(randomIndex: Int): Enemy
-
-
 }
 
 
@@ -64,15 +63,13 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
   override def setScene(fromScene: BaseScene, toScene: BaseScene): Unit =  {
     fromScene match {
       case _: EquipmentScene => ;
-      case _: GameOverScene => MusicPlayer.mediaPlayer.get.pause()
+      case _: MainScene => MusicPlayer.play(SoundType.MapSound)
       case _: BattleScene => MusicPlayer.play(SoundType.LoseSound)
       case _: RewardScene =>
         MusicPlayer.play(SoundType.MapSound)
         gameMap.removeEnemyCell()
         checkUserLevelUp
-      case _ =>
-        fromScene.changeScene(gameMap)
-        MusicPlayer.play(SoundType.MapSound)
+      case _ => MusicPlayer.mediaPlayer.get.pause()
     }
     fromScene.changeScene(toScene)
   }
@@ -93,24 +90,20 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
 
   private def loadData(parentStage: Stage): Unit = {
     import FileManager._
-    //val input = new ObjectInputStream(new FileInputStream("./src/main/saves/save2.txt"))
-    //input = new ObjectInputStream(new FileInputStream("./src/main/saves/save2.txt"))
-    //val list: ListBuffer[RectangleCell] = input.readObject().asInstanceOf[ListBuffer[RectangleCell]]
-    val list: ListBuffer[RectangleCell] = load[ListBuffer[RectangleCell]]
-    //val player : PlayerRepresentation = input.readObject().asInstanceOf[PlayerRepresentation]
-    val player: PlayerRepresentation = load[PlayerRepresentation]
-    user = load[User]
-    //difficulty = input.readObject().asInstanceOf[Difficulty]
-    difficulty = FileManager.load[Difficulty]
+    input = new ObjectInputStream(new FileInputStream("./src/main/saves/save2.txt"))
+    val list: ListBuffer[RectangleCell] = load[ListBuffer[RectangleCell]](input)
+    val player: PlayerRepresentation = load[PlayerRepresentation](input)
+    user = load[User](input)
+    difficulty = FileManager.load[Difficulty](input)
 
     println("DIFFICULTY: " + difficulty)
-    val traslationX = input.readObject().asInstanceOf[Double]
-    val traslationY = input.readObject().asInstanceOf[Double]
+    val traslationX = load[Double](input)
+    val traslationY = load[Double](input)
     input.close()
 
     val lis :ListBuffer[RectangleWithCell] = new ListBuffer[RectangleWithCell]
     for (tmpRect <- list) {
-      lis.append(new RectangleWithCell(tmpRect.getWidth, tmpRect.getHeight, tmpRect.x, tmpRect.getY,tmpRect) {
+      lis.append(new RectangleWithCell(tmpRect.getWidth, tmpRect.getHeight, tmpRect.x, tmpRect.y,tmpRect) {
         fill = RectangleCell.createImage(tmpRect.url, tmpRect.rotation)
       } )
     }
@@ -122,8 +115,9 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
 
   private def checkUserLevelUp: Unit = user.experience match {
     case n if n <= 0 =>
-      user.experience = 5 * user.level - n
-      GUIObjectFactory.alertFactory(AlertType.Information, gameMap.parentStage, "User level up", "Congratulations, you raised level " + user.level).showAndWait()
+      user.experience = 3 * user.level - n
+      gameMap.playLevelUpAnimation()
+      //GUIObjectFactory.alertFactory(AlertType.Information, gameMap.parentStage, "User level up", "Congratulations, you raised level " + user.level).showAndWait()
     case _ => ;
   }
 

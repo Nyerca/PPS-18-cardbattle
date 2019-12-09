@@ -1,5 +1,3 @@
 package exception
 
-class DoubleEnemyException extends Exception{
-
-}
+class DoubleEnemyException extends Exception{}

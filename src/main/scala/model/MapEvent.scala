@@ -1,14 +1,11 @@
 package model
-trait CellEvent {
 
-}
+trait CellEvent
 
 case class Statue(_moneyRequired: Int) extends CellEvent {
   def moneyRequired: Int = _moneyRequired
 }
-case class Pyramid() extends CellEvent {
-
-}
+case class Pyramid() extends CellEvent
 
 trait MapEvent extends Serializable {
   def callEvent: CellEvent
@@ -23,8 +20,6 @@ class MapEventImpl (_cellEvent: CellEvent,var _playerRepresentation: PlayerRepre
 }
 
 object MapEvent {
-  def createMapEvent(cellEvent: CellEvent, playerRepresentation: PlayerRepresentation) : MapEvent = {
-    new MapEventImpl(cellEvent, playerRepresentation)
-  }
+  def createMapEvent(cellEvent: CellEvent, playerRepresentation: PlayerRepresentation) : MapEvent = new MapEventImpl(cellEvent, playerRepresentation)
 }
 

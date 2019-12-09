@@ -1,5 +1,3 @@
 package exception
 
-class DoubleMovementException extends Exception{
-
-}
+class DoubleMovementException extends Exception{}

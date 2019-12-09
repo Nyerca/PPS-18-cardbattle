@@ -1,7 +1,9 @@
 package controller
 
+import controller.SoundType.{LoseSound, WinningSound}
 import model.{Card, Category, Enemy, Player, User}
 import view.scenes.BattleScene
+
 import scala.language.postfixOps
 import scala.util.Random
 
@@ -38,11 +40,14 @@ trait BattleController {
   }
 
   def checkWinner(player: Player): Unit = player match {
-    case _: User if user.actualHealthPoint <= 0 => battleScene fadeSceneChanging enemy
+    case _: User if user.actualHealthPoint <= 0 =>
+      battleScene fadeSceneChanging enemy
+      MusicPlayer.play(LoseSound)
     case _: Enemy if user.actualHealthPoint > 0 && enemy.actualHealthPoint <= 0 =>
       user.coins += enemy.reward
       user.addExperience(enemy experience)
       battleScene fadeSceneChanging user
+      MusicPlayer.play(WinningSound)
     case _ => ;
   }
 
