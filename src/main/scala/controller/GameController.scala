@@ -2,16 +2,15 @@ package controller
 
 import java.io.{FileInputStream, ObjectInputStream}
 
+import Utility.GameObjectFactory
 import Utility.GameObjectFactory.createCards
-import Utility.{GUIObjectFactory, GameObjectFactory}
 import model._
-import scalafx.scene.control.Alert.AlertType
+import scalafx.Includes._
 import scalafx.stage.Stage
 import view.scenes.{BaseScene, MapScene}
 
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
-import scalafx.Includes._
 
 trait OperationType
 
@@ -87,20 +86,16 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
     val list  : ListBuffer[RectangleCell] = input.readObject().asInstanceOf[ListBuffer[RectangleCell]]
     val player : PlayerRepresentation = input.readObject().asInstanceOf[PlayerRepresentation]
     user = input.readObject().asInstanceOf[User]
-   difficulty = input.readObject().asInstanceOf[Difficulty]
-
-    println("DIFFICULTY: " + difficulty)
+    difficulty = input.readObject().asInstanceOf[Difficulty]
     val traslationX = input.readObject().asInstanceOf[Double]
     val traslationY = input.readObject().asInstanceOf[Double]
     input.close()
-
     val lis :ListBuffer[RectangleWithCell] = new ListBuffer[RectangleWithCell]
     for (tmpRect <- list) {
       lis.append(new RectangleWithCell(tmpRect.getWidth, tmpRect.getHeight, tmpRect.x, tmpRect.y,tmpRect) {
         fill = RectangleCell.createImage(tmpRect.url, tmpRect.rotation)
       } )
     }
-
     gameMap = MapScene(parentStage, this, lis, Option(player.position),traslationX,traslationY)
     gameMap.setPaneChildren(lis, Option.empty)
 
@@ -110,7 +105,6 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
     case n if n <= 0 =>
       user.experience = 3 * user.level - n
       gameMap.playLevelUpAnimation()
-      //GUIObjectFactory.alertFactory(AlertType.Information, gameMap.parentStage, "User level up", "Congratulations, you raised level " + user.level).showAndWait()
     case _ => ;
   }
 
