@@ -5,22 +5,14 @@ trait Move {
 }
 
 case object Top extends Move {
-  override def opposite(): Move = {
-    Bottom
-  }
+  override def opposite(): Move = Bottom
 }
 case object Right extends Move {
-  override def opposite(): Move = {
-    Left
-  }
+  override def opposite(): Move = Left
 }
 case object Bottom extends Move {
-  override def opposite(): Move = {
-    Top
-  }
+  override def opposite(): Move = Top
 }
 case object Left extends Move {
-  override def opposite(): Move = {
-    Right
-  }
+  override def opposite(): Move = Right
 }

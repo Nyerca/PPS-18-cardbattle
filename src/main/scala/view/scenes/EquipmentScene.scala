@@ -26,32 +26,6 @@ class EquipmentScene(override val parentStage: Stage, gameController: GameContro
   stylesheets.add("mapStyle.css")
   stylesheets.add("style.css")
 
-  println("BATTLEDECK")
-  println(gameController.user.battleDeck);
-  println("ALL CARDS")
-  println(gameController.user.allCards);
-
-
-/*
-  def createCardPane(valX:Double, valY:Double): Pane = {
-    new Pane {
-      children = new ListBuffer[Node]
-      maxHeight = 800
-      val btn = new Button() {
-        graphic = new ImageView(new Image("card2.png"))
-        onAction = () => println("Clicked")
-      }
-      children.append(btn)
-      children.append(new Text(valX + 20,valY + 30,"Fireball"))
-      children.append(new Text(valX + 90,valY + 184,"MAGIC"))
-      children.append(new Text(valX + 60,valY + 240,"DMG:     3x"))
-      val img = new ImageView(new Image("mdmg.png")) { x=valX + 120; y=valY + 210}
-      children.append(img)
-    }
-  }
-*/
-
-
   def createCardPane(card: Card): Pane = {
     new Pane {
       children = new ListBuffer[Node]

@@ -1,14 +1,11 @@
 package model
-trait CellEvent {
 
-}
+trait CellEvent
 
 case class Statue(_moneyRequired: Int) extends CellEvent {
   def moneyRequired: Int = _moneyRequired
 }
-case class Pyramid() extends CellEvent {
-
-}
+case class Pyramid() extends CellEvent
 
 trait MapEvent extends Serializable {
   def callEvent: CellEvent

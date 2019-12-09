@@ -75,7 +75,7 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
       MusicPlayer.play(SoundType.MapSound)
       gameMap = MapScene(parentStage, this)
 
-    case _ => loadData(parentStage)
+    case _ =>{MusicPlayer.play(SoundType.MapSound); loadData(parentStage)}
   }
 
   override def spawnEnemy(randomIndex: Int): Enemy = difficulty match {

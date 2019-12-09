@@ -8,8 +8,7 @@ class EnemyCell(var _enemy: Enemy) extends Cell{
 
   val enemy: Enemy = _enemy
 
-
-  def image(): Image = {
+  def image: Image = {
     println("IMAGE: " + enemy.image)
     val iv = new ImageView(new Image( enemy.image))
     iv.fitWidth_=(200)

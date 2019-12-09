@@ -13,18 +13,18 @@ import scala.collection.mutable.ListBuffer
 
 object MovementAnimation {
 
-  var anim = new TranslateTransition {
+  private val anim: TranslateTransition = new TranslateTransition {
     duration = Duration(200.0)
     interpolator = Interpolator.Linear
   }
 
+  def play():Unit = anim.play();
 
   def setAnimationNode (pane : BorderPane): Unit = anim.node = pane.center.apply()
 
-
-  def setAnimation(fromX: Double, toX: Double, fromY:Double, toY: Double)   = {
-    anim.fromX = fromX;
-    anim.fromY= fromY;
+  def setAnimation(fromX: Double, toX: Double, fromY:Double, toY: Double): Unit   = {
+    anim.fromX = fromX
+    anim.fromY= fromY
     anim.toX = toX
     anim.toY= toY
   }
@@ -39,14 +39,13 @@ object MovementAnimation {
     fun(newRectangle,stringUrl, false)
     anim.fromX = anim.toX.toDouble
     anim.fromY = anim.toY.toDouble
-    anim.toX = anim.fromX.toDouble + incrementX;
-    anim.toY = anim.fromY.toDouble + incrementY;
+    anim.toX = anim.fromX.toDouble + incrementX
+    anim.toY = anim.fromY.toDouble + incrementY
   }
 
-
   def setAnimationIncrement(newRectangle:RectangleCell, incrementX : Double, incrementY: Double, stringUrl : String, fun:(RectangleCell, String, Boolean) => Unit): Unit = {
-    anim.toX = anim.fromX.toDouble + incrementX;
-    anim.toY = anim.fromY.toDouble + incrementY;
+    anim.toX = anim.fromX.toDouble + incrementX
+    anim.toY = anim.fromY.toDouble + incrementY
 
     anim.setOnFinished(e =>  {
       setAnim(newRectangle,incrementX,incrementY,stringUrl + "2.png",fun)
@@ -57,21 +56,18 @@ object MovementAnimation {
           anim.setOnFinished(e => {
             setAnim(newRectangle,incrementX,incrementY,stringUrl + ".png",fun)
             anim.setOnFinished(e => {
-              anim.stop();
+              anim.stop()
                 fun(newRectangle,stringUrl+ ".png", true)
             })
-            anim.play();})
-          anim.play();})
-        anim.play();})
-      anim.play();
+            anim.play()})
+          anim.play()})
+        anim.play()})
+      anim.play()
     })
   }
-
 
   def checkAnimationEnd():Boolean = anim.status.getValue match {
     case Status.STOPPED => true
     case _ => false
   }
-
-
 }
