@@ -22,7 +22,7 @@ object MusicPlayer {
   observableVolume.addListener(_ => mediaPlayer.get.volume = observableVolume.get)
 
   def play(soundType:SoundType): Unit = {
-    getMediaPlayerStatus(mediaPlayer)
+    checkExistence(mediaPlayer)
     soundType match {
       case MainMenuSound => mediaPlayer = Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/mainMusic.mp3").toString)))
       case MapSound => mediaPlayer = Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Theme1.m4a").toString)))
@@ -35,7 +35,7 @@ object MusicPlayer {
     mediaPlayer.get.play()
   }
 
-  private def getMediaPlayerStatus(mediaPlayer: Option[MediaPlayer]): Unit = mediaPlayer match {
+  private def checkExistence(mediaPlayer: Option[MediaPlayer]): Unit = mediaPlayer match {
     case Some(mp) => checkMediaStatus(mp.status.value)
     case _ => ;
   }
