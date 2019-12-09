@@ -25,52 +25,9 @@ import scalafx.scene.media.MediaPlayer
 class MapScene (override val parentStage: Stage, var _controller : MapController, var gameC :GameController,traslationX : Double = 0, traslationY: Double = 0) extends BaseScene{
   stylesheets.add("mapStyle.css")
 
-  private val _pane: Pane = new Pane {
-    maxHeight = 800
-  }
-
-  def showStatueAlert(money: Int): Unit = {
-    Platform.runLater(() -> {
-      val alert = new Alert(AlertType.CONFIRMATION)
-      alert.setTitle("God statue")
-      alert.setGraphic(new ImageView(new Image("statue.png")))
-      alert.setHeaderText("Would you like to heal donating " + money + " golds?")
-
-      val res = alert.showAndWait()
-      // alert is exited, no button has been pressed.
-      if( res.isDefined && res.get == ButtonType.OK) {
-        println("USER_Money: " + gameC.user.coins)
-        if(gameC.user.coins >= money) {
-          gameC.user.coins= gameC.user.coins - money
-          gameC.user.actualHealthPoint = gameC.user.totalHealthPoint
-          updateHP()
-        } else {
-          println("You haven't got enough money!")
-        }
-      }
-    })
-  }
-
-  def addToToolbar(toolbar: ToolBar, btn: Node, isLast:Boolean): Unit = {
-    toolbar.getItems.add(btn)
-    if(!isLast) toolbar.getItems.add(new Separator())
-  }
+  private val _pane: Pane = new Pane {maxHeight = 800}
 
   private val observableHealthPoint = (new SimpleDoubleProperty(gameC.user.actualHealthPoint.toDouble / gameC.user.totalHealthPoint.toDouble), new SimpleStringProperty("Player: " + gameC.user.actualHealthPoint + "hp"))
-
-  def updateHP(): Unit = {
-    val ratio: Double = gameC.user.actualHealthPoint.toDouble / gameC.user.totalHealthPoint.toDouble
-    observableHealthPoint._1.set(if ( ratio > 0 ) ratio else 0)
-    observableHealthPoint._2.set(if ( ratio > 0 ) "Player: " + gameC.user.actualHealthPoint + "hp" else "Player: 0hp")
-  }
-
-  def updateParameters(): Unit = {
-    updateHP()
-    remainingEnemies.set("Enemies: " + _controller.getAllEnemies.size)
-    observableGold.set("Gold: " +gameC.user.coins+ "x")
-    observableLevel.set("Level: " + gameC.user.level)
-  }
-
   private val life: StackPane = new StackPane {
     children = List(new ProgressBar {
       progress <== observableHealthPoint._1
@@ -90,28 +47,10 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
   private val observableLevel = new SimpleStringProperty("Level: " + gameC.user.level)
   private val level: Label = new Label{text <== observableLevel}
 
-  private def setDifficulty: Difficulty = {
-    new ChoiceDialog(Difficulty.Medium, List(Difficulty.Easy, Difficulty.Medium, Difficulty.Hard)) {
-      title = "Select difficulty"
-      headerText = "Select difficulty"
-    }.showAndWait().get
-  }
-
-  private def createSlider(sliderId: String): Slider = new Slider {
-    min = 0
-    max = 1
-    value = 0
-    id = sliderId
-  }
-
   var volumeSlider: Slider = createSlider("volumeSlider")
-
-  private def addListenersAndBindings(mp: MediaPlayer): Unit = {
-    volumeSlider.value <==> mp.volume
-  }
   addListenersAndBindings(MusicPlayer.mediaPlayer)
 
-  var menu: VBox = new VBox {
+  private val menu: VBox = new VBox {
     val toolbar = new ToolBar()
     addToToolbar(toolbar, new Button("Cards"){
       onAction = () => parentStage.scene_=(EquipmentScene(parentStage, gameC))
@@ -131,45 +70,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     minWidth = 1200
   }
 
-  def setMenu(): Unit = _pane.toBack()
-
-  def createBottomCard(): ListBuffer[Button] = {
-    val tmpList = ListBuffer[Button]()
-    val btn: Button = new Button {
-      val re = new RectangleCellImpl(true, true, true, true, _x= 0.0, elementY=0.0)
-      onAction = () => _controller.selected_(Option(re))
-      defaultButton = true
-      graphic = new ImageView(RectangleCell.createImage(re.url, re.rotation).getImage) {
-        fitWidth_=(100)
-        fitHeight_=(100)
-      }
-    }
-    btn.getStyleClass.add("bottomButton")
-    tmpList.append(btn)
-
-    for(i<-0 until 4) {
-      val btn_tmp: Button = new Button {
-        var re: Cell = _
-        if(math.random() <= 0.8) {
-          re = RectangleCell.generateRandomCard()
-        } else {
-          re = new EnemyCell(gameC.spawnEnemy(Random.nextInt(4)))
-        }
-        graphic = new ImageView(re.image) {
-          fitWidth_=(100)
-          fitHeight_=(100)
-        }
-        onAction = () => _controller.selected_(Option(re))
-        defaultButton = true
-
-      }
-      btn_tmp.getStyleClass.add("bottomButton")
-      tmpList.append(btn_tmp)
-    }
-    tmpList
-  }
-
-  val bottomPane: HBox = new HBox() {
+  private val bottomPane: HBox = new HBox() {
     id ="bottomRngPane"
     translateX = 300
     translateY = 630
@@ -183,45 +84,13 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     center = _pane
     bottom = bottomPane
   }
-
   def bpane: BorderPane = _bpane
+
   _controller.view_(this)
 
-  def setPaneChildren(list :ListBuffer[RectangleWithCell], tmpRect : Option[RectangleCell]): Unit = {
-    val listTmp = new ListBuffer[Node]()
-    for (el <- list) yield {
-      listTmp.append(el)
-
-      if(el.rectCell.mapEvent.isDefined) {
-        if(el.rectCell.mapEvent.get.callEvent.isInstanceOf[Enemy]) listTmp.append(icon(el.rectCell.mapEvent.get.playerRepresentation, 100, 90))
-        if(el.rectCell.mapEvent.get.callEvent.isInstanceOf[Statue]) listTmp.append(icon(el.rectCell.mapEvent.get.playerRepresentation, 38, 110))
-        if(el.rectCell.mapEvent.get.callEvent.isInstanceOf[Pyramid]) listTmp.append(icon(el.rectCell.mapEvent.get.playerRepresentation, 80, 110))
-      }
-    }
-    if(tmpRect.isDefined) listTmp.append(new RectangleWithCell(tmpRect.get.getWidth, tmpRect.get.getHeight, tmpRect.get.x, tmpRect.get.getY,tmpRect.get) {
-      fill = RectangleCell.createImage(tmpRect.get.url, tmpRect.get.rotation)
-    })
-
-    _pane.children =listTmp
-  }
-
-  def setBPane(): Unit = {
-    var addList = createBottomCard()
-    bottomPane.children = addList
-  }
-
-  def icon(player: PlayerRepresentation, elemWidth: Double = 60, elemHeight: Double = 80 ): Rectangle = {
-    new Rectangle() {
-      x=player.position.x+player.position.getWidth/2 - elemWidth/2
-      y=(player.position.getY+player.position.getHeight/2)-(elemHeight-10)
-      width = elemWidth
-      height = elemHeight
-      fill_=(new ImagePattern(new Image(player.url)))
-    }
-  }
   private var playerImg: Rectangle = new Rectangle() {
     x=_controller.list.head.rectCell.x+_controller.list.head.rectCell.getWidth/2 - 60/2
-    y=(_controller.list.head.rectCell.getY+_controller.list.head.rectCell.getHeight/2)-(80-10)
+    y=(_controller.list.head.rectCell.y+_controller.list.head.rectCell.getHeight/2)-(80-10)
     width = 60
     height = 80
     fill_=(new ImagePattern(new Image(_controller.player.url)))
@@ -261,13 +130,135 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
   setPaneChildren(_controller.list, Option.empty)
   root = playerPane
 
-  def changeScene(user:User, enemy:Enemy): Unit = {
-    parentStage.scene_=(BattleScene(parentStage, user,enemy, gameC))
+  def setMenu(): Unit = _pane.toBack()
+
+  def updateHP(): Unit = {
+    val ratio: Double = gameC.user.actualHealthPoint.toDouble / gameC.user.totalHealthPoint.toDouble
+    observableHealthPoint._1.set(if ( ratio > 0 ) ratio else 0)
+    observableHealthPoint._2.set(if ( ratio > 0 ) "Player: " + gameC.user.actualHealthPoint + "hp" else "Player: 0hp")
   }
 
-  def removeEnemyCell(): Unit = {
-    _controller.removeEnemyCell()
+  def updateParameters(): Unit = {
+    updateHP()
+    remainingEnemies.set("Enemies: " + _controller.getAllEnemies.size)
+    observableGold.set("Gold: " +gameC.user.coins+ "x")
+    observableLevel.set("Level: " + gameC.user.level)
   }
+
+  def showStatueAlert(money: Int): Unit = {
+    Platform.runLater(() -> {
+      val alert = new Alert(AlertType.CONFIRMATION)
+      alert.setTitle("God statue")
+      alert.setGraphic(new ImageView(new Image("statue.png")))
+      alert.setHeaderText("Would you like to heal donating " + money + " golds?")
+
+      val res = alert.showAndWait()
+      // alert is exited, no button has been pressed.
+      if( res.isDefined && res.get == ButtonType.OK) {
+        println("USER_Money: " + gameC.user.coins)
+        if(gameC.user.coins >= money) {
+          gameC.user.coins= gameC.user.coins - money
+          gameC.user.actualHealthPoint = gameC.user.totalHealthPoint
+          updateHP()
+        } else {
+          println("You haven't got enough money!")
+        }
+      }
+    })
+  }
+
+  def createBottomCard(): List[Button] = {
+    var tmpList = List[Button]()
+    val btn: Button = new Button {
+      val re = new RectangleCellImpl(true, true, true, true, _x= 0.0, _y=0.0)
+      onAction = () => _controller.selected_(Option(re))
+      defaultButton = true
+      graphic = new ImageView(RectangleCell.createImage(re.url, re.rotation).getImage) {
+        fitWidth_=(100)
+        fitHeight_=(100)
+      }
+    }
+    btn.getStyleClass.add("bottomButton")
+    tmpList = tmpList :+ btn
+
+    for(i<-0 until 4) {
+      val btn_tmp: Button = new Button {
+        var re: Cell = _
+        if(math.random() <= 0.8) {
+          re = RectangleCell.generateRandomCard()
+        } else {
+          re = new EnemyCell(gameC.spawnEnemy(Random.nextInt(4)))
+        }
+        graphic = new ImageView(re.image) {
+          fitWidth_=(100)
+          fitHeight_=(100)
+        }
+        onAction = () => _controller.selected_(Option(re))
+        defaultButton = true
+
+      }
+      btn_tmp.getStyleClass.add("bottomButton")
+      tmpList = tmpList :+ btn_tmp
+    }
+    tmpList
+  }
+
+  private def setDifficulty: Difficulty = {
+    new ChoiceDialog(Difficulty.Medium, List(Difficulty.Easy, Difficulty.Medium, Difficulty.Hard)) {
+      title = "Select difficulty"
+      headerText = "Select difficulty"
+    }.showAndWait().get
+  }
+
+  private def createSlider(sliderId: String): Slider = new Slider {
+    min = 0
+    max = 1
+    value = 0
+    id = sliderId
+  }
+  private def addListenersAndBindings(mp: MediaPlayer): Unit = volumeSlider.value <==> mp.volume
+
+  def addToToolbar(toolbar: ToolBar, btn: Node, isLast:Boolean): Unit = {
+    toolbar.getItems.add(btn)
+    if(!isLast) toolbar.getItems.add(new Separator())
+  }
+
+  def setPaneChildren(list :ListBuffer[RectangleWithCell], tmpRect : Option[RectangleCell]): Unit = {
+    val listTmp = new ListBuffer[Node]()
+    for (el <- list) yield {
+      listTmp.append(el)
+
+      if(el.rectCell.mapEvent.isDefined) {
+        if(el.rectCell.mapEvent.get.callEvent.isInstanceOf[Enemy]) listTmp.append(icon(el.rectCell.mapEvent.get.playerRepresentation, 100, 90))
+        if(el.rectCell.mapEvent.get.callEvent.isInstanceOf[Statue]) listTmp.append(icon(el.rectCell.mapEvent.get.playerRepresentation, 38, 110))
+        if(el.rectCell.mapEvent.get.callEvent.isInstanceOf[Pyramid]) listTmp.append(icon(el.rectCell.mapEvent.get.playerRepresentation, 80, 110))
+      }
+    }
+    if(tmpRect.isDefined) listTmp.append(new RectangleWithCell(tmpRect.get.getWidth, tmpRect.get.getHeight, tmpRect.get.x, tmpRect.get.y,tmpRect.get) {
+      fill = RectangleCell.createImage(tmpRect.get.url, tmpRect.get.rotation)
+    })
+
+    _pane.children =listTmp
+  }
+
+  def setBPane(): Unit = {
+    var addList = createBottomCard()
+    bottomPane.children = addList
+  }
+
+  def icon(player: PlayerRepresentation, elemWidth: Double = 60, elemHeight: Double = 80 ): Rectangle = {
+    new Rectangle() {
+      x=player.position.x+player.position.getWidth/2 - elemWidth/2
+      y=(player.position.y+player.position.getHeight/2)-(elemHeight-10)
+      width = elemWidth
+      height = elemHeight
+      fill_=(new ImagePattern(new Image(player.url)))
+    }
+  }
+
+  def changeScene(user:User, enemy:Enemy): Unit = parentStage.scene_=(BattleScene(parentStage, user,enemy, gameC))
+
+  def removeEnemyCell(): Unit = _controller.removeEnemyCell()
 }
 
 object MapScene {

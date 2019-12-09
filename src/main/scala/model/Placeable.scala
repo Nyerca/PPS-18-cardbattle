@@ -8,7 +8,7 @@ trait Placeable[A <: Cell] {
 }
 
 object Placeable {
-  //Apply
+
   def apply[A <: Cell](implicit pleaceable: Placeable[A ]): Placeable[A] = pleaceable
   def place[A <: Cell :Placeable](a: A, cell:Option[RectangleCell], controller:MapController): Unit = Placeable[A].place(a, cell, controller)
 
@@ -20,15 +20,12 @@ object Placeable {
 
   implicit val rectanglePlaceable: Placeable[RectangleCell] =
     instance((selected, cell, controller) => {
-
       if(cell.isEmpty) {
-
-        val rect = new RectangleWithCell(selected.getWidth, selected.getHeight, selected.x, selected.getY,selected) {
+        val rect = new RectangleWithCell(selected.getWidth, selected.getHeight, selected.x, selected.y,selected) {
           fill = RectangleCell.createImage(selected.url, selected.rotation)
         }
         controller.addToList(rect)
         controller.postInsert()
-
       } else {
         throw new DoubleCellException
       }
@@ -37,16 +34,13 @@ object Placeable {
   implicit val enemyPlaceable: Placeable[EnemyCell] =
     instance((selected, cell, controller) => {
       if(cell.isDefined) {
-
         val rect = cell.get
-
         if(rect.mapEvent.isEmpty) {
           rect.mapEvent_(Option(MapEvent.createMapEvent(selected.enemy, new PlayerRepresentation(rect, selected.enemy.image))) )
           controller.postInsert()
         } else {
           throw new DoubleEnemyException
         }
-
       } else {
         throw new MissingCellException
       }

@@ -20,8 +20,6 @@ class MapEventImpl (_cellEvent: CellEvent,var _playerRepresentation: PlayerRepre
 }
 
 object MapEvent {
-  def createMapEvent(cellEvent: CellEvent, playerRepresentation: PlayerRepresentation) : MapEvent = {
-    new MapEventImpl(cellEvent, playerRepresentation)
-  }
+  def createMapEvent(cellEvent: CellEvent, playerRepresentation: PlayerRepresentation) : MapEvent = new MapEventImpl(cellEvent, playerRepresentation)
 }
 

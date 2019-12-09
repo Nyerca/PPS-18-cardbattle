@@ -87,7 +87,7 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
 
   private def loadData(parentStage: Stage): Unit = {
     val input = new ObjectInputStream(new FileInputStream("./src/main/saves/save2.txt"))
-    val list  : ListBuffer[RectangleCell] = input.readObject().asInstanceOf[ListBuffer[RectangleCell]]
+    val list  : List[RectangleCell] = input.readObject().asInstanceOf[List[RectangleCell]]
     val player : PlayerRepresentation = input.readObject().asInstanceOf[PlayerRepresentation]
     user = input.readObject().asInstanceOf[User]
    difficulty = input.readObject().asInstanceOf[Difficulty]
@@ -99,7 +99,7 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
 
     val lis :ListBuffer[RectangleWithCell] = new ListBuffer[RectangleWithCell]
     for (tmpRect <- list) {
-      lis.append(new RectangleWithCell(tmpRect.getWidth, tmpRect.getHeight, tmpRect.x, tmpRect.getY,tmpRect) {
+      lis.append(new RectangleWithCell(tmpRect.getWidth, tmpRect.getHeight, tmpRect.x, tmpRect.y,tmpRect) {
         fill = RectangleCell.createImage(tmpRect.url, tmpRect.rotation)
       } )
     }

@@ -21,13 +21,11 @@ trait MapController {
   def startingDefined: Option[RectangleCell]
   def view_ (newView : MapScene): Unit
   def player: PlayerRepresentation
-
   def postInsert(): Unit
-
   def list:ListBuffer[RectangleWithCell]
   def addToList(rect: RectangleWithCell): Unit
 
-  def getAllEnemies: ListBuffer[PlayerRepresentation]
+  def getAllEnemies: List[PlayerRepresentation]
 
   def handleSave(): Unit
   def handleKey(keyCode : KeyCode): Unit
@@ -74,8 +72,8 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
 
   var _player : PlayerRepresentation = _
   startingDefined match {
-    case Some(rect: RectangleCell) => _player = new PlayerRepresentation(dashboard.searchPosition(rect.x, rect.getY).get, "bot.png")
-    case _ => _player = new PlayerRepresentation(list.head.rectCell, "bot.png")
+    case Some(rect: RectangleCell) => _player = new PlayerRepresentation(dashboard.searchPosition(rect.x, rect.y).get, "/player/bot.png")
+    case _ => _player = new PlayerRepresentation(list.head.rectCell, "/player/bot.png")
   }
   override def player: PlayerRepresentation = _player
 
@@ -128,17 +126,17 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
 
   override def handleKey(keyCode : KeyCode): Unit = {
     keyCode.getName match {
-      case "W" => if(checkAnimationEnd("top")) dashboard.move(Top, afterMovement) ;
-      case "A" => if(checkAnimationEnd("left")) dashboard.move(Left, afterMovement) ;
-      case "S" => if(checkAnimationEnd("bot")) dashboard.move(Bottom, afterMovement)
-      case "D" => if(checkAnimationEnd("right")) dashboard.move(Right, afterMovement) ;
+      case "W" => if(checkAnimationEnd(Top.url())) dashboard.move(Top, afterMovement) ;
+      case "A" => if(checkAnimationEnd(Left.url())) dashboard.move(Left, afterMovement) ;
+      case "S" => if(checkAnimationEnd(Bottom.url())) dashboard.move(Bottom, afterMovement)
+      case "D" => if(checkAnimationEnd(Right.url())) dashboard.move(Right, afterMovement) ;
       case _ =>
     }
   }
 
-  override def getAllEnemies: ListBuffer[PlayerRepresentation] = {
-    val outList = new ListBuffer[PlayerRepresentation]
-    for { el <- list; element = el.rectCell.mapEvent; if element.isDefined && element.get.callEvent.isInstanceOf[Enemy]} yield outList.append(element.get.playerRepresentation)
+  override def getAllEnemies: List[PlayerRepresentation] = {
+    var outList =List[PlayerRepresentation]()
+    for { el <- list; element = el.rectCell.mapEvent; if element.isDefined && element.get.callEvent.isInstanceOf[Enemy]} yield outList = element.get.playerRepresentation :: outList
     outList
   }
 
@@ -177,9 +175,10 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
     selected match {
       case Some(rc:RectangleCell) =>
         rc.x_(sum(e.x, dashboard.traslationX))
-        rc.setY(sum(e.y, dashboard.traslationY))
+        rc.y_(sum(e.y, dashboard.traslationY))
         place(rc,cell,this)
       case Some(ec:EnemyCell) => place(ec,cell,this)
+      case _ =>
     }
   }
 }
@@ -196,15 +195,15 @@ object MapController {
     for(i<-0 until tmp) {
       val rect = RectangleCell.generateRandom(gameC,excludedValues, i)
 
-      list.append(new RectangleWithCell(rect.getWidth, rect.getHeight, rect.x, rect.getY, rect) {
+      list.append(new RectangleWithCell(rect.getWidth, rect.getHeight, rect.x, rect.y, rect) {
         fill = RectangleCell.createImage(rect.url, rect.rotation)
       })
       if(!excludedValues.contains(rect.x.toInt)) {
         val tmplist = new ListBuffer[Int]()
-        tmplist.append(rect.getY.toInt)
+        tmplist.append(rect.y.toInt)
         excludedValues += (rect.x.toInt -> tmplist)
       } else {
-        excludedValues.get(rect.x.toInt).get.append(rect.getY.toInt)
+        excludedValues.get(rect.x.toInt).get.append(rect.y.toInt)
       }
     }
     list
