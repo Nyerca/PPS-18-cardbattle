@@ -5,7 +5,7 @@ import Utility.{GUIObjectFactory, GameObjectFactory}
 import model.{Card, Enemy, Player, User}
 import scalafx.scene.control.Alert.AlertType
 import scalafx.stage.Stage
-import view.scenes.{BaseScene, MapScene}
+import view.scenes.{BaseScene, BattleScene, EquipmentScene, GameOverScene, MainScene, MapScene, RewardScene}
 
 import scala.util.Random
 
@@ -57,14 +57,16 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
 
   private var enemyCount: Map[EnemyType, Int] = Map(EnemyType.Sphinx -> -1, EnemyType.Cobra -> -1, EnemyType.EgyptWarrior -> -1, EnemyType.Griffin -> -1, EnemyType.YellowBlob -> -1)
 
-  override def setScene(fromScene: BaseScene, toScene: BaseScene): Unit =  toScene match {
-    case map: MapScene =>
-      fromScene.changeScene(map)
-      map.removeEnemyCell()
+  override def setScene(fromScene: BaseScene, toScene: BaseScene): Unit =  fromScene match {
+    case scene: EquipmentScene => fromScene.changeScene(toScene)
+    case scene: GameOverScene => fromScene.changeScene(toScene)
+    case scene: BattleScene =>  fromScene.changeScene(toScene)
+    case scene: RewardScene =>
+      fromScene.changeScene(gameMap)
+      gameMap.removeEnemyCell()
       checkUserLevelUp
-    case _ => fromScene.changeScene(toScene)
+    case scene: MainScene => fromScene.changeScene(gameMap)
   }
-
   override def setUserInformation(operationType: OperationType, parentStage: Stage): Unit = operationType match {
     case OperationType.NewGame =>
       user = Player.userFactory("Player 1", "images/user.png", Random.shuffle(allCards).take(8))
