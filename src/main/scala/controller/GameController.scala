@@ -4,7 +4,6 @@ import java.io.{FileInputStream, ObjectInputStream}
 
 import Utility.GameObjectFactory.createCards
 import Utility.{GUIObjectFactory, GameObjectFactory}
-import controller.SoundType.MainMenuSound
 import model._
 import scalafx.scene.control.Alert.AlertType
 import scalafx.stage.Stage
@@ -84,7 +83,7 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
 
 
   private def loadData(parentStage: Stage): Unit = {
-    val input = new ObjectInputStream(new FileInputStream("./src/main/saves/save2.txt"))
+    val input = new ObjectInputStream(new FileInputStream("./src/main/saves/save.txt"))
     val list  : ListBuffer[RectangleCell] = input.readObject().asInstanceOf[ListBuffer[RectangleCell]]
     val player : PlayerRepresentation = input.readObject().asInstanceOf[PlayerRepresentation]
     user = input.readObject().asInstanceOf[User]

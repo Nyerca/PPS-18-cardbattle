@@ -141,7 +141,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
   }
 
   override def handleSave(): Unit = {
-    val output = new ObjectOutputStream(new FileOutputStream("./src/main/saves/save2.txt"))
+    val output = new ObjectOutputStream(new FileOutputStream("./src/main/saves/save.txt"))
 
     val outList = new ListBuffer[RectangleCell]
     for(el <-list)  outList.append(el.rectCell)

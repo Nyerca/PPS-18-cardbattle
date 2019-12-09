@@ -76,10 +76,11 @@ class EquipmentScene(override val parentStage: Stage, gameController: GameContro
   toolbar.getItems.add(text3)
   toolbar.getItems.add(new ImageView(new Image("cardSprite.png")));
   private def changeScene(): Unit = gameController.setScene(this)
-  toolbar.getItems.add(new Button("Back") {onAction = () =>
+  val btn = new Button("Back") {onAction = () =>
     if(gameController.user.battleDeck.size == 8) changeScene
     else println("You have to take 8 cards in order to procede.")
-  })
+  }
+  toolbar.getItems.add(btn)
 
   val cardsPane = new BorderPane() {
     top = toolbar
