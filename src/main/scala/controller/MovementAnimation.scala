@@ -29,12 +29,6 @@ object MovementAnimation {
     anim.toY= toY
   }
 
-  var list = new ListBuffer[String]
-  list.append("2.png")
-  list.append(".png")
-  list.append("1.png")
-  list.append(".png")
-
   def setAnim(newRectangle:RectangleCell, incrementX : Double, incrementY: Double,stringUrl : String, fun:(RectangleCell, String, Boolean) => Unit): Unit = {
     fun(newRectangle,stringUrl, false)
     anim.fromX = anim.toX.toDouble

@@ -4,10 +4,11 @@ import java.io.{FileOutputStream, ObjectOutputStream}
 
 import exception.DoubleMovementException
 import javafx.scene.input.MouseEvent
-import model.{Bottom, Cell, Enemy, EnemyCell, Left, MapEvent, PlayerRepresentation, Pyramid, RectangleCell, RectangleCellImpl, RectangleWithCell, Right, Statue, Top}
+import model.{Bottom, Cell, EmptyPosition, Enemy, EnemyCell, EnemyPosition, Left, MapEvent, MapPosition, PlayerPosition, PlayerRepresentation, Pyramid, PyramidPosition, RectangleCell, RectangleCellImpl, RectangleWithCell, Right, Statue, StatuePosition, Top}
 import scalafx.Includes._
 import scalafx.scene.input.KeyCode
 import view.scenes.MapScene
+
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
 import model.Placeable._
@@ -25,7 +26,7 @@ trait MapController {
   def list:ListBuffer[RectangleWithCell]
   def addToList(rect: RectangleWithCell): Unit
 
-  def getAllEnemies: List[PlayerRepresentation]
+  def getAllEnemies: ListBuffer[PlayerRepresentation]
 
   def handleSave(): Unit
   def handleKey(keyCode : KeyCode): Unit
@@ -55,8 +56,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
 
     if(getAllEnemies.isEmpty) {
       println("No more enemies.......")
-      val pyramid = list.find(p=> p.rectCell.mapEvent.isDefined && p.rectCell.mapEvent.get.callEvent.isInstanceOf[Pyramid]).get
-      pyramid.rectCell.mapEvent_(Option(MapEvent.createMapEvent(pyramid.rectCell.mapEvent.get.callEvent, new PlayerRepresentation(pyramid.rectCell, "pyramidDoor.png"))))
+      pyramidDoor("pyramidDoor.png")
       postInsert()
     }
   }
@@ -134,34 +134,43 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
     }
   }
 
-  override def getAllEnemies: List[PlayerRepresentation] = {
-    var outList =List[PlayerRepresentation]()
-    for { el <- list; element = el.rectCell.mapEvent; if element.isDefined && element.get.callEvent.isInstanceOf[Enemy]} yield outList = element.get.playerRepresentation :: outList
-    outList
+  override def getAllEnemies: ListBuffer[PlayerRepresentation] = {
+    list.map(m=> m.rectCell.mapEvent).filter(f => f.isDefined && f.get.callEvent.isInstanceOf[Enemy]).map(mm => mm.get.playerRepresentation)
+  }
+
+  private def pyramidDoor(url: String): Unit = {
+    val pyramid = list.find(f => f.rectCell.mapEvent.isDefined && f.rectCell.mapEvent.get.callEvent.isInstanceOf[Pyramid]).get
+    pyramid.rectCell.mapEvent_(Option(MapEvent.createMapEvent(pyramid.rectCell.mapEvent.get.callEvent, new PlayerRepresentation(pyramid.rectCell, url))))
   }
 
   override def handleSave(): Unit = {
-    val output = new ObjectOutputStream(new FileOutputStream("./src/main/saves/save.txt"))
+    import FileManager._
+    output = new ObjectOutputStream(new FileOutputStream("./src/main/saves/save.txt"))
+    save(gameC.user)
+    save(gameC.difficulty)
+    save(list.map(el => el.rectCell))
+    save(player)
+    save(dashboard.traslationX)
+    save(dashboard.traslationY)
+    output.close()
+
+    /*val output = new ObjectOutputStream(new FileOutputStream("./src/main/saves/save2.txt"))
 
     val outList = new ListBuffer[RectangleCell]
     for(el <-list)  outList.append(el.rectCell)
     output.writeObject(outList)
+>>>>>>> feature-game
     output.writeObject(player)
     output.writeObject(gameC.user)
-    output.writeObject(gameC.difficulty)
     output.writeObject(dashboard.traslationX)
     output.writeObject(dashboard.traslationY)
-    output.close()
+    output.writeObject(gameC.difficulty)
+    output.close()*/
   }
 
   override def postInsert(): Unit = {
     view.updateParameters()
-    if(getAllEnemies.nonEmpty) {
-      for { el <- list; element = el.rectCell.mapEvent; if element.isDefined && element.get.callEvent.isInstanceOf[Pyramid]} yield{
-        val pyramid: Pyramid = el.rectCell.mapEvent.get.callEvent.asInstanceOf[Pyramid]
-        el.rectCell.mapEvent_(Option(MapEvent.createMapEvent(pyramid, new PlayerRepresentation(el.rectCell, "pyramid.png"))))
-      }
-    }
+    if(getAllEnemies.nonEmpty) pyramidDoor("pyramid.png")
     view.setPaneChildren(list, Option.empty)
     selected = Option.empty
     view.setBPane()
@@ -187,25 +196,30 @@ object MapController {
   def setup(gameC: GameController): ListBuffer[RectangleWithCell] = {
     val list = new ListBuffer[RectangleWithCell]()
 
-    val tmp = Random.nextInt(6) + 4
+    val rngCells = Random.nextInt(6)
 
-    var excludedValues: Map[Int,ListBuffer[Int]] = Map()
-    val tmplist = new ListBuffer[Int]()
+    var newList: List[MapPosition] =List(PlayerPosition, EnemyPosition, StatuePosition, PyramidPosition)
+    for(i<-0 until rngCells) {
+      val rnd = math.random()
+      if(rnd < 0.8) newList = newList:+EmptyPosition
+      else if(rnd <0.9) newList = newList:+StatuePosition
+      else newList = newList:+EnemyPosition
+    }
 
-    for(i<-0 until tmp) {
-      val rect = RectangleCell.generateRandom(gameC,excludedValues, i)
-
+    var excludedValues: Map[Int,List[Int]] = Map()
+    newList.foreach(el => {
+      val rect =  el.create(gameC,excludedValues)
       list.append(new RectangleWithCell(rect.getWidth, rect.getHeight, rect.x, rect.y, rect) {
         fill = RectangleCell.createImage(rect.url, rect.rotation)
       })
       if(!excludedValues.contains(rect.x.toInt)) {
-        val tmplist = new ListBuffer[Int]()
-        tmplist.append(rect.y.toInt)
-        excludedValues += (rect.x.toInt -> tmplist)
+        excludedValues += (rect.x.toInt -> List[Int](rect.y.toInt))
       } else {
-        excludedValues.get(rect.x.toInt).get.append(rect.y.toInt)
+        val tmplist: List[Int] = excludedValues.get(rect.x.toInt).get :+ rect.y.toInt
+        excludedValues += (rect.x.toInt -> tmplist)
       }
-    }
+    })
     list
   }
+
 }

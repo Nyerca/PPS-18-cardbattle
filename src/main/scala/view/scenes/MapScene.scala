@@ -21,7 +21,6 @@ import scala.util.Random
 import model.Cell
 import scalafx.animation.{Interpolator, TranslateTransition}
 import scalafx.application.Platform
-import scalafx.scene.media.MediaPlayer
 import scalafx.util.Duration
 
 
@@ -52,7 +51,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
   var volumeSlider: Slider = createSlider("volumeSlider")
 
-  val backToMainMenu  = gameC.setScene(this, MainScene(parentStage))
+  lazy val backToMainMenu  = gameC.setScene(this, MainScene(parentStage))
 
   private val menu: VBox = new VBox {
     val toolbar = new ToolBar()
@@ -62,7 +61,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     }, isLast = false)
     addToToolbar(toolbar, new Button("Save"){onAction = () => _controller.handleSave()}, isLast = false)
     addToToolbar(toolbar, new Button("Option"){onAction = () => gameC.difficulty = setDifficulty}, isLast = false)
-    addToToolbar(toolbar, new Button("Quit"){onAction = () => parentStage.scene_=(MainScene(parentStage))}, isLast = false)
+    addToToolbar(toolbar, new Button("Quit"){onAction = () => backToMainMenu}, isLast = false)
     addToToolbar(toolbar, life, isLast = false)
     addToToolbar(toolbar, level, isLast = false)
     addToToolbar(toolbar, gold, isLast = true)
@@ -147,22 +146,15 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     duration = Duration(200.0)
     interpolator = Interpolator.Linear
     node = playerPane
-    onFinished_=(e => {
-      println("FINISHED")
+    onFinished_=(_ => {
       animationImg.fill_=(new ImagePattern(new Image("lev_2.png")))
-      onFinished_=(e => {
-        println("FINISHED2")
+      onFinished_=(_ => {
         animationImg.fill_=(new ImagePattern(new Image("lev_3.png")))
-        onFinished_=(e => {
-          println("FINISHED3")
+        onFinished_=(_ => {
           animationImg.fill_=(new ImagePattern(new Image("lev_2.png")))
-          onFinished_=(e => {
-            println("FINISHED2")
+          onFinished_=(_ => {
             animationImg.fill_=(new ImagePattern(new Image("lev_1.png")))
-            onFinished_=(e => {
-              println("FINISHED1")
-              animationImg.fill_=(null)
-            })
+            onFinished_=(_ => animationImg.fill_=(null))
             anim.play()
           })
           anim.play()
@@ -177,7 +169,6 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     animationImg.fill_=(new ImagePattern(new Image("lev_1.png")))
     anim.play()
   }
-
 
   def setMenu(): Unit = _pane.toBack()
 
@@ -209,7 +200,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
         if(gameC.user.coins >= money) {
           gameC.user.coins= gameC.user.coins - money
           gameC.user.actualHealthPoint = gameC.user.totalHealthPoint
-          updateHP()
+          updateParameters()
         } else {
           println("You haven't got enough money!")
         }
