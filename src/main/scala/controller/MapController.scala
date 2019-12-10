@@ -45,17 +45,9 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
   override def list:ListBuffer[RectangleWithCell] = _list
 
   override def removeEnemyCell(): Unit = {
-    val elem: Option[RectangleWithCell] = list.find(rc => rc.rectCell.mapEvent.isDefined && rc.rectCell == _player.position)
-
-    if(elem.isDefined && elem.get.rectCell.mapEvent.get.callEvent.isInstanceOf[Enemy]) {
-      elem.get.rectCell.mapEvent_(Option.empty)
-      postInsert()
-    }
-
-    view.updateParameters()
+    list.filter(f => f.rectCell.mapEvent.isDefined && f.rectCell == _player.position).map(m=> m.rectCell).filter(f2 => f2.mapEvent.get.callEvent.isInstanceOf[Enemy]).map(m2 => {m2.mapEvent_(Option.empty); postInsert()} )
 
     if(getAllEnemies.isEmpty) {
-      println("No more enemies.......")
       pyramidDoor("pyramidDoor.png")
       postInsert()
     }
@@ -73,7 +65,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
   var _player : PlayerRepresentation = _
   startingDefined match {
     case Some(rect: RectangleCell) => _player = new PlayerRepresentation(dashboard.searchPosition(rect.x, rect.y).get, "/player/bot.png")
-    case _ => _player = new PlayerRepresentation(list.head.rectCell, "/player/bot.png")
+    case _ => _player = new PlayerRepresentation(list.head, "/player/bot.png")
   }
   override def player: PlayerRepresentation = _player
 
@@ -192,9 +184,7 @@ object MapController {
     var excludedValues: Map[Int,List[Int]] = Map()
     newList.foreach(el => {
       val rect =  el.create(gameC,excludedValues)
-      list.append(new RectangleWithCell(rect.getWidth, rect.getHeight, rect.x, rect.y, rect) {
-        fill = RectangleCell.createImage(rect.url, rect.rotation)
-      })
+      list.append(rect)
       if(!excludedValues.contains(rect.x.toInt)) {
         excludedValues += (rect.x.toInt -> List[Int](rect.y.toInt))
       } else {

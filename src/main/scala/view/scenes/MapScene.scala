@@ -91,13 +91,14 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
   _controller.view_(this)
 
-  private var playerImg: Rectangle = new Rectangle() {
+  private var playerImg: Rectangle = icon(_controller.list.head.rectCell, _controller.player.url)
+    /*new Rectangle() {
     x=_controller.list.head.rectCell.x+_controller.list.head.rectCell.getWidth/2 - 60/2
     y=(_controller.list.head.rectCell.y+_controller.list.head.rectCell.getHeight/2)-(80-10)
     width = 60
     height = 80
     fill_=(new ImagePattern(new Image(_controller.player.url)))
-  }
+  }*/
   def playerImg_(player: PlayerRepresentation):Unit = {playerImg.fill_=(new ImagePattern(new Image(player.url)))}
 
   private val playerPane: Pane = new Pane {
@@ -134,8 +135,8 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
   root = playerPane
 
   val animationImg = new Rectangle() {
-    x=_controller.list.head.rectCell.x+_controller.list.head.rectCell.getWidth/2 - 82/2
-    y=(_controller.list.head.rectCell.y+_controller.list.head.rectCell.getHeight/2)-(95-20)
+    x=_controller.list.head.rectCell.x+_controller.list.head.rectCell.getWidth/2 - 41
+    y=(_controller.list.head.rectCell.y+_controller.list.head.rectCell.getHeight/2) - 75
     width = 80
     height = 100
     fill_=(null)
@@ -210,19 +211,8 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
   def createBottomCard(): List[Button] = {
     var tmpList = List[Button]()
-    val btn: Button = new Button {
-      val re = new RectangleCellImpl(true, true, true, true, _x= 0.0, _y=0.0)
-      onAction = () => _controller.selected_(Option(re))
-      defaultButton = true
-      graphic = new ImageView(RectangleCell.createImage(re.url, re.rotation).getImage) {
-        fitWidth_=(100)
-        fitHeight_=(100)
-      }
-    }
-    btn.getStyleClass.add("bottomButton")
-    tmpList = tmpList :+ btn
 
-    for(i<-0 until 4) {
+    for(i<-0 until 5) {
       val btn_tmp: Button = new Button {
         var re: Cell = _
         if(math.random() <= 0.8) {
@@ -236,7 +226,6 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
         }
         onAction = () => _controller.selected_(Option(re))
         defaultButton = true
-
       }
       btn_tmp.getStyleClass.add("bottomButton")
       tmpList = tmpList :+ btn_tmp
@@ -264,19 +253,15 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
   }
 
   def setPaneChildren(list :ListBuffer[RectangleWithCell], tmpRect : Option[RectangleCell]): Unit = {
-    val listTmp = new ListBuffer[Node]()
-    for (el <- list) yield {
-      listTmp.append(el)
-
-      if(el.rectCell.mapEvent.isDefined) {
-        if(el.rectCell.mapEvent.get.callEvent.isInstanceOf[Enemy]) listTmp.append(icon(el.rectCell.mapEvent.get.playerRepresentation, 100, 90))
-        if(el.rectCell.mapEvent.get.callEvent.isInstanceOf[Statue]) listTmp.append(icon(el.rectCell.mapEvent.get.playerRepresentation, 38, 110))
-        if(el.rectCell.mapEvent.get.callEvent.isInstanceOf[Pyramid]) listTmp.append(icon(el.rectCell.mapEvent.get.playerRepresentation, 80, 110))
+    val listTmp = new ListBuffer[Node]() ++ list //++ list.filter(f =>f.rectCell.mapEvent.isDefined ).map(m =>m.rectCell.mapEvent.get.callEvent )
+    list.filter(f =>f.rectCell.mapEvent.isDefined ).map(m =>m.rectCell.mapEvent.get ).foreach(el => {
+      el.callEvent match {
+        case e:Enemy => listTmp.append(icon(el.playerRepresentation.position, el.playerRepresentation.url, 100, 90))
+        case s:Statue => listTmp.append(icon(el.playerRepresentation.position, el.playerRepresentation.url, 38, 110))
+        case p:Pyramid => listTmp.append(icon(el.playerRepresentation.position, el.playerRepresentation.url, 80, 110))
       }
-    }
-    if(tmpRect.isDefined) listTmp.append(new RectangleWithCell(tmpRect.get.getWidth, tmpRect.get.getHeight, tmpRect.get.x, tmpRect.get.y,tmpRect.get) {
-      fill = RectangleCell.createImage(tmpRect.get.url, tmpRect.get.rotation)
     })
+    if(tmpRect isDefined) listTmp.append(tmpRect.get)
 
     _pane.children =listTmp
 }
@@ -286,13 +271,14 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     bottomPane.children = addList
   }
 
-  def icon(player: PlayerRepresentation, elemWidth: Double = 60, elemHeight: Double = 80 ): Rectangle = {
+
+  def icon(rectangle: RectangleCell, url: String, elemWidth: Double = 60, elemHeight: Double = 80 ): Rectangle = {
     new Rectangle() {
-      x=player.position.x+player.position.getWidth/2 - elemWidth/2
-      y=(player.position.y+player.position.getHeight/2)-(elemHeight-10)
+      x=rectangle.x+ rectangle.getWidth/2 - elemWidth/2
+      y=rectangle.y+rectangle.getHeight/2 - elemHeight/2-30
       width = elemWidth
       height = elemHeight
-      fill_=(new ImagePattern(new Image(player.url)))
+      fill_=(new ImagePattern(new Image(url)))
     }
   }
 
