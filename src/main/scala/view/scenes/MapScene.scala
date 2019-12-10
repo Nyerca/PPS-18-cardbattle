@@ -51,7 +51,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
   var volumeSlider: Slider = createSlider("volumeSlider")
 
-  val backToMainMenu  = gameC.setScene(this, MainScene(parentStage))
+  lazy val backToMainMenu  = gameC.setScene(this, MainScene(parentStage))
 
   private val menu: VBox = new VBox {
     val toolbar = new ToolBar()
@@ -61,7 +61,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     }, isLast = false)
     addToToolbar(toolbar, new Button("Save"){onAction = () => _controller.handleSave()}, isLast = false)
     addToToolbar(toolbar, new Button("Option"){onAction = () => gameC.difficulty = setDifficulty}, isLast = false)
-    addToToolbar(toolbar, new Button("Quit"){onAction = () => parentStage.scene_=(MainScene(parentStage))}, isLast = false)
+    addToToolbar(toolbar, new Button("Quit"){onAction = () => backToMainMenu}, isLast = false)
     addToToolbar(toolbar, life, isLast = false)
     addToToolbar(toolbar, level, isLast = false)
     addToToolbar(toolbar, gold, isLast = true)
