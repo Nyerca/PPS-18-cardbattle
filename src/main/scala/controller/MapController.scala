@@ -144,14 +144,28 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
   }
 
   override def handleSave(): Unit = {
-    val output = new ObjectOutputStream(new FileOutputStream("./src/main/saves/save.txt"))
-    output.writeObject(list.map(m => m.rectCell))
+    import FileManager._
+    output = new ObjectOutputStream(new FileOutputStream("./src/main/saves/save2.txt"))
+    save(gameC.user)
+    save(gameC.difficulty)
+    save(list.map(el => el.rectCell))
+    save(player)
+    save(dashboard.traslationX)
+    save(dashboard.traslationY)
+    output.close()
+
+    /*val output = new ObjectOutputStream(new FileOutputStream("./src/main/saves/save2.txt"))
+
+    val outList = new ListBuffer[RectangleCell]
+    for(el <-list)  outList.append(el.rectCell)
+    output.writeObject(outList)
+>>>>>>> feature-game
     output.writeObject(player)
     output.writeObject(gameC.user)
-    output.writeObject(gameC.difficulty)
     output.writeObject(dashboard.traslationX)
     output.writeObject(dashboard.traslationY)
-    output.close()
+    output.writeObject(gameC.difficulty)
+    output.close()*/
   }
 
   override def postInsert(): Unit = {
