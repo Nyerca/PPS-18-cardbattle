@@ -153,19 +153,6 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
     save(dashboard.traslationX)
     save(dashboard.traslationY)
     output.close()
-
-    /*val output = new ObjectOutputStream(new FileOutputStream("./src/main/saves/save2.txt"))
-
-    val outList = new ListBuffer[RectangleCell]
-    for(el <-list)  outList.append(el.rectCell)
-    output.writeObject(outList)
->>>>>>> feature-game
-    output.writeObject(player)
-    output.writeObject(gameC.user)
-    output.writeObject(dashboard.traslationX)
-    output.writeObject(dashboard.traslationY)
-    output.writeObject(gameC.difficulty)
-    output.close()*/
   }
 
   override def postInsert(): Unit = {
@@ -176,15 +163,13 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
     view.setBPane()
   }
 
-  import model.Monoid._
-
   override def handleMouseClicked(e:MouseEvent): Unit = {
     val cell = dashboard.searchPosition(e.x - dashboard.traslationX, e.y - dashboard.traslationY)
     //println("CLICKED : " + cell)
     selected match {
       case Some(rc:RectangleCell) =>
-        rc.x_(sum(e.x, dashboard.traslationX))
-        rc.y_(sum(e.y, dashboard.traslationY))
+        rc.x_(e.x - dashboard.traslationX - e.x % 200)
+        rc.y_(e.y - dashboard.traslationY - e.y % 200)
         place(rc,cell,this)
       case Some(ec:EnemyCell) => place(ec,cell,this)
       case _ =>
@@ -196,10 +181,8 @@ object MapController {
   def setup(gameC: GameController): ListBuffer[RectangleWithCell] = {
     val list = new ListBuffer[RectangleWithCell]()
 
-    val rngCells = Random.nextInt(6)
-
     var newList: List[MapPosition] =List(PlayerPosition, EnemyPosition, StatuePosition, PyramidPosition)
-    for(i<-0 until rngCells) {
+    for(i<-0 until Random.nextInt(6)) {
       val rnd = math.random()
       if(rnd < 0.8) newList = newList:+EmptyPosition
       else if(rnd <0.9) newList = newList:+StatuePosition

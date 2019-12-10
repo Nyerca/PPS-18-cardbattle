@@ -97,6 +97,14 @@ class RectangleCellImpl (override val top: Boolean, override val right: Boolean,
 }
 
 object RectangleCell {
+  implicit def RectangleCell2RectangleWithCell(rect : RectangleCell): RectangleWithCell =
+    new RectangleWithCell(rect.getWidth, rect.getHeight, rect.x, rect.y, rect){fill = RectangleCell.createImage(rect.url, rect.rotation)}
+
+  implicit def RectangleCell2ListRectangleWithCell(list : ListBuffer[RectangleCell]): ListBuffer[RectangleWithCell] = {
+    list.map(rect => new RectangleWithCell(rect.getWidth, rect.getHeight, rect.x, rect.y, rect){fill = RectangleCell.createImage(rect.url, rect.rotation)})
+  }
+
+
   def generateRandomCard() : RectangleCellImpl = {
     var top:Boolean = false
     var right:Boolean = false

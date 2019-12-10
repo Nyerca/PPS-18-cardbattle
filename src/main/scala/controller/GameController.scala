@@ -94,7 +94,7 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
       case Success(value) =>
         user = load[User](value)
         difficulty = FileManager.load[Difficulty](value)
-        gameMap = MapScene(fromScene.parentStage, this, load[ListBuffer[RectangleCell]](value).map(rc => new RectangleWithCell(rc.getWidth, rc.getHeight, rc.x, rc.y, rc) {fill = RectangleCell.createImage(rc.url, rc.rotation)}), Option(load[PlayerRepresentation](value).position), load[Double](value), load[Double](value))
+          gameMap = MapScene(fromScene.parentStage, this, load[ListBuffer[RectangleCell]](value), Option(load[PlayerRepresentation](value).position), load[Double](value), load[Double](value))
         value.close()
         setScene(fromScene)
       case Failure(_)  => GUIObjectFactory.alertFactory(AlertType.Error, fromScene.parentStage, "File not Found", "Load file not found").showAndWait()
