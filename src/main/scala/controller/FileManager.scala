@@ -11,7 +11,6 @@ class Loader[A]() {
 }
 
 object FileManager {
-  var input: ObjectInputStream = _
   var output: ObjectOutputStream = _
   implicit val rectangleCellsLoader: Loader[ListBuffer[RectangleCell]] =  new Loader[ListBuffer[RectangleCell]]
   implicit val playerRepresentationLoader: Loader[PlayerRepresentation] = new Loader[PlayerRepresentation]

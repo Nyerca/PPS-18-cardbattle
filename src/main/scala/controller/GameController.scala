@@ -4,14 +4,15 @@ package controller
 import java.io.{FileInputStream, ObjectInputStream}
 
 import Utility.GameObjectFactory.createCards
-import Utility.GameObjectFactory
+import Utility.{GUIObjectFactory, GameObjectFactory}
 import model._
+import scalafx.Includes._
+import scalafx.scene.control.Alert.AlertType
 import scalafx.stage.Stage
 import view.scenes.{BaseScene, BattleScene, EquipmentScene, MainScene, MapScene, RewardScene}
 
 import scala.collection.mutable.ListBuffer
-import scala.util.Random
-import scalafx.Includes._
+import scala.util.{Failure, Random, Success, Try}
 
 trait OperationType
 
@@ -49,7 +50,7 @@ trait GameController {
 
   def setScene(fromScene: BaseScene, toScene: BaseScene = gameMap): Unit
 
-  def setUserInformation(operationType: OperationType, parentStage: Stage): Unit
+  def setUserInformation(operationType: OperationType, fromScene: BaseScene): Unit
 
   def spawnEnemy(randomIndex: Int): Enemy
 }
@@ -74,11 +75,12 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
     fromScene.changeScene(toScene)
   }
 
-  override def setUserInformation(operationType: OperationType, parentStage: Stage): Unit = operationType match {
+  override def setUserInformation(operationType: OperationType, fromScene: BaseScene): Unit = operationType match {
     case OperationType.NewGame =>
       user = Player.userFactory("Player 1", "images/user.png", Random.shuffle(allCards).take(8))
-      gameMap = MapScene(parentStage, this)
-    case _ => loadData(parentStage)
+      gameMap = MapScene(fromScene.parentStage, this)
+      setScene(fromScene)
+    case _ => loadData(fromScene)
   }
 
   override def spawnEnemy(randomIndex: Int): Enemy = difficulty match {
@@ -88,16 +90,17 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
   }
 
 
-  private def loadData(parentStage: Stage): Unit = {
+  private def loadData(fromScene: BaseScene): Unit = {
     import FileManager._
-    input = new ObjectInputStream(new FileInputStream("./src/main/saves/save2.txt"))
-    user = load[User](input)
-    difficulty = FileManager.load[Difficulty](input)
-    gameMap = MapScene(parentStage, this, load[ListBuffer[RectangleCell]](input).map(rc => new RectangleWithCell(rc.getWidth, rc.getHeight, rc.x, rc.y, rc) {
-      fill = RectangleCell.createImage(rc.url, rc.rotation)
-    }), Option(load[PlayerRepresentation](input).position), load[Double](input), load[Double](input))
-    //gameMap.setPaneChildren(list, Option.empty)
-    input.close()
+    Try(new ObjectInputStream(new FileInputStream("./src/main/saves/save.txt"))) match {
+      case Success(value) =>
+        user = load[User](value)
+        difficulty = FileManager.load[Difficulty](value)
+        gameMap = MapScene(fromScene.parentStage, this, load[ListBuffer[RectangleCell]](value).map(rc => new RectangleWithCell(rc.getWidth, rc.getHeight, rc.x, rc.y, rc) {fill = RectangleCell.createImage(rc.url, rc.rotation)}), Option(load[PlayerRepresentation](value).position), load[Double](value), load[Double](value))
+        value.close()
+        setScene(fromScene)
+      case Failure(_)  => GUIObjectFactory.alertFactory(AlertType.Error, fromScene.parentStage, "File not Found", "Load file not found").showAndWait()
+    }
   }
 
   private def checkUserLevelUp: Unit = user.experience match {
