@@ -91,26 +91,14 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
   private def loadData(parentStage: Stage): Unit = {
     import FileManager._
     input = new ObjectInputStream(new FileInputStream("./src/main/saves/save2.txt"))
-    val list: ListBuffer[RectangleCell] = load[ListBuffer[RectangleCell]](input)
-    val player: PlayerRepresentation = load[PlayerRepresentation](input)
     user = load[User](input)
     difficulty = FileManager.load[Difficulty](input)
-
-    println("DIFFICULTY: " + difficulty)
-    val traslationX = load[Double](input)
-    val traslationY = load[Double](input)
+    val list: ListBuffer[RectangleWithCell] = load[ListBuffer[RectangleCell]](input).map(rc => new RectangleWithCell(rc.getWidth, rc.getHeight, rc.x, rc.y, rc) {
+      fill = RectangleCell.createImage(rc.url, rc.rotation)
+    })
+    gameMap = MapScene(parentStage, this, list, Option(load[PlayerRepresentation](input).position), load[Double](input), load[Double](input))
+    gameMap.setPaneChildren(list, Option.empty)
     input.close()
-
-    val lis :ListBuffer[RectangleWithCell] = new ListBuffer[RectangleWithCell]
-    for (tmpRect <- list) {
-      lis.append(new RectangleWithCell(tmpRect.getWidth, tmpRect.getHeight, tmpRect.x, tmpRect.y,tmpRect) {
-        fill = RectangleCell.createImage(tmpRect.url, tmpRect.rotation)
-      } )
-    }
-
-    gameMap = MapScene(parentStage, this, lis, Option(player.position),traslationX,traslationY)
-    gameMap.setPaneChildren(lis, Option.empty)
-
   }
 
   private def checkUserLevelUp: Unit = user.experience match {
