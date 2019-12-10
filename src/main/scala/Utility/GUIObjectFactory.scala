@@ -3,7 +3,7 @@ package Utility
 import javafx.event.{ActionEvent, EventHandler}
 import scalafx.scene.Node
 import scalafx.scene.control.Alert.AlertType
-import scalafx.scene.control.{Alert, Button, Label}
+import scalafx.scene.control._
 import scalafx.scene.layout.Pane
 import scalafx.stage.Stage
 
@@ -38,5 +38,14 @@ object GUIObjectFactory {
   def paneFactory(nodes: List[Node], classes: String*): Pane = new Pane {
     classes.foreach(c => styleClass.add(c))
     children = nodes
+  }
+
+  def toolbarFactory(list: List[(Node, Boolean)]): ToolBar = {
+    val toolbar = new ToolBar()
+    list.map(m=> {
+      toolbar.getItems.add(m._1)
+      if(m._2) toolbar.getItems.add(new Separator())
+    })
+    toolbar
   }
 }

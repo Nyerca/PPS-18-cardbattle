@@ -104,7 +104,7 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
   private def checkUserLevelUp: Unit = user.experience match {
     case n if n <= 0 =>
       user.experience = 3 * user.level - n
-      gameMap.playLevelUpAnimation()
+      LevelUpAnimation.play()
     case _ => ;
   }
 

@@ -150,7 +150,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
   override def postInsert(): Unit = {
     view.updateParameters()
     if(getAllEnemies.nonEmpty) pyramidDoor("pyramid.png")
-    view.setPaneChildren(list, Option.empty)
+    view.setPaneChildren(list)
     selected = Option.empty
     view.setBPane()
   }

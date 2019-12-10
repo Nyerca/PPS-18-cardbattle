@@ -1,5 +1,6 @@
 package view.scenes
 
+import Utility.GUIObjectFactory
 import controller.GameController
 import javafx.beans.property.SimpleStringProperty
 import model.Card
@@ -23,32 +24,30 @@ class EquipmentScene(override val parentStage: Stage, gameController: GameContro
 
 
 
-  private def createCardPane(card: Card): Pane = {
-    new Pane {
-      children = new ListBuffer[Node]
-      maxHeight = 800
-      val c = new CardComponentImpl(0,0, false,handle{
-        println(gameController.user.battleDeck.map(el => el.name))
+  private def createCardPane(card: Card): Pane = new Pane {
+    children = new ListBuffer[Node]
+    maxHeight = 800
+    val c = new CardComponentImpl(0,0, false,handle{
+      println(gameController.user.battleDeck.map(el => el.name))
 
-        if(gameController.user.battleDeck.contains(card)) {
-          gameController.user.battleDeck = gameController.user.battleDeck.filter(c => c != card)
-          btn.styleClass.remove("equipSelectedCard")
-        } else {
-          gameController.user.battleDeck = card :: gameController.user.battleDeck
-          btn.styleClass.add("equipSelectedCard")
-        }
-        setCards()
-      })
-      c.setCardInformation(card)
-      val btn: Button = c.clickableCard
-      if(gameController.user.battleDeck.contains(card)) btn.styleClass.add("equipSelectedCard")
+      if(gameController.user.battleDeck.contains(card)) {
+        gameController.user.battleDeck = gameController.user.battleDeck.filter(c => c != card)
+        btn.styleClass.remove("equipSelectedCard")
+      } else {
+        gameController.user.battleDeck = card :: gameController.user.battleDeck
+        btn.styleClass.add("equipSelectedCard")
+      }
+      setCards()
+    })
+    c.setCardInformation(card)
+    val btn: Button = c.clickableCard
+    if(gameController.user.battleDeck.contains(card)) btn.styleClass.add("equipSelectedCard")
 
-      children.append(btn)
+    children.append(btn)
 
-      children.append(c.cardLevel)
-      children.append(c.cardName)
-      children.append(c.cardDamage)
-    }
+    children.append(c.cardLevel)
+    children.append(c.cardName)
+    children.append(c.cardDamage)
   }
 
   private var index = 0
@@ -61,28 +60,30 @@ class EquipmentScene(override val parentStage: Stage, gameController: GameContro
   private val gridPane: GridPane = new GridPane() {id="grid"}
   gameController.user.allCards.foreach(c => addCard(gridPane, c))
 
-  private val toolbar = new ToolBar()
-  private val observableCards = new SimpleStringProperty(gameController.user.battleDeck.size+ " /")
+  private val observableCards = new SimpleStringProperty("CARDS:         " + gameController.user.battleDeck.size+ " /8")
   private val cards: Label = new Label{text <== observableCards}
-  private def setCards(): Unit = observableCards.set(gameController.user.battleDeck.size+ " /")
+  private def setCards(): Unit = observableCards.set("CARDS:         " + gameController.user.battleDeck.size+ " /8")
 
-  toolbar.getItems.add(new Text("CARDS:         "))
-  toolbar.getItems.add(cards)
-  toolbar.getItems.add(new Text("8   "))
-  toolbar.getItems.add(new ImageView(new Image("cardSprite.png")));
+
   private def changeScene(): Unit = gameController.setScene(this)
-  private val btn: Button = new Button("Back") {onAction = () =>
-    if(gameController.user.battleDeck.size == 8) changeScene()
-    else println("You have to take 8 cards in order to procede.")
-  }
-  toolbar.getItems.add(btn)
+
+
 
   root = new ScrollPane() {
     hbarPolicy = ScrollBarPolicy.Never
     vbarPolicy = ScrollBarPolicy.AsNeeded
     id= "scrollPane"
     content = new BorderPane() {
-      top = toolbar
+      top = GUIObjectFactory.toolbarFactory(
+        List(
+          (cards, false),
+          (new ImageView(new Image("cardSprite.png")), true),
+          (new Button("Back") {onAction = () =>
+            if(gameController.user.battleDeck.size == 8) changeScene()
+            else println("You have to take 8 cards in order to procede.")
+          }, false)
+        )
+      )
       center = gridPane
       id = "cardsPane"
     }
