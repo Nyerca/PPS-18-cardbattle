@@ -1,5 +1,3 @@
 package exception
 
-class DoubleCellException extends Exception{
-
-}
+class DoubleCellException extends Exception{}

@@ -52,8 +52,6 @@ trait GameController {
   def setUserInformation(operationType: OperationType, parentStage: Stage): Unit
 
   def spawnEnemy(randomIndex: Int): Enemy
-
-
 }
 
 
@@ -85,8 +83,8 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
 
 
   private def loadData(parentStage: Stage): Unit = {
-    val input = new ObjectInputStream(new FileInputStream("./src/main/saves/save2.txt"))
-    val list  : List[RectangleCell] = input.readObject().asInstanceOf[List[RectangleCell]]
+    val input = new ObjectInputStream(new FileInputStream("./src/main/saves/save.txt"))
+    val list  : ListBuffer[RectangleCell] = input.readObject().asInstanceOf[ListBuffer[RectangleCell]]
     val player : PlayerRepresentation = input.readObject().asInstanceOf[PlayerRepresentation]
     user = input.readObject().asInstanceOf[User]
    difficulty = input.readObject().asInstanceOf[Difficulty]
@@ -110,8 +108,9 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
 
   private def checkUserLevelUp: Unit = user.experience match {
     case n if n <= 0 =>
-      user.experience = 5 * user.level - n
-      GUIObjectFactory.alertFactory(AlertType.Information, gameMap.parentStage, "User level up", "Congratulations, you raised level " + user.level).showAndWait()
+      user.experience = 3 * user.level - n
+      gameMap.playLevelUpAnimation()
+      //GUIObjectFactory.alertFactory(AlertType.Information, gameMap.parentStage, "User level up", "Congratulations, you raised level " + user.level).showAndWait()
     case _ => ;
   }
 

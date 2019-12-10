@@ -1,4 +1,5 @@
 #cardsPane {
+    -fx-pref-height:800;
     -fx-background-image: url("shop.jpg");
     -fx-background-size: auto, auto;
 }
@@ -54,19 +55,3 @@
     -fx-pref-width: 200;
     -fx-accent: green;
 }
-
-
-/***** Shop ****/
-
-#shopPane {
-    -fx-pref-width:1200;
-    -fx-pref-height:800;
-    -fx-background-image: url("shop.jpg");
-    -fx-background-size: auto, auto;
-}
-
-#shopGrid {
-    -fx-padding: 10;
-    -fx-hgap: 220;
-    -fx-vgap: 140;
- }
