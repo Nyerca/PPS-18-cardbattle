@@ -2,16 +2,12 @@ package controller
 
 
 import java.io.{FileInputStream, ObjectInputStream}
-
-import Utility.GameObjectFactory
 import Utility.GameObjectFactory.createCards
 import Utility.GameObjectFactory
-import model._
 import model._
 import scalafx.Includes._
 import scalafx.stage.Stage
 import view.scenes.{BaseScene, BattleScene, EquipmentScene, MainScene, MapScene, RewardScene}
-
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
 
@@ -91,7 +87,6 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
 
 
   private def loadData(parentStage: Stage): Unit = {
-<<<<<<< HEAD
     import FileManager._
     input = new ObjectInputStream(new FileInputStream("./src/main/saves/save2.txt"))
     user = load[User](input)
@@ -101,25 +96,6 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
     }), Option(load[PlayerRepresentation](input).position), load[Double](input), load[Double](input))
     //gameMap.setPaneChildren(list, Option.empty)
     input.close()
-=======
-    val input = new ObjectInputStream(new FileInputStream("./src/main/saves/save.txt"))
-    val list  : ListBuffer[RectangleCell] = input.readObject().asInstanceOf[ListBuffer[RectangleCell]]
-    val player : PlayerRepresentation = input.readObject().asInstanceOf[PlayerRepresentation]
-    user = input.readObject().asInstanceOf[User]
-    difficulty = input.readObject().asInstanceOf[Difficulty]
-    val traslationX = input.readObject().asInstanceOf[Double]
-    val traslationY = input.readObject().asInstanceOf[Double]
-    input.close()
-    val lis :ListBuffer[RectangleWithCell] = new ListBuffer[RectangleWithCell]
-    for (tmpRect <- list) {
-      lis.append(new RectangleWithCell(tmpRect.getWidth, tmpRect.getHeight, tmpRect.x, tmpRect.y,tmpRect) {
-        fill = RectangleCell.createImage(tmpRect.url, tmpRect.rotation)
-      } )
-    }
-    gameMap = MapScene(parentStage, this, lis, Option(player.position),traslationX,traslationY)
-    gameMap.setPaneChildren(lis, Option.empty)
-
->>>>>>> feature-battle
   }
 
   private def checkUserLevelUp: Unit = user.experience match {
