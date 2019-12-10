@@ -88,7 +88,7 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
 
   private def loadData(parentStage: Stage): Unit = {
     import FileManager._
-    input = new ObjectInputStream(new FileInputStream("./src/main/saves/save2.txt"))
+    input = new ObjectInputStream(new FileInputStream("./src/main/saves/save.txt"))
     user = load[User](input)
     difficulty = FileManager.load[Difficulty](input)
     gameMap = MapScene(parentStage, this, load[ListBuffer[RectangleCell]](input).map(rc => new RectangleWithCell(rc.getWidth, rc.getHeight, rc.x, rc.y, rc) {
