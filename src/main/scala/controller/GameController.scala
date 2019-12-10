@@ -93,11 +93,10 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
     input = new ObjectInputStream(new FileInputStream("./src/main/saves/save2.txt"))
     user = load[User](input)
     difficulty = FileManager.load[Difficulty](input)
-    val list: ListBuffer[RectangleWithCell] = load[ListBuffer[RectangleCell]](input).map(rc => new RectangleWithCell(rc.getWidth, rc.getHeight, rc.x, rc.y, rc) {
+    gameMap = MapScene(parentStage, this, load[ListBuffer[RectangleCell]](input).map(rc => new RectangleWithCell(rc.getWidth, rc.getHeight, rc.x, rc.y, rc) {
       fill = RectangleCell.createImage(rc.url, rc.rotation)
-    })
-    gameMap = MapScene(parentStage, this, list, Option(load[PlayerRepresentation](input).position), load[Double](input), load[Double](input))
-    gameMap.setPaneChildren(list, Option.empty)
+    }), Option(load[PlayerRepresentation](input).position), load[Double](input), load[Double](input))
+    //gameMap.setPaneChildren(list, Option.empty)
     input.close()
   }
 
@@ -105,7 +104,6 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
     case n if n <= 0 =>
       user.experience = 3 * user.level - n
       gameMap.playLevelUpAnimation()
-      //GUIObjectFactory.alertFactory(AlertType.Information, gameMap.parentStage, "User level up", "Congratulations, you raised level " + user.level).showAndWait()
     case _ => ;
   }
 
