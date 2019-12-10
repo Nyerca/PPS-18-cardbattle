@@ -25,11 +25,11 @@ trait Card  extends Serializable {
   def incrementCardNumber(): Option[Int]
 }
 
-case class CardImpl(override val name: String, override val image: String, var level: Int, override val family: (Category,Type), var value: Int, var cardMissingForNextLevel: Int) extends Card {
+class CardImpl(override val name: String, override val image: String, var level: Int, override val family: (Category,Type), var value: Int, var cardMissingForNextLevel: Int) extends Card {
   override def incrementCardNumber(): Option[Int] = cardMissingForNextLevel - 1 match {
     case 0 =>
       level += 1
-      value += 3
+      value += 2
       cardMissingForNextLevel = level
       Some(level)
     case _ =>
@@ -39,5 +39,5 @@ case class CardImpl(override val name: String, override val image: String, var l
 }
 
 object Card {
-  def apply(name: String, image: String, family: (Category,Type), level: Int = 1, value: Int = 0): Card = CardImpl(name, image, level, family, 2 * level + value, level)
+  def apply(name: String, image: String, level: Int, family: (Category,Type), value: Int, cardMissingForNextLevel: Int): Card = new CardImpl(name, image, level, family, value, cardMissingForNextLevel)
 }

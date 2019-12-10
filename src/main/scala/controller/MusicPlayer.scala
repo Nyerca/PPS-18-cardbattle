@@ -17,7 +17,7 @@ object SoundType {
 
 object MusicPlayer {
   var mediaPlayer: Option[MediaPlayer] = None
-  var observableVolume = new SimpleDoubleProperty(0.5)
+  var observableVolume = new SimpleDoubleProperty(0.3)
   observableVolume.addListener(_ => mediaPlayer.get.volume = observableVolume.get)
 
   def play(soundType:SoundType): Unit = {
