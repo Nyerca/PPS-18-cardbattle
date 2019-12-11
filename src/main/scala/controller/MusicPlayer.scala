@@ -16,8 +16,11 @@ object SoundType {
 }
 
 object MusicPlayer {
-  var mediaPlayer: Option[MediaPlayer] = None
+
+  private var mediaPlayer: Option[MediaPlayer] = None
+
   var observableVolume = new SimpleDoubleProperty(0.5)
+
   observableVolume.addListener(_ => mediaPlayer.get.volume = observableVolume.get)
 
   def play(soundType:SoundType): Unit = {
@@ -27,6 +30,8 @@ object MusicPlayer {
     mediaPlayer.get.cycleCount = MediaPlayer.Indefinite
     mediaPlayer.get.play()
   }
+
+  def pause(): Unit = mediaPlayer.get.pause()
 
   private def setMedia(soundType: SoundType): Option[MediaPlayer] = soundType match {
     case MapSound => Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Dungeon1.m4a").toString)))
