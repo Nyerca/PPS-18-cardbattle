@@ -9,24 +9,33 @@ import scala.util.Random
 
 trait BattleController {
 
-  MusicPlayer.play(SoundType.BattleSound)
-
   def user: User
-
-  user.battleDeck = Random.shuffle(user.battleDeck)
 
   def enemy: Enemy
 
-  enemy.battleDeck = Random.shuffle(enemy.battleDeck)
-
   def battleScene: BattleScene
 
-  def drawCard(player: Player): Unit = player match {
+  def drawCard(player: Player): Unit
+
+  def fight(userCard: Card, enemyCard: Card): Unit
+
+  def checkWinner(player: Player): Unit
+}
+
+class BattleControllerImpl(override val user: User, override val enemy: Enemy, override val battleScene: BattleScene) extends BattleController {
+
+  MusicPlayer.play(SoundType.BattleSound)
+
+  enemy.battleDeck = Random.shuffle(enemy.battleDeck)
+
+  user.battleDeck = Random.shuffle(user.battleDeck)
+
+  override def drawCard(player: Player): Unit = player match {
     case _:User => battleScene.drawCard(player)(getCardAndReinsert(user))
     case _ => battleScene.drawCard(player)(getCardAndReinsert(enemy))
   }
 
-  def fight(userCard: Card, enemyCard: Card): Unit = {
+  override def fight(userCard: Card, enemyCard: Card): Unit = {
     (userCard.family._1, enemyCard.family._1) match {
       case (Category.Attack, Category.Attack) =>
         user.actualHealthPoint -= enemyCard.value
@@ -39,7 +48,7 @@ trait BattleController {
     battleScene.playFightAnimation(enemyCard.family, enemy)
   }
 
-  def checkWinner(player: Player): Unit = player match {
+  override def checkWinner(player: Player): Unit = player match {
     case _: User if user.actualHealthPoint <= 0 =>
       battleScene fadeSceneChanging enemy
       MusicPlayer.play(LoseSound)
@@ -77,8 +86,6 @@ trait BattleController {
   }
 }
 
-case class BattleControllerImpl(override val user: User, override val enemy: Enemy, override val battleScene: BattleScene) extends BattleController
-
 object BattleController {
-  def apply(user: User, enemy: Enemy, battleScene: BattleScene): BattleController = BattleControllerImpl(user, enemy, battleScene)
+  def apply(user: User, enemy: Enemy, battleScene: BattleScene): BattleController = new BattleControllerImpl(user, enemy, battleScene)
 }
