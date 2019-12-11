@@ -4,7 +4,7 @@ import java.io.{FileOutputStream, ObjectOutputStream}
 
 import exception.DoubleMovementException
 import javafx.scene.input.MouseEvent
-import model.{Bottom, Cell, EmptyPosition, Enemy, EnemyCell, EnemyPosition, Left, MapEvent, MapPosition, PlayerPosition, PlayerRepresentation, Pyramid, PyramidPosition, RectangleCell, RectangleCellImpl, RectangleWithCell, Right, Statue, StatuePosition, Top}
+import model.{Bottom, Cell, EmptyPosition, Enemy, EnemyCell, EnemyPosition, Left, MapEvent, MapPosition, PlayerPosition, PlayerRepresentation, Pyramid, PyramidPosition, RectangleCell, RectangleCellImpl, Right, Statue, StatuePosition, Top}
 import scalafx.Includes._
 import scalafx.scene.input.KeyCode
 import view.scenes.MapScene
@@ -17,14 +17,14 @@ import model.Placeable._
 trait MapController {
   def gameC: GameController
   def selected_(element: Option[Cell]):Unit
-  def _list: ListBuffer[RectangleWithCell]
+  def _list: ListBuffer[RectangleCell]
   def removeEnemyCell(): Unit
   def startingDefined: Option[RectangleCell]
   def view_ (newView : MapScene): Unit
   def player: PlayerRepresentation
   def postInsert(): Unit
-  def list:ListBuffer[RectangleWithCell]
-  def addToList(rect: RectangleWithCell): Unit
+  def list:ListBuffer[RectangleCell]
+  def addToList(rect: RectangleCell): Unit
 
   def getAllEnemies: ListBuffer[PlayerRepresentation]
 
@@ -35,17 +35,17 @@ trait MapController {
 }
 
 
-class MapControllerImpl (override val gameC : GameController, var _list:ListBuffer[RectangleWithCell], var startingDefined : Option[RectangleCell], traslationX:Double, traslationY:Double) extends MapController {
+class MapControllerImpl (override val gameC : GameController, var _list:ListBuffer[RectangleCell], var startingDefined : Option[RectangleCell], traslationX:Double, traslationY:Double) extends MapController {
 
   def this(gameC : GameController) {this(gameC,MapController.setup(gameC),Option.empty,0,0)}
 
   var selected:Option[Cell] = Option.empty
   override def selected_(element: Option[Cell]):Unit = selected = element
 
-  override def list:ListBuffer[RectangleWithCell] = _list
+  override def list:ListBuffer[RectangleCell] = _list
 
   override def removeEnemyCell(): Unit = {
-    list.filter(f => f.rectCell.mapEvent.isDefined && f.rectCell == _player.position).map(m=> m.rectCell).filter(f2 => f2.mapEvent.get.callEvent.isInstanceOf[Enemy]).map(m2 => {m2.mapEvent_(Option.empty); postInsert()} )
+    list.filter(f => f.mapEvent.isDefined && f == _player.position).filter(f2 => f2.mapEvent.get.callEvent.isInstanceOf[Enemy]).map(m2 => {m2.mapEvent_(Option.empty); postInsert()} )
 
     if(getAllEnemies.isEmpty) {
       pyramidDoor("pyramidDoor.png")
@@ -53,9 +53,9 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
     }
   }
 
-  override def addToList(rect: RectangleWithCell): Unit = {
+  override def addToList(rect: RectangleCell): Unit = {
     _list.append(rect)
-    dashboard.setCells(_list)
+    dashboard.cells = _list
   }
 
   var dashboard = new DashboardImpl(list)
@@ -69,12 +69,12 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
   }
   override def player: PlayerRepresentation = _player
 
-  dashboard.player_(_player)
+  dashboard.player = _player
 
   var view: MapScene = _
   override def view_ (newView : MapScene): Unit = {
     view = newView
-    MovementAnimation.setAnimationNode(view.bpane)
+    MovementAnimation.setAnimationNode(view.mapWindow)
     view.setMenu()
   }
 
@@ -86,7 +86,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
 
   def checkAnimationEnd(url: String):Boolean = {
     if(MovementAnimation.checkAnimationEnd()) {
-      player.url_(url + ".png")
+      player.url = url + ".png"
       view.playerImg_(player)
       true
     }
@@ -99,19 +99,19 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
         gameC.user.actualHealthPoint = gameC.user.actualHealthPoint - 1
         view.updateHP()
       }
-      player.position_(newRectangle, stringUrl)
+      player.position= newRectangle
       view.playerImg_(player)
 
-      val event = player._position.mapEvent
+      val event = player.position.mapEvent
       if(event.isDefined) {
         event.get.callEvent match {
-          case enemy:Enemy => view.changeScene(gameC.user, player._position.mapEvent.get.callEvent.asInstanceOf[Enemy])
-          case statue:Statue => view.showStatueAlert(player._position.mapEvent.get.callEvent.asInstanceOf[Statue].moneyRequired)
-          case pyramid: Pyramid => if(player._position.mapEvent.get.playerRepresentation.url.contains("Door")) reset()
+          case enemy:Enemy => view.changeScene(gameC.user, player.position.mapEvent.get.callEvent.asInstanceOf[Enemy])
+          case statue:Statue => view.showStatueAlert(player.position.mapEvent.get.callEvent.asInstanceOf[Statue].moneyRequired)
+          case pyramid: Pyramid => if(player.position.mapEvent.get.playerRepresentation.url.contains("Door")) reset()
         }
       }
     } else {
-      player.url_(stringUrl)
+      player.url= stringUrl
       view.playerImg_(player)
     }
   }
@@ -127,12 +127,12 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
   }
 
   override def getAllEnemies: ListBuffer[PlayerRepresentation] = {
-    list.map(m=> m.rectCell.mapEvent).filter(f => f.isDefined && f.get.callEvent.isInstanceOf[Enemy]).map(mm => mm.get.playerRepresentation)
+    list.map(m=> m.mapEvent).filter(f => f.isDefined && f.get.callEvent.isInstanceOf[Enemy]).map(mm => mm.get.playerRepresentation)
   }
 
   private def pyramidDoor(url: String): Unit = {
-    val pyramid = list.find(f => f.rectCell.mapEvent.isDefined && f.rectCell.mapEvent.get.callEvent.isInstanceOf[Pyramid]).get
-    pyramid.rectCell.mapEvent_(Option(MapEvent.createMapEvent(pyramid.rectCell.mapEvent.get.callEvent, new PlayerRepresentation(pyramid.rectCell, url))))
+    val pyramid = list.find(f => f.mapEvent.isDefined && f.mapEvent.get.callEvent.isInstanceOf[Pyramid]).get
+    pyramid.mapEvent_(Option(MapEvent.createMapEvent(pyramid.mapEvent.get.callEvent, new PlayerRepresentation(pyramid, url))))
   }
 
   override def handleSave(): Unit = {
@@ -140,7 +140,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
     output = new ObjectOutputStream(new FileOutputStream("./src/main/saves/save.txt"))
     save(gameC.user)
     save(gameC.difficulty)
-    save(list.map(el => el.rectCell))
+    save(list.map(el => el))
     save(player)
     save(dashboard.traslationX)
     save(dashboard.traslationY)
@@ -170,8 +170,8 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
 }
 
 object MapController {
-  def setup(gameC: GameController): ListBuffer[RectangleWithCell] = {
-    val list = new ListBuffer[RectangleWithCell]()
+  def setup(gameC: GameController): ListBuffer[RectangleCell] = {
+    val list = new ListBuffer[RectangleCell]()
 
     var newList: List[MapPosition] =List(PlayerPosition, EnemyPosition, StatuePosition, PyramidPosition)
     for(i<-0 until Random.nextInt(6)) {

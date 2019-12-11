@@ -61,7 +61,6 @@ class EquipmentScene(override val parentStage: Stage, gameController: GameContro
   gameController.user.allCards.foreach(c => addCard(gridPane, c))
 
   private val observableCards = new SimpleStringProperty("CARDS:         " + gameController.user.battleDeck.size+ " /8")
-  private val cards: Label = new Label{text <== observableCards}
   private def setCards(): Unit = observableCards.set("CARDS:         " + gameController.user.battleDeck.size+ " /8")
 
 
@@ -76,7 +75,7 @@ class EquipmentScene(override val parentStage: Stage, gameController: GameContro
     content = new BorderPane() {
       top = GUIObjectFactory.toolbarFactory(
         List(
-          (cards, false),
+          (new Label{text <== observableCards}, false),
           (new ImageView(new Image("cardSprite.png")), true),
           (new Button("Back") {onAction = () =>
             if(gameController.user.battleDeck.size == 8) changeScene()

@@ -21,10 +21,7 @@ object Placeable {
   implicit val rectanglePlaceable: Placeable[RectangleCell] =
     instance((selected, cell, controller) => {
       if(cell.isEmpty) {
-        val rect = new RectangleWithCell(selected.getWidth, selected.getHeight, selected.x, selected.y,selected) {
-          fill = RectangleCell.createImage(selected.url, selected.rotation)
-        }
-        controller.addToList(rect)
+        controller.addToList(selected)
         controller.postInsert()
       } else {
         throw new DoubleCellException

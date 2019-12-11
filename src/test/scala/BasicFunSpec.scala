@@ -65,17 +65,15 @@ class BasicFunSpec extends FunSpec with Matchers  {
   describe("A movement") {
     it(" should raise MissingCellException if done on a missing cell") {
       assertThrows[MissingCellException] {
-        val list = new ListBuffer[RectangleWithCell]
+        val list = new ListBuffer[RectangleCell]
         var re = new RectangleCellImpl(true, true, true, true, 200,200,0,0)
         var re2 = new RectangleCellImpl(true, true, true, true, 200,200,0,200)
-        val recell = new RectangleWithCell(re.getWidth, re.getHeight, re.x, re.y,re)
-        val recell2 = new RectangleWithCell(re2.getWidth, re2.getHeight, re2.x, re2.y,re)
-        list.append(recell)
-        list.append(recell2)
+        list.append(re)
+        list.append(re2)
         val p = new PlayerRepresentation(re, "bot.png")
         val dash = new DashboardImpl(list)
-        dash.player_(p)
-        println(p._position)
+        dash.player = p
+        println(p.position)
         dash.move(Right,(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean)=>{})
       }
     }
@@ -83,17 +81,15 @@ class BasicFunSpec extends FunSpec with Matchers  {
     it(" should raise NoMovementException if done on a cell that doesn't allow that movement") {
       assertThrows[NoMovementException] {
 
-        val list = new ListBuffer[RectangleWithCell]
+        val list = new ListBuffer[RectangleCell]
         var re = new RectangleCellImpl(true, false, true, true, 200,200,0,0)
         var re2 = new RectangleCellImpl(true, true, true, true, 200,200,0,200)
-        val recell = new RectangleWithCell(re.getWidth, re.getHeight, re.x, re.y,re)
-        val recell2 = new RectangleWithCell(re2.getWidth, re2.getHeight, re2.x, re2.y,re)
-        list.append(recell)
-        list.append(recell2)
+        list.append(re)
+        list.append(re2)
         val p = new PlayerRepresentation(re, "bot.png")
         val dash = new DashboardImpl(list)
-        dash.player_(p)
-        println(p._position)
+        dash.player = p
+        println(p.position)
         dash.move(Right,(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean)=>{})
       }
     }

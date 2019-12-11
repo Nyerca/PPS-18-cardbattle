@@ -16,8 +16,8 @@ object LevelUpAnimation {
   }
 
   def setup(rectangle: RectangleCell): Rectangle = {
-    animationImg.x_=(rectangle.x + rectangle.getWidth/2 - 41)
-    animationImg.y_=(rectangle.y + rectangle.getHeight/2 - 75)
+    animationImg.x_=(rectangle.x + rectangle.elementWidth/2 - 41)
+    animationImg.y_=(rectangle.y + rectangle.elementHeight/2 - 75)
     animationImg
   }
 

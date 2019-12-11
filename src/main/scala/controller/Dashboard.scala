@@ -1,15 +1,13 @@
 package controller
 
 import exception.{MissingCellException, NoMovementException}
-import model.{Bottom, Left, Move, PlayerRepresentation, RectangleCell, RectangleWithCell, Right, Top}
+import model.{Bottom, Left, Move, PlayerRepresentation, RectangleCell, Right, Top}
 import scala.collection.mutable.ListBuffer
 
 trait Dashboard {
-  def cells: ListBuffer[RectangleWithCell]
+  def cells: ListBuffer[RectangleCell]
   def player: PlayerRepresentation
-  def player_(newPlayer: PlayerRepresentation):Unit
   def toString: String
-  def setCells(newList: ListBuffer[RectangleWithCell])
   def searchPosition(newX : Double, newY : Double): Option[RectangleCell]
   def searchPosition(newX : Double, newY : Double, movement: Move): Option[RectangleCell]
   def traslationX: Double
@@ -19,22 +17,18 @@ trait Dashboard {
   def move(movement : Move, fun:(RectangleCell, String, Boolean) => Unit): Unit
 }
 
-class DashboardImpl (var cells: ListBuffer[RectangleWithCell]) extends  Dashboard {
+class DashboardImpl (var cells: ListBuffer[RectangleCell]) extends  Dashboard {
 
   var player:PlayerRepresentation = _
 
   override def toString :String = "Player: (" + player.position.x + ", " + player.position.y + ")" + "  Translation: ("+ _traslationX + ", " +_traslationY + ")" + cells
 
-  override def player_(newPlayer: PlayerRepresentation):Unit = player = newPlayer
-
-  override def setCells(newList: ListBuffer[RectangleWithCell]): Unit = { cells = newList}
-
   override def searchPosition(newX : Double, newY : Double): Option[RectangleCell] = {
-    (for (rectangle <- cells if rectangle.isRectangle(newX, newY)) yield rectangle.rectCell).headOption
+    (for (rectangle <- cells if rectangle.isRectangle(newX, newY)) yield rectangle).headOption
   }
 
   override def searchPosition(newX : Double, newY : Double, movement: Move): Option[RectangleCell] = {
-    (for (rectangle <- cells if  rectangle.isRectangle(newX, newY) && rectangle.rectCell.isMoveAllowed(movement)) yield rectangle.rectCell).headOption
+    (for (rectangle <- cells if  rectangle.isRectangle(newX, newY) && rectangle.isMoveAllowed(movement)) yield rectangle).headOption
   }
 
   private var _traslationX = 0.0
@@ -54,7 +48,7 @@ class DashboardImpl (var cells: ListBuffer[RectangleWithCell]) extends  Dashboar
         MovementAnimation.setAnimationIncrement(newRectangle.get, incX, incY, movement.url(), fun)
         _traslationX += incX * 5
         _traslationY += incY * 5
-        MovementAnimation.play()
+        MovementAnimation.anim.play()
       } else throw new MissingCellException
     } else throw new NoMovementException
   }
