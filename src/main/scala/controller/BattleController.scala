@@ -39,8 +39,6 @@ class BattleControllerImpl(override val user: User, override val enemy: Enemy, o
       case (Category.Attack, Category.Defense) => calculateDamage(userCard, enemyCard, enemy)
       case (_,_) => calculateDamage(enemyCard, userCard, user)
     }
-    battleScene.playFightAnimation(userCard.family, user)
-    battleScene.playFightAnimation(enemyCard.family, enemy)
   }
 
   override def checkWinner(player: Player): Unit = player match {
@@ -49,7 +47,7 @@ class BattleControllerImpl(override val user: User, override val enemy: Enemy, o
       battleScene.userDeck.mouseTransparent = true
     case _: Enemy if user.actualHealthPoint > 0 && enemy.actualHealthPoint <= 0 =>
       battleScene.userDeck.mouseTransparent = true
-      user.coins += enemy.reward
+      user.coins += enemy.coins
       user ++ enemy
       battleScene fadeSceneChanging user
     case _ => ;
@@ -66,9 +64,8 @@ class BattleControllerImpl(override val user: User, override val enemy: Enemy, o
   private def hitPlayer(player: Player, damage: Int): Unit = player.actualHealthPoint -= damage
 
   private def getCardAndReinsert(player: Player): Card = {
-    val card = player.battleDeck.head
-    player.battleDeck = player.battleDeck.filter(cardNotToMove => cardNotToMove.name != card.name) :+ card
-    card
+    player.battleDeck = player.battleDeck.filter(cardNotToMove => cardNotToMove.name != player.battleDeck.head.name) :+ player.battleDeck.head
+    player.battleDeck.last
   }
 }
 
