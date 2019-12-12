@@ -68,7 +68,7 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
         MusicPlayer.play(SoundType.MapSound)
         gameMap.removeEnemyCell()
         checkUserLevelUp
-      case _ => if (!toScene.isInstanceOf[MapScene]) MusicPlayer.mediaPlayer.get.pause()
+      case _ => if (!toScene.isInstanceOf[MapScene]) MusicPlayer.pause()
     }
     fromScene.changeScene(toScene)
   }

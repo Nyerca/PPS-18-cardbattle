@@ -1,16 +1,16 @@
 package view.scenes
 
 import Utility.{GUIObjectFactory, TransitionFactory}
-import controller.{BattleController, GameController, MusicPlayer, SoundType}
+import controller.{BattleController, GameController}
 import model._
 import scalafx.Includes._
 import scalafx.scene.control.Button
 import scalafx.scene.layout.Pane
 import scalafx.stage.Stage
 import scalafx.util.Duration
-
-import language.postfixOps
 import view.scenes.component.{BattlePlayerRepresentation, CardComponent}
+
+import scala.language.postfixOps
 
 trait BattleScene extends BaseScene {
 
@@ -24,7 +24,7 @@ trait BattleScene extends BaseScene {
 class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy, gameController: GameController) extends BattleScene {
   stylesheets.add("style.css")
 
-  val battleController: BattleController = BattleController(user, enemy, this)
+  private val battleController: BattleController = BattleController(user, enemy, this)
 
   val userDeck: Button = GUIObjectFactory.buttonFactory(35, 50, mouseTransparency = false, handle(battleController.drawCard(user)))("card", "deck")
 
@@ -48,9 +48,9 @@ class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy,
     })
   })
 
-  val userRepresentation: BattlePlayerRepresentation = BattlePlayerRepresentation(10, 200, battleController.user)
+  val userRepresentation: BattlePlayerRepresentation = BattlePlayerRepresentation(10, 200, battleController.user, battleController)
 
-  val enemyRepresentation: BattlePlayerRepresentation = BattlePlayerRepresentation(500, 200, battleController.enemy)
+  val enemyRepresentation: BattlePlayerRepresentation = BattlePlayerRepresentation(500, 200, battleController.enemy, battleController)
 
   val battleField: Pane = new Pane {
     id = "battleField"
@@ -72,12 +72,9 @@ class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy,
 
   override def playFightAnimation(family: (Category, Type), player: Player): Unit = player match {
     case _:Enemy =>
-      enemyRepresentation.playAnimation(-90, family, handle(enemyRepresentation.updateHP(handle(battleController.checkWinner(player)))))
+      enemyRepresentation.playAnimation(-90, family)
       battleController.drawCard(player)
-    case _ => userRepresentation.playAnimation(90, family, handle {
-        userRepresentation.updateHP(handle(battleController.checkWinner(player)))
-        if(enemyRepresentation.player.actualHealthPoint > 0 && userRepresentation.player.actualHealthPoint > 0) userHandCard.filter(cc => cc.clickableCard.opacity.value == 1) foreach(cc => cc.clickableCard.mouseTransparent = false)
-    })
+    case _ => userRepresentation.playAnimation(90, family, () => if(enemyRepresentation.player.actualHealthPoint > 0 && userRepresentation.player.actualHealthPoint > 0) userHandCard.filter(cc => cc.clickableCard.opacity.value == 1) foreach(cc => cc.clickableCard.mouseTransparent = false))
   }
 
   override def fadeSceneChanging(player: Player): Unit = player match {
