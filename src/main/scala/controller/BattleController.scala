@@ -51,12 +51,12 @@ class BattleControllerImpl(override val user: User, override val enemy: Enemy, o
   override def checkWinner(player: Player): Unit = player match {
     case _: User if user.actualHealthPoint <= 0 =>
       battleScene fadeSceneChanging enemy
-      MusicPlayer.play(LoseSound)
+      //MusicPlayer.play(LoseSound)
     case _: Enemy if user.actualHealthPoint > 0 && enemy.actualHealthPoint <= 0 =>
       user.coins += enemy.reward
       user ++ enemy
       battleScene fadeSceneChanging user
-      MusicPlayer.play(WinningSound)
+      //MusicPlayer.play(WinningSound)
     case _ => ;
   }
 
