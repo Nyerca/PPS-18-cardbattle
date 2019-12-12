@@ -1,9 +1,7 @@
 package controller
 
-import controller.SoundType.{LoseSound, WinningSound}
 import model.{Card, Category, Enemy, Player, User}
 import view.scenes.BattleScene
-
 import scala.language.postfixOps
 import scala.util.Random
 
@@ -30,10 +28,7 @@ class BattleControllerImpl(override val user: User, override val enemy: Enemy, o
 
   user.battleDeck = Random.shuffle(user.battleDeck)
 
-  override def drawCard(player: Player): Unit = player match {
-    case _:User => battleScene.drawCard(player)(getCardAndReinsert(user))
-    case _ => battleScene.drawCard(player)(getCardAndReinsert(enemy))
-  }
+  override def drawCard(player: Player): Unit = battleScene.drawCard(player)(getCardAndReinsert(user))
 
   override def fight(userCard: Card, enemyCard: Card): Unit = {
     (userCard.family._1, enemyCard.family._1) match {
@@ -51,12 +46,10 @@ class BattleControllerImpl(override val user: User, override val enemy: Enemy, o
   override def checkWinner(player: Player): Unit = player match {
     case _: User if user.actualHealthPoint <= 0 =>
       battleScene fadeSceneChanging enemy
-      //MusicPlayer.play(LoseSound)
     case _: Enemy if user.actualHealthPoint > 0 && enemy.actualHealthPoint <= 0 =>
       user.coins += enemy.reward
       user ++ enemy
       battleScene fadeSceneChanging user
-      //MusicPlayer.play(WinningSound)
     case _ => ;
   }
 

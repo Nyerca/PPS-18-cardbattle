@@ -71,9 +71,7 @@ class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy,
   }
 
   override def playFightAnimation(family: (Category, Type), player: Player): Unit = player match {
-    case _:Enemy =>
-      enemyRepresentation.playAnimation(-90, family)
-      battleController.drawCard(player)
+    case _:Enemy => enemyRepresentation.playAnimation(-90, family, () => battleController.drawCard(player))
     case _ => userRepresentation.playAnimation(90, family, () => if(enemyRepresentation.player.actualHealthPoint > 0 && userRepresentation.player.actualHealthPoint > 0) userHandCard.filter(cc => cc.clickableCard.opacity.value == 1) foreach(cc => cc.clickableCard.mouseTransparent = false))
   }
 

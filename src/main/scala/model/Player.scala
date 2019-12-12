@@ -12,8 +12,9 @@ trait Player extends Serializable {
 
 class User(override val name: String, override val image: String, var level: Int,  var experience: Int, var allCards: List[Card], var totalHealthPoint: Int, var actualHealthPoint: Int, var coins: Int) extends Player {
   var battleDeck: List[Card] = allCards
-  def ++(enemy: Player): Option[Int] = {
+  def ++(enemy: Enemy): Option[Int] = {
     experience -= enemy.experience
+    coins += enemy.reward
     if (experience <= 0) {
       level += 1
       totalHealthPoint += 5
