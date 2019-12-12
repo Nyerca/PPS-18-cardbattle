@@ -28,7 +28,7 @@ class BattleControllerImpl(override val user: User, override val enemy: Enemy, o
 
   user.battleDeck = Random.shuffle(user.battleDeck)
 
-  override def drawCard(player: Player): Unit = battleScene.drawCard(player)(getCardAndReinsert(user))
+  override def drawCard(player: Player): Unit = battleScene.drawCard(player)(getCardAndReinsert(player))
 
   override def fight(userCard: Card, enemyCard: Card): Unit = {
     (userCard.family._1, enemyCard.family._1) match {
@@ -46,7 +46,9 @@ class BattleControllerImpl(override val user: User, override val enemy: Enemy, o
   override def checkWinner(player: Player): Unit = player match {
     case _: User if user.actualHealthPoint <= 0 =>
       battleScene fadeSceneChanging enemy
+      battleScene.userDeck.mouseTransparent = true
     case _: Enemy if user.actualHealthPoint > 0 && enemy.actualHealthPoint <= 0 =>
+      battleScene.userDeck.mouseTransparent = true
       user.coins += enemy.reward
       user ++ enemy
       battleScene fadeSceneChanging user
@@ -61,21 +63,12 @@ class BattleControllerImpl(override val user: User, override val enemy: Enemy, o
     }
   }
 
-  private def hitPlayer(player: Player, damage: Int): Unit = player match {
-    case _:User => user.actualHealthPoint -= damage
-    case _ => enemy.actualHealthPoint -= damage
-  }
-
+  private def hitPlayer(player: Player, damage: Int): Unit = player.actualHealthPoint -= damage
 
   private def getCardAndReinsert(player: Player): Card = {
-    val card = findDeck(player).head
-    player.battleDeck = player.battleDeck.filter(cardNotToMove => cardNotToMove != card) :+ card
+    val card = player.battleDeck.head
+    player.battleDeck = player.battleDeck.filter(cardNotToMove => cardNotToMove.name != card.name) :+ card
     card
-  }
-
-  private def findDeck(player: Player): List[Card] = player match {
-    case _:User => user.battleDeck
-    case _ => enemy.battleDeck
   }
 }
 

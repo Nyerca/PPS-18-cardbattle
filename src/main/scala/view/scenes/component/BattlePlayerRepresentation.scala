@@ -23,7 +23,6 @@ trait BattlePlayerRepresentation extends Pane {
 
   def playAnimation(byVal: Double = 0, family: (Category, Type), action: () => Unit = () => ()): Unit
 
-  //def updateHP(action: EventHandler[ActionEvent]): Unit
 }
 
 class BattlePlayerRepresentationImpl(override val marginX: Double, override val marginY: Double, override val player: Player, override val battleController: BattleController) extends BattlePlayerRepresentation {
