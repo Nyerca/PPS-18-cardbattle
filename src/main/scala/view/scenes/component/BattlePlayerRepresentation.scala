@@ -1,6 +1,7 @@
 package view.scenes.component
 
 import Utility.{GUIObjectFactory, TransitionFactory}
+import controller.BattleController
 import javafx.beans.property.{SimpleDoubleProperty, SimpleStringProperty}
 import javafx.event.{ActionEvent, EventHandler}
 import model.{Category, Player, Type, User}
@@ -11,18 +12,21 @@ import scalafx.Includes._
 
 
 trait BattlePlayerRepresentation extends Pane {
+
+  def battleController: BattleController
+
   def marginX: Double
 
   def marginY: Double
 
   def player: Player
 
-  def playAnimation(byVal: Double = 0, family: (Category, Type), action: EventHandler[ActionEvent]): Unit
+  def playAnimation(byVal: Double = 0, family: (Category, Type), action: () => Unit = () => ()): Unit
 
-  def updateHP(action: EventHandler[ActionEvent]): Unit
+  //def updateHP(action: EventHandler[ActionEvent]): Unit
 }
 
-class BattlePlayerRepresentationImpl(override val marginX: Double, override val marginY: Double, override val player: Player) extends BattlePlayerRepresentation {
+class BattlePlayerRepresentationImpl(override val marginX: Double, override val marginY: Double, override val player: Player, override val battleController: BattleController) extends BattlePlayerRepresentation {
   private val observableHealthPoint = (new SimpleDoubleProperty(player.actualHealthPoint.toDouble / player.totalHealthPoint.toDouble), new SimpleStringProperty("Player: " + player.actualHealthPoint + "hp"))
 
   translateX = marginX
@@ -59,18 +63,20 @@ class BattlePlayerRepresentationImpl(override val marginX: Double, override val 
 
   children = List(life,playerRepresentation, physicShield, magicShield, magicAttack)
 
-  override def playAnimation(byVal: Double = 0, family: (Category, Type), action: EventHandler[ActionEvent]): Unit = family._1 match {
-    case Category.Attack => attack(byVal, action, family._2)
-    case Category.Defense => defense(action, family._2)
+  override def playAnimation(byVal: Double = 0, family: (Category, Type), action: () => Unit): Unit = family._1 match {
+    case Category.Attack =>
+      attack(byVal, handle(updateHP(action)), family._2)
+    case Category.Defense => defense(handle(updateHP(action)), family._2)
   }
 
-  override def updateHP(action: EventHandler[ActionEvent]): Unit = {
+  private def updateHP(action: () => Unit): Unit = {
     val ratio: Double = player.actualHealthPoint.toDouble / player.totalHealthPoint.toDouble
+    action()
     if ( ratio != observableHealthPoint._1.value ) {
       damage()
       observableHealthPoint._1.set(if ( ratio > 0 ) ratio else 0)
       observableHealthPoint._2.set(if ( ratio > 0 ) "Player: " + player.actualHealthPoint + "hp" else "Player: 0hp")
-      defeat(player.actualHealthPoint, action)
+      defeat(player.actualHealthPoint, handle(battleController.checkWinner(player)))
     }
   }
 
@@ -95,5 +101,5 @@ class BattlePlayerRepresentationImpl(override val marginX: Double, override val 
 }
 
 object BattlePlayerRepresentation {
-  def apply(marginX: Double, marginY: Double, player:Player): BattlePlayerRepresentation = new BattlePlayerRepresentationImpl(marginX, marginY, player)
+  def apply(marginX: Double, marginY: Double, player:Player, battleController: BattleController): BattlePlayerRepresentation = new BattlePlayerRepresentationImpl(marginX, marginY, player, battleController)
 }
