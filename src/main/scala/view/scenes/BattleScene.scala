@@ -34,6 +34,8 @@ trait BattleScene extends BaseScene {
   def userRepresentation: BattlePlayerRepresentation
 
   def enemyRepresentation: BattlePlayerRepresentation
+
+  def battleField: Pane
 }
 
 class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy, gameController: GameController) extends BattleScene {
@@ -69,6 +71,8 @@ class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy,
 
   override val enemyRepresentation: BattlePlayerRepresentation = BattlePlayerRepresentation(500, 200, battleController.enemy, battleController)
 
+  override val battleField: Pane = GUIObjectFactory.paneFactory(List(enemyRepresentation, userRepresentation))("battleField")(45, 280)
+
   override def drawCard(playerType: Player)(card: Card): Unit = playerType match {
     case _: Enemy => cpuHandCard.setCardInformation(card)
     case _ => Try(userHandCard.find(cc => cc.clickableCard.opacity.value == 0 || cc.cardName.text.value == "").get.setCardInformation(card))
@@ -84,16 +88,10 @@ class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy,
     case _ => userRepresentation.playAnimation(90, family, () => if(enemyRepresentation.player.actualHealthPoint > 0 && userRepresentation.player.actualHealthPoint > 0) userHandCard.filter(cc => cc.clickableCard.opacity.value == 1) foreach(cc => cc.clickableCard.mouseTransparent = false))
   }
 
-  private val battleField: Pane = new Pane {
-    id = "battleField"
-    translateX = 45
-    translateY = 280
-    children = List(enemyRepresentation, userRepresentation)
-  }
-
-  root = GUIObjectFactory.paneFactory(userCardIndicators ++ userHandCard.map(x => x.clickableCard) ++ userHandCard.map(x => x.cardLevel) ++ userHandCard.map(x => x.cardName) ++ userHandCard.map(x => x.cardDamage) ++ List(cpuCardIndicator, userDeck, cpuDeck, cpuHandCard.clickableCard, cpuHandCard.cardName, cpuHandCard.cardDamage, cpuHandCard.cardLevel, battleField), "common", "battleScene")
+  root = GUIObjectFactory.paneFactory(userCardIndicators ++ userHandCard.map(x => x.clickableCard) ++ userHandCard.map(x => x.cardLevel) ++ userHandCard.map(x => x.cardName) ++ userHandCard.map(x => x.cardDamage) ++ List(cpuCardIndicator, userDeck, cpuDeck, cpuHandCard.clickableCard, cpuHandCard.cardName, cpuHandCard.cardDamage, cpuHandCard.cardLevel, battleField))( "common", "battleScene")(0,0)
 
   battleController.drawCard(enemy)
+
   userHandCard foreach(_ => battleController.drawCard(user))
 
 }

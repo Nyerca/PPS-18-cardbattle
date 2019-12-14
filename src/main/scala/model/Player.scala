@@ -26,12 +26,21 @@ class User(override val name: String, override val image: String, var level: Int
     }
   }
 
-  def ->(card: Card): Option[Int] = allCards.find(c => c.name == card.name) match {
-    case Some(c) => c.incrementCardNumber()
+  def ->(card: Card): Option[Card] = allCards.find(c => c.name == card.name) match {
+    case Some(c) =>
+      val newCard: Card = Card ++ c
+      updateDecks(c, newCard)
+      Some(newCard)
     case _ =>
       allCards = card :: allCards
       None
   }
+
+  private def updateDecks(oldCard: Card, newCard: Card): Unit = {
+    allCards = allCards.filter(c => c != oldCard) :+ newCard
+    battleDeck = allCards.filter(card => battleDeck.map(c => c.name).contains(card.name))
+  }
+
 }
 
 case class Enemy(override val name: String, override val image: String, var battleDeck: List[Card], override val level: Int, override val totalHealthPoint: Int, var actualHealthPoint: Int, var experience: Int, override val coins: Int) extends Player with CellEvent

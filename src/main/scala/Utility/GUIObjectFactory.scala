@@ -35,8 +35,10 @@ object GUIObjectFactory {
     styleClass.add(classOfStyle)
   }
 
-  def paneFactory(nodes: List[Node], classes: String*): Pane = new Pane {
+  def paneFactory(nodes: List[Node])(classes: String*)(marginX: Double, marginY: Double): Pane = new Pane {
     classes.foreach(c => styleClass.add(c))
+    translateX = marginX
+    translateY = marginY
     children = nodes
   }
 }

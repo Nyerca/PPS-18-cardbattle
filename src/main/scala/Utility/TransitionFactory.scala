@@ -9,7 +9,7 @@ object TransitionFactory {
 
   val DEFAULT_ON_FINISHED: EventHandler[ActionEvent]  = null
 
-  def fadeTransitionFactory(time: Duration, subject: Node, action: EventHandler[ActionEvent], byVal: Double = -1, cycles: Int = 1, autoReversible: Boolean = false): FadeTransition = new FadeTransition(time, subject) {
+  def fadeTransitionFactory(time: Duration, subject: Node, action: EventHandler[ActionEvent] = DEFAULT_ON_FINISHED, byVal: Double = -1, cycles: Int = 1, autoReversible: Boolean = false): FadeTransition = new FadeTransition(time, subject) {
     byValue = byVal
     autoReverse = autoReversible
     cycleCount = cycles

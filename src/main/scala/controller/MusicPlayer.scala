@@ -29,7 +29,7 @@ object MusicPlayer {
     mediaPlayer.get.play()
   }
 
-  def pause(): Unit = mediaPlayer.get.pause()
+  def pause(): Unit = pauseIfExists(mediaPlayer)
 
   private def setMedia(soundType: SoundType): Option[MediaPlayer] = soundType match {
     case MapSound => Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Dungeon1.m4a").toString)))
@@ -39,7 +39,7 @@ object MusicPlayer {
   }
 
   private def pauseIfExists(mediaPlayer: Option[MediaPlayer]): Unit = mediaPlayer match {
-    case Some(_) => pause()
+    case Some(mp) => mp.pause()
     case _ => ;
   }
 
