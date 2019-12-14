@@ -2,14 +2,15 @@ package controller
 
 
 import java.io.{FileInputStream, ObjectInputStream}
+
 import Utility.GameObjectFactory.createCards
 import Utility.{GUIObjectFactory, GameObjectFactory}
 import model._
 import scalafx.Includes._
 import scalafx.scene.control.Alert.AlertType
-import view.scenes.{BaseScene, BattleScene, EquipmentScene, MainScene, MapScene, RewardScene}
-import scala.collection.mutable.ListBuffer
+import view.scenes.{BaseScene, BattleScene, EquipmentScene, GameOverScene, MainScene, MapScene, RewardScene}
 
+import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Random, Success, Try}
 
 trait OperationType
@@ -68,7 +69,9 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
         MusicPlayer.play(SoundType.MapSound)
         gameMap.removeEnemyCell()
         checkUserLevelUp
-      case _ => if (!toScene.isInstanceOf[MapScene]) MusicPlayer.mediaPlayer.get.pause()
+      case _ =>
+        if (!toScene.isInstanceOf[MapScene]) MusicPlayer.pause()
+        if (toScene.isInstanceOf[GameOverScene]) MusicPlayer.play(SoundType.LoseSound)
     }
     fromScene.changeScene(toScene)
   }

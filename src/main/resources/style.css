@@ -63,7 +63,7 @@
     -fx-opacity: 0.4;
 }
 
-#battleField {
+.battleField {
   -fx-pref-width: 820px;
   -fx-pref-height: 500px;
 }

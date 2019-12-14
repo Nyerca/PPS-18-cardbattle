@@ -9,6 +9,7 @@ import scalafx.Includes._
 import scalafx.scene.control.{ButtonType, Label}
 import scalafx.scene.control.Alert.AlertType
 import scala.util.Random
+import scala.language.postfixOps
 
 
 class RewardScene(override val parentStage: Stage, gameController: GameController) extends BaseScene {
@@ -22,7 +23,7 @@ class RewardScene(override val parentStage: Stage, gameController: GameControlle
   ) yield CardComponent(marginX = 115 + (n * 385), marginY = 300, mouseTransparency = false, action = handle {
     rewards(n).fadeOutAll()
     rewards.foreach(cc => cc.clickableCard.mouseTransparent = true)
-    getInformationMessage(gameController.user -> rewards(n).card, rewards(n).card)
+    getInformationMessage(gameController.user -> rewards(n).card)
     gameController.setScene(this)
   })
 
@@ -30,10 +31,10 @@ class RewardScene(override val parentStage: Stage, gameController: GameControlle
 
   for (n <- 0 until 3) yield rewards(n) setCardInformation shuffledCards(n)
 
-  root = GUIObjectFactory.paneFactory(rewards.map(x => x.cardDamage) ++ rewards.map(x => x.cardLevel) ++ rewards.map(x => x.clickableCard) ++ rewards.map(x => x.cardName) :+ title, "common", "battleScene")
+  root = GUIObjectFactory.paneFactory(rewards.map(x => x.cardDamage) ++ rewards.map(x => x.cardLevel) ++ rewards.map(x => x.clickableCard) ++ rewards.map(x => x.cardName) :+ title)( "common", "battleScene")(0,0)
 
-  private def getInformationMessage(level: Option[Int], card: Card): Option[ButtonType] = level match {
-    case Some(n) => GUIObjectFactory.alertFactory(AlertType.Information, parentStage, "Card level up", "Congratulations, " + card.name + " raised level " + n).showAndWait()
+  private def getInformationMessage(c: Option[Card]): Option[ButtonType] = c match {
+    case Some(card) => GUIObjectFactory.alertFactory(AlertType.Information, parentStage, "Card level up", "Congratulations, " + card.name + " raised level " + card.level).showAndWait()
     case _ => GUIObjectFactory.alertFactory(AlertType.Information, parentStage, "Card gained","Congratulations, you gained a card").showAndWait()
   }
 }

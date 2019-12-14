@@ -11,10 +11,10 @@ import org.scalatestplus.junit.JUnitRunner
 class BattleTest extends FunSpec with Matchers {
 
   describe("base card") {
-    val card = Card("fireBall", "", 1, (Category.Attack, Type.Magic), 2, 1)
+    var card = Card("fireBall", "", 1, (Category.Attack, Type.Magic), 2, 1)
     it("should have level 2 when cardMissingForNextLevel = 0") {
-      card.incrementCardNumber()
-      card.incrementCardNumber()
+      card = Card ++ card
+      card = Card ++ card
       assert(card.level == 2)
     }
   }

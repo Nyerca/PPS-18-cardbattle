@@ -27,7 +27,7 @@ class MainScene(override val parentStage: Stage) extends BaseScene {
     gameController.setUserInformation(OperationType.LoadGame, this)
   }, GUIObjectFactory.DEFAULT_STYLE, "Load Game")("mainPageButton")
 
-  root = GUIObjectFactory.paneFactory(List(newGame, loadGame),"common","mainPane")
+  root = GUIObjectFactory.paneFactory(List(newGame, loadGame))("common","mainPane")(0,0)
 }
 
 object MainScene {
