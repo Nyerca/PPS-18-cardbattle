@@ -42,14 +42,8 @@ class BattleControllerImpl(override val user: User, override val enemy: Enemy, o
   }
 
   override def checkWinner(player: Player): Unit = player match {
-    case _: User if user.actualHealthPoint <= 0 =>
-      battleScene fadeSceneChanging enemy
-      battleScene.userDeck.mouseTransparent = true
-    case _: Enemy if user.actualHealthPoint > 0 && enemy.actualHealthPoint <= 0 =>
-      battleScene.userDeck.mouseTransparent = true
-      user.coins += enemy.coins
-      user ++ enemy
-      battleScene fadeSceneChanging user
+    case _: User if user.actualHealthPoint <= 0 => battleScene fadeSceneChanging enemy
+    case _: Enemy if user.actualHealthPoint > 0 && enemy.actualHealthPoint <= 0 => battleScene fadeSceneChanging user
     case _ => ;
   }
 

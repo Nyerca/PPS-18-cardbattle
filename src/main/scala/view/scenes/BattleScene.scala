@@ -79,8 +79,11 @@ class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy,
   }
 
   override def fadeSceneChanging(player: Player): Unit = player match {
-    case _: User => TransitionFactory.fadeTransitionFactory(Duration(1000), root.value, handle(gameController.setScene(this, RewardScene(parentStage, gameController)))).play()
-    case _ => TransitionFactory.fadeTransitionFactory(Duration(1000), root.value, handle(gameController.setScene(this, GameOverScene(parentStage, gameController)))).play()
+    case _: User => TransitionFactory.fadeTransitionFactory(Duration(2000), root.value, handle{
+      gameController.user ++ enemy
+      gameController.setScene(this, RewardScene(parentStage, gameController))
+    }).play()
+    case _ => TransitionFactory.fadeTransitionFactory(Duration(2000), root.value, handle(gameController.setScene(this, GameOverScene(parentStage, gameController)))).play()
   }
 
   private def playFightAnimation(family: (Category, Type), player: Player): Unit = player match {
@@ -90,10 +93,14 @@ class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy,
 
   root = GUIObjectFactory.paneFactory(userCardIndicators ++ userHandCard.map(x => x.clickableCard) ++ userHandCard.map(x => x.cardLevel) ++ userHandCard.map(x => x.cardName) ++ userHandCard.map(x => x.cardDamage) ++ List(cpuCardIndicator, userDeck, cpuDeck, cpuHandCard.clickableCard, cpuHandCard.cardName, cpuHandCard.cardDamage, cpuHandCard.cardLevel, battleField))( "common", "battleScene")(0,0)
 
-  battleController.drawCard(enemy)
+  battleController drawCard enemy
 
   userHandCard foreach(_ => battleController.drawCard(user))
 
+  root.value.opacityProperty.onChange({
+    userDeck.mouseTransparent = true
+    userHandCard foreach(cc => cc.clickableCard.mouseTransparent = true)
+  })
 }
 
 object BattleScene {

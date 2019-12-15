@@ -23,7 +23,7 @@ class RewardScene(override val parentStage: Stage, gameController: GameControlle
   ) yield CardComponent(marginX = 115 + (n * 385), marginY = 300, mouseTransparency = false, action = handle {
     rewards(n).fadeOutAll()
     rewards.foreach(cc => cc.clickableCard.mouseTransparent = true)
-    getInformationMessage(gameController.user -> rewards(n).card)
+    getInformationMessage(gameController.user <-- rewards(n).card)
     gameController.setScene(this)
   })
 

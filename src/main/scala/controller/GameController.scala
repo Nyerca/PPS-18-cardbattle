@@ -39,6 +39,7 @@ object Difficulty {
 }
 
 trait GameController {
+
   var gameMap: MapScene = _
 
   var user: User = _
@@ -52,6 +53,7 @@ trait GameController {
   def setUserInformation(operationType: OperationType, fromScene: BaseScene): Unit
 
   def spawnEnemy(randomIndex: Int): Enemy
+
 }
 
 
@@ -90,7 +92,6 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
     case Difficulty.Hard => createEnemy(enemyCount.keys.toList(randomIndex), user.level + 1, getCardLevelAvg + 1)
   }
 
-
   private def loadData(fromScene: BaseScene): Unit = {
     import FileManager._
     Try(new ObjectInputStream(new FileInputStream("./src/main/saves/save.txt"))) match {
@@ -104,13 +105,10 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
     }
   }
 
-  private def checkUserLevelUp: Unit = user.experience match {
-    case n if n <= 0 =>
-      user.experience = 3 * user.level - n
+  private def checkUserLevelUp: Unit = if(user.experience <= 0) {
+      user.experience += 3 * user.level
       gameMap.playLevelUpAnimation()
-    case _ => ;
   }
-
 
   private def getCardLevelAvg: Int = {
     val avg: Double = user.battleDeck.map(card => card.level).sum.toDouble / user.battleDeck.size.toDouble

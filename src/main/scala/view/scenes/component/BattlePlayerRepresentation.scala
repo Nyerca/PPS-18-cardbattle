@@ -72,16 +72,19 @@ class BattlePlayerRepresentationImpl(override val marginX: Double, override val 
     val ratio: Double = player.actualHealthPoint.toDouble / player.totalHealthPoint.toDouble
     action()
     if ( ratio != observableHealthPoint._1.value ) {
-      damage()
       observableHealthPoint._1.set(if ( ratio > 0 ) ratio else 0)
       observableHealthPoint._2.set(if ( ratio > 0 ) "Player: " + player.actualHealthPoint + "hp" else "Player: 0hp")
-      defeat(player.actualHealthPoint, handle(battleController.checkWinner(player)))
+      checkDamageAnimation(player.actualHealthPoint)
     }
   }
 
-  private def defeat(hp: Double, action: EventHandler[ActionEvent]): Unit = hp match {
-    case n if n <= 0 => TransitionFactory.fadeTransitionFactory(Duration(1000), this, action).play()
-    case _ => ;
+  private def checkDamageAnimation(hp: Double): Unit = hp match {
+    case n if n <= 0 =>
+      playerRepresentation.style = "-fx-background-image: url('images/ghost.png'); -fx-pref-width:150; -fx-pref-height:150; -fx-background-size: 150 150;"
+      life.opacity = 0
+      TransitionFactory.translateTransitionFactory(Duration(2000), playerRepresentation, TransitionFactory.DEFAULT_ON_FINISHED, 0, -100).play()
+      battleController.checkWinner(player)
+    case _ => TransitionFactory.rotateTransitionFactory(Duration(20), playerRepresentation, TransitionFactory.DEFAULT_ON_FINISHED, 5, 20, autoReversible = true).play()
   }
 
   private def attack(byVal: Double, action: EventHandler[ActionEvent], cardType: Type): Unit = cardType match {
@@ -95,8 +98,6 @@ class BattlePlayerRepresentationImpl(override val marginX: Double, override val 
     case Type.Magic => TransitionFactory.fadeTransitionFactory(Duration(150), magicShield, action, 1, 2, autoReversible = true).play()
     case _ => TransitionFactory.fadeTransitionFactory(Duration(150), physicShield, action, 1, 2, autoReversible = true).play()
   }
-
-  private def damage(): Unit = TransitionFactory.rotateTransitionFactory(Duration(20), playerRepresentation, TransitionFactory.DEFAULT_ON_FINISHED, 5, 20, autoReversible = true).play()
 }
 
 object BattlePlayerRepresentation {
