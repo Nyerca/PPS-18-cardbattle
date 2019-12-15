@@ -1,36 +1,27 @@
 package controller
 
-import model.{Card, Category, Enemy, Player, User}
+import model.{Card, Category, Player}
 import view.scenes.BattleScene
 import scala.language.postfixOps
-import scala.util.Random
 
 trait BattleController {
-
-  def user: User
-
-  def enemy: Enemy
 
   def battleScene: BattleScene
 
   def drawCard(player: Player): Unit
 
-  def fight(userCard: Card, enemyCard: Card): Unit
+  def fight(userCard: Card, enemyCard: Card, user: Player, enemy: Player): Unit
 
-  def checkWinner(player: Player): Unit
+  def checkWinner(playerToCheck: Player, otherPlayer: Player): Unit
 }
 
-class BattleControllerImpl(override val user: User, override val enemy: Enemy, override val battleScene: BattleScene) extends BattleController {
+class BattleControllerImpl(override val battleScene: BattleScene) extends BattleController {
 
   MusicPlayer.play(SoundType.BattleSound)
 
-  enemy.battleDeck = Random.shuffle(enemy.battleDeck)
-
-  user.battleDeck = Random.shuffle(user.battleDeck)
-
   override def drawCard(player: Player): Unit = battleScene.drawCard(player)(getCardAndReinsert(player))
 
-  override def fight(userCard: Card, enemyCard: Card): Unit = {
+  override def fight(userCard: Card, enemyCard: Card, user: Player, enemy: Player): Unit = {
     (userCard.family._1, enemyCard.family._1) match {
       case (Category.Attack, Category.Attack) =>
         user.actualHealthPoint -= enemyCard.value
@@ -41,10 +32,15 @@ class BattleControllerImpl(override val user: User, override val enemy: Enemy, o
     }
   }
 
-  override def checkWinner(player: Player): Unit = player match {
-    case _: User if user.actualHealthPoint <= 0 => battleScene fadeSceneChanging enemy
-    case _: Enemy if user.actualHealthPoint > 0 && enemy.actualHealthPoint <= 0 => battleScene fadeSceneChanging user
-    case _ => ;
+  override def checkWinner(user: Player, enemy: Player): Unit = {
+    if(user.actualHealthPoint > 0 && enemy.actualHealthPoint <= 0) {
+      battleScene fadeSceneChanging user
+    } else if(user.actualHealthPoint <= 0) {
+      battleScene fadeSceneChanging enemy
+    } else {
+      battleScene.userHandCard.filter(cc => cc.clickableCard.opacity.value == 1) foreach(cc => cc.clickableCard.mouseTransparent = false)
+      battleScene.userDeck.mouseTransparent = false
+    }
   }
 
   private def calculateDamage(card1: Card, card2: Card, player: Player): Unit = {
@@ -64,5 +60,5 @@ class BattleControllerImpl(override val user: User, override val enemy: Enemy, o
 }
 
 object BattleController {
-  def apply(user: User, enemy: Enemy, battleScene: BattleScene): BattleController = new BattleControllerImpl(user, enemy, battleScene)
+  def apply(battleScene: BattleScene): BattleController = new BattleControllerImpl(battleScene)
 }
