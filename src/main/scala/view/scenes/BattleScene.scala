@@ -104,7 +104,7 @@ class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy,
 
   battleController drawCard enemy
 
-  userHandCard foreach(_ => battleController.drawCard(user))
+  userHandCard foreach(_ => battleController drawCard user)
 }
 
 object BattleScene {

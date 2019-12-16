@@ -78,12 +78,14 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
     fromScene.changeScene(toScene)
   }
 
-  override def setUserInformation(operationType: OperationType, fromScene: BaseScene): Unit = operationType match {
-    case OperationType.NewGame =>
-      user = Player.userFactory("Player 1", "images/user.png", Random.shuffle(allCards).take(8))
-      gameMap = MapScene(fromScene.parentStage, this)
-      setScene(fromScene)
-    case _ => loadData(fromScene)
+  override def setUserInformation(operationType: OperationType, fromScene: BaseScene): Unit = {
+    operationType match {
+      case OperationType.NewGame =>
+        user = Player.userFactory("Player 1", "images/user.png", Random.shuffle(allCards).take(8))
+        gameMap = MapScene(fromScene.parentStage, this)
+      case _ => loadData(fromScene)
+    }
+    setScene(fromScene)
   }
 
   override def spawnEnemy(randomIndex: Int): Enemy = difficulty match {
@@ -100,7 +102,6 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
         difficulty = FileManager.load[Difficulty](value)
         gameMap = MapScene(fromScene.parentStage, this, load[ListBuffer[RectangleCell]](value).map(rc => new RectangleWithCell(rc.getWidth, rc.getHeight, rc.x, rc.y, rc) {fill = RectangleCell.createImage(rc.url, rc.rotation)}), Option(load[PlayerRepresentation](value).position), load[Double](value), load[Double](value))
         value.close()
-        setScene(fromScene)
       case Failure(_)  => GUIObjectFactory.alertFactory(AlertType.Error, fromScene.parentStage, "File not Found", "Load file not found").showAndWait()
     }
   }

@@ -32,14 +32,14 @@ class BattleTest extends FunSpec with Matchers {
       assert(baseUser.battleDeck.size == 1)
     }
     it("should gain card to deck if user does not already own the card") {
-      baseUser <-- card
+      baseUser -> card
       assert(baseUser.allCards.size == 1)
       assert(baseUser.allCards == List(card))
     }
     it("should have the same card number when earns a card he/she already got") {
-      baseUser <-- card
-      baseUser <-- card
-      baseUser <-- card
+      baseUser -> card
+      baseUser -> card
+      baseUser -> card
       assert(baseUser.allCards.size == 1)
     }
     it("should have his/her level increased when missing experience turn to 0") {

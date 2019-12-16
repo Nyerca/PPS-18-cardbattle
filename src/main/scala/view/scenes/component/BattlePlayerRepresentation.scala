@@ -74,11 +74,11 @@ class BattlePlayerRepresentationImpl(override val marginX: Double, override val 
     if ( ratio != observableHealthPoint._1.value ) {
       observableHealthPoint._1.set(if ( ratio > 0 ) ratio else 0)
       observableHealthPoint._2.set(if ( ratio > 0 ) "Player: " + player.actualHealthPoint + "hp" else "Player: 0hp")
-      checkDamageAnimation()
+      checkDamageResult()
     }
   }
 
-  private def checkDamageAnimation(): Unit = player.actualHealthPoint match {
+  private def checkDamageResult(): Unit = player.actualHealthPoint match {
     case n if n <= 0 =>
       playerRepresentation.style = "-fx-background-image: url('images/ghost.png'); -fx-pref-width:150; -fx-pref-height:150; -fx-background-size: 150 150;"
       life.opacity = 0
