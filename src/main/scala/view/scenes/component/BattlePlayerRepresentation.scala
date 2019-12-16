@@ -1,7 +1,6 @@
 package view.scenes.component
 
 import Utility.{GUIObjectFactory, TransitionFactory}
-import controller.BattleController
 import javafx.beans.property.{SimpleDoubleProperty, SimpleStringProperty}
 import javafx.event.{ActionEvent, EventHandler}
 import model.{Category, Player, Type, User}
@@ -13,19 +12,21 @@ import scalafx.Includes._
 
 trait BattlePlayerRepresentation extends Pane {
 
-  def battleController: BattleController
-
   def marginX: Double
 
   def marginY: Double
 
   def player: Player
 
-  def playAnimation(byVal: Double = 0, family: (Category, Type), action: () => Unit = () => ()): Unit
+  def playAnimation(byVal: Double = 0, family: (Category, Type), action: EventHandler[ActionEvent]): Unit
+
+  def updateHP(): Unit
+
+
 
 }
 
-class BattlePlayerRepresentationImpl(override val marginX: Double, override val marginY: Double, override val player: Player, override val battleController: BattleController) extends BattlePlayerRepresentation {
+class BattlePlayerRepresentationImpl(override val marginX: Double, override val marginY: Double, override val player: Player) extends BattlePlayerRepresentation {
   private val observableHealthPoint = (new SimpleDoubleProperty(player.actualHealthPoint.toDouble / player.totalHealthPoint.toDouble), new SimpleStringProperty("Player: " + player.actualHealthPoint + "hp"))
 
   translateX = marginX
@@ -62,26 +63,27 @@ class BattlePlayerRepresentationImpl(override val marginX: Double, override val 
 
   children = List(life,playerRepresentation, physicShield, magicShield, magicAttack)
 
-  override def playAnimation(byVal: Double = 0, family: (Category, Type), action: () => Unit): Unit = family._1 match {
+  override def playAnimation(byVal: Double = 0, family: (Category, Type), action: EventHandler[ActionEvent]): Unit = family._1 match {
     case Category.Attack =>
-      attack(byVal, handle(updateHP(action)), family._2)
-    case Category.Defense => defense(handle(updateHP(action)), family._2)
+      attack(byVal, action, family._2)
+    case Category.Defense => defense(action, family._2)
   }
 
-  private def updateHP(action: () => Unit): Unit = {
+  override def updateHP(): Unit = {
     val ratio: Double = player.actualHealthPoint.toDouble / player.totalHealthPoint.toDouble
-    action()
     if ( ratio != observableHealthPoint._1.value ) {
-      damage()
       observableHealthPoint._1.set(if ( ratio > 0 ) ratio else 0)
       observableHealthPoint._2.set(if ( ratio > 0 ) "Player: " + player.actualHealthPoint + "hp" else "Player: 0hp")
-      defeat(player.actualHealthPoint, handle(battleController.checkWinner(player)))
+      checkDamageResult()
     }
   }
 
-  private def defeat(hp: Double, action: EventHandler[ActionEvent]): Unit = hp match {
-    case n if n <= 0 => TransitionFactory.fadeTransitionFactory(Duration(1000), this, action).play()
-    case _ => ;
+  private def checkDamageResult(): Unit = player.actualHealthPoint match {
+    case n if n <= 0 =>
+      playerRepresentation.style = "-fx-background-image: url('images/ghost.png'); -fx-pref-width:150; -fx-pref-height:150; -fx-background-size: 150 150;"
+      life.opacity = 0
+      TransitionFactory.translateTransitionFactory(Duration(2000), playerRepresentation, TransitionFactory.DEFAULT_ON_FINISHED, 0, -100).play()
+    case _ => TransitionFactory.rotateTransitionFactory(Duration(20), playerRepresentation, TransitionFactory.DEFAULT_ON_FINISHED, 5, 20, autoReversible = true).play()
   }
 
   private def attack(byVal: Double, action: EventHandler[ActionEvent], cardType: Type): Unit = cardType match {
@@ -95,10 +97,8 @@ class BattlePlayerRepresentationImpl(override val marginX: Double, override val 
     case Type.Magic => TransitionFactory.fadeTransitionFactory(Duration(150), magicShield, action, 1, 2, autoReversible = true).play()
     case _ => TransitionFactory.fadeTransitionFactory(Duration(150), physicShield, action, 1, 2, autoReversible = true).play()
   }
-
-  private def damage(): Unit = TransitionFactory.rotateTransitionFactory(Duration(20), playerRepresentation, TransitionFactory.DEFAULT_ON_FINISHED, 5, 20, autoReversible = true).play()
 }
 
 object BattlePlayerRepresentation {
-  def apply(marginX: Double, marginY: Double, player:Player, battleController: BattleController): BattlePlayerRepresentation = new BattlePlayerRepresentationImpl(marginX, marginY, player, battleController)
+  def apply(marginX: Double, marginY: Double, player:Player): BattlePlayerRepresentation = new BattlePlayerRepresentationImpl(marginX, marginY, player)
 }
