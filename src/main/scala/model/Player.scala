@@ -28,7 +28,7 @@ class User(override val name: String, override val image: String, var level: Int
 
   def ->(card: Card): Option[Card] = allCards.find(c => c.name == card.name) match {
     case Some(c) =>
-      val newCard: Card = Card ++ c
+      val newCard: Card = c.up
       updateDecks(c, newCard)
       Some(newCard)
     case _ =>

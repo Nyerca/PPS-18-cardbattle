@@ -14,14 +14,13 @@ object Type {
   case object Physic extends Type
 }
 
-case class Card(name: String, image: String, level: Int, family: (Category,Type), value: Int, cardMissingForNextLevel: Int)
-
-object Card {
-  def ++(card: Card): Card = {
-    if(card.cardMissingForNextLevel - 1 == 0) {
-      card.copy(level = card.level + 1, value = card.value + 2, cardMissingForNextLevel = card.level + 1)
+case class Card(name: String, image: String, level: Int, family: (Category,Type), value: Int, cardMissingForNextLevel: Int) {
+  def up: Card = {
+    if(cardMissingForNextLevel - 1 == 0) {
+      copy(level = level + 1, value = value + 2, cardMissingForNextLevel = level + 1)
     } else {
-      card.copy(cardMissingForNextLevel = card.cardMissingForNextLevel - 1)
+      copy(cardMissingForNextLevel = cardMissingForNextLevel - 1)
     }
   }
 }
+

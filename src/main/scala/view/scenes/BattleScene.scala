@@ -8,7 +8,7 @@ import scalafx.scene.control.Button
 import scalafx.scene.layout.Pane
 import scalafx.stage.Stage
 import scalafx.util.Duration
-import view.scenes.component.{BattlePlayerRepresentation, CardComponent}
+import view.scenes.component.{BattleEnemyRepresentation, BattlePlayerRepresentation, BattleUserRepresentation, CardComponent}
 
 import scala.language.postfixOps
 import scala.util.Try
@@ -68,9 +68,9 @@ class BattleSceneImpl(override val parentStage: Stage, user: User, enemy: Enemy,
     })
   })
 
-  override val userRepresentation: BattlePlayerRepresentation = BattlePlayerRepresentation(10, 200, user)
+  override val userRepresentation: BattlePlayerRepresentation = BattleUserRepresentation(10, 200, user)
 
-  override val enemyRepresentation: BattlePlayerRepresentation = BattlePlayerRepresentation(500, 200, enemy)
+  override val enemyRepresentation: BattlePlayerRepresentation = BattleEnemyRepresentation(500, 200, enemy)
 
   override val battleField: Pane = GUIObjectFactory.paneFactory(List(enemyRepresentation, userRepresentation))("battleField")(45, 280)
 

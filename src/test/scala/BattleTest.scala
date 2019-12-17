@@ -13,9 +13,9 @@ class BattleTest extends FunSpec with Matchers {
   describe("base card") {
     var card = Card("fireBall", "", 1, (Category.Attack, Type.Magic), 2, 1)
     it("should have level 2 when cardMissingForNextLevel = 0") {
-      card = Card ++ card
-      card = Card ++ card
+      card = card.up.up
       assert(card.level == 2)
+      assert(card.value == 4)
     }
   }
 
