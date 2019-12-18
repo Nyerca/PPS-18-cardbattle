@@ -74,10 +74,12 @@ object GameController {
           gameMap.removeEnemyCell()
           checkUserLevelUp
         case _ =>
+          /*
           if (!toScene.isInstanceOf[MapScene]) {
             MusicPlayer.pause()
             gameMap = toScene.asInstanceOf[MapScene]
           }
+          */
           if (toScene.isInstanceOf[GameOverScene]) MusicPlayer.play(SoundType.LoseSound)
       }
       fromScene.changeScene(toScene)
@@ -99,21 +101,23 @@ object GameController {
       case Difficulty.Hard => createEnemy(enemyCount.keys.toList(randomIndex), user.level + 1, getCardLevelAvg + 1)
     }
 
+
     private def loadData(fromScene: BaseScene): Unit = {
       import FileManager._
       Try(new ObjectInputStream(new FileInputStream("./src/main/saves/save.txt"))) match {
         case Success(value) =>
           user = load[User](value)
           difficulty = FileManager.load[Difficulty](value)
-          gameMap = MapScene(fromScene.parentStage, this, load[ListBuffer[RectangleCell]](value).map(rc => new RectangleWithCell(rc.getWidth, rc.getHeight, rc.x, rc.y, rc) {fill = RectangleCell.createImage(rc.url, rc.rotation)}), Option(load[PlayerRepresentation](value).position), load[Double](value), load[Double](value))
+          gameMap = MapScene(fromScene.parentStage, this, load[List[RectangleCell]](value), Option(load[PlayerRepresentation](value).position), load[Double](value), load[Double](value))
           value.close()
         case Failure(_)  => GUIObjectFactory.alertFactory(AlertType.Error, fromScene.parentStage, "File not Found", "Load file not found").showAndWait()
       }
     }
 
+
     private def checkUserLevelUp: Unit = if(user.experience <= 0) {
       user.experience += 3 * user.level
-      gameMap.playLevelUpAnimation()
+      LevelUpAnimation.play(LevelUpAnimation.LEVELUP_PREFIX)
     }
 
     private def getCardLevelAvg: Int = {

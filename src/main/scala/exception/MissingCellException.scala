@@ -1,3 +1,3 @@
 package exception
 
-class MissingCellException extends Exception{}
+case class MissingCellException() extends Exception{}

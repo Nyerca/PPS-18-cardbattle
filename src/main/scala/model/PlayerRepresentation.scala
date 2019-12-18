@@ -1,22 +1,10 @@
 package model
+trait PlayerRepresentation extends Serializable {
+  def position: RectangleCell
+  def url: String
+}
 
-import javafx.scene.paint.ImagePattern
-import scalafx.Includes._
-import scalafx.scene.image.Image
-import scalafx.scene.shape.Rectangle
-
-class PlayerRepresentation  (var _position : RectangleCell, var _url :  String) extends Serializable {
-
-  def url: String = _url
-  def url_(str : String): Unit = _url = str
-
-  def position: RectangleCell = _position
-  def position_ (value:RectangleCell, url: String) :Unit = {
-    _position = value
-    _url = url
-  }
-
-  override def toString: String = {
-    "Url: " + _url + " Position: " + _position
-  }
+object PlayerRepresentation {
+  private case class PlayerRepresentationImpl  (var position : RectangleCell, var url :  String) extends PlayerRepresentation
+  def apply(position : RectangleCell, url :  String) : PlayerRepresentation = new PlayerRepresentationImpl(position, url)
 }
