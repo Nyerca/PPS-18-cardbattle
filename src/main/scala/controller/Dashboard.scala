@@ -5,7 +5,7 @@ import model.{Bottom, Left, Move, PlayerRepresentation, RectangleCell, Right, To
 import scala.collection.mutable.ListBuffer
 
 trait Dashboard {
-  def cells: ListBuffer[RectangleCell]
+  def cells: List[RectangleCell]
   def player: PlayerRepresentation
   def toString: String
   def searchPosition(newX : Double, newY : Double): Option[RectangleCell]
@@ -17,7 +17,7 @@ trait Dashboard {
   def move(movement : Move, fun:(RectangleCell, String, Boolean) => Unit): Unit
 }
 
-class DashboardImpl (var cells: ListBuffer[RectangleCell]) extends  Dashboard {
+class DashboardImpl (var cells: List[RectangleCell]) extends  Dashboard {
 
   var player:PlayerRepresentation = _
 

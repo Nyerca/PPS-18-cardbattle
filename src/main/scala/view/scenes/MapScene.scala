@@ -180,8 +180,8 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     id = sliderId
   }
 
-  def setPaneChildren(list :ListBuffer[RectangleCell]): Unit = {
-    field.children = list
+  def setPaneChildren(list :List[RectangleCell]): Unit = {
+    field.children = list.to[ListBuffer]
     list.filter(f =>f.mapEvent.isDefined ).map(m =>m.mapEvent.get ).foreach(el => {
       el.callEvent match {
         case e:Enemy => field.children.append(icon(el.playerRepresentation.position, el.playerRepresentation.url, 100, 90))
@@ -208,5 +208,5 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
 object MapScene {
   def apply(parentStage: Stage, gameC : GameController): MapScene = new MapScene(parentStage, new MapControllerImpl(gameC),gameC)
-  def apply(parentStage: Stage, gameC : GameController, list:ListBuffer[RectangleCell],startingDefined : Option[RectangleCell], traslationX : Double, traslationY: Double): MapScene = new MapScene(parentStage, new MapControllerImpl(gameC, list, startingDefined,traslationX,traslationY),gameC,traslationX,traslationY)
+  def apply(parentStage: Stage, gameC : GameController, list:List[RectangleCell],startingDefined : Option[RectangleCell], traslationX : Double, traslationY: Double): MapScene = new MapScene(parentStage, new MapControllerImpl(gameC, list, startingDefined,traslationX,traslationY),gameC,traslationX,traslationY)
 }

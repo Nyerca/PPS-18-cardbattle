@@ -17,16 +17,16 @@ import model.Placeable._
 trait MapController {
   def gameC: GameController
   def selected_(element: Option[Cell]):Unit
-  def _list: ListBuffer[RectangleCell]
+  def _list: List[RectangleCell]
   def removeEnemyCell(): Unit
   def startingDefined: Option[RectangleCell]
   def view_ (newView : MapScene): Unit
   def player: PlayerRepresentation
   def postInsert(): Unit
-  def list:ListBuffer[RectangleCell]
+  def list:List[RectangleCell]
   def addToList(rect: RectangleCell): Unit
 
-  def getAllEnemies: ListBuffer[PlayerRepresentation]
+  def getAllEnemies: List[PlayerRepresentation]
 
   def handleSave(): Unit
   def handleKey(keyCode : KeyCode): Unit
@@ -35,14 +35,14 @@ trait MapController {
 }
 
 
-class MapControllerImpl (override val gameC : GameController, var _list:ListBuffer[RectangleCell], var startingDefined : Option[RectangleCell], traslationX:Double, traslationY:Double) extends MapController {
+class MapControllerImpl (override val gameC : GameController, var _list:List[RectangleCell], var startingDefined : Option[RectangleCell], traslationX:Double, traslationY:Double) extends MapController {
 
   def this(gameC : GameController) {this(gameC,MapController.setup(gameC),Option.empty,0,0)}
 
   var selected:Option[Cell] = Option.empty
   override def selected_(element: Option[Cell]):Unit = selected = element
 
-  override def list:ListBuffer[RectangleCell] = _list
+  override def list:List[RectangleCell] = _list
 
   override def removeEnemyCell(): Unit = {
     list.filter(f => f.mapEvent.isDefined && f == _player.position).filter(f2 => f2.mapEvent.get.callEvent.isInstanceOf[Enemy]).map(m2 => {m2.mapEvent_(Option.empty); postInsert()} )
@@ -54,11 +54,11 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
   }
 
   override def addToList(rect: RectangleCell): Unit = {
-    _list.append(rect)
+    _list = _list :+ rect
     dashboard.cells = _list
   }
 
-  var dashboard = new DashboardImpl(list)
+  var dashboard = new DashboardImpl(_list)
   dashboard.translationX_(traslationX)
   dashboard.translationY_(traslationY)
 
@@ -126,7 +126,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
     }
   }
 
-  override def getAllEnemies: ListBuffer[PlayerRepresentation] = {
+  override def getAllEnemies: List[PlayerRepresentation] = {
     list.map(m=> m.mapEvent).filter(f => f.isDefined && f.get.callEvent.isInstanceOf[Enemy]).map(mm => mm.get.playerRepresentation)
   }
 
@@ -150,7 +150,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
   override def postInsert(): Unit = {
     view.updateParameters()
     if(getAllEnemies.nonEmpty) pyramidDoor("pyramid.png")
-    view.setPaneChildren(list)
+    view.setPaneChildren(_list)
     selected = Option.empty
     view.setBPane()
   }
@@ -170,8 +170,8 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
 }
 
 object MapController {
-  def setup(gameC: GameController): ListBuffer[RectangleCell] = {
-    val list = new ListBuffer[RectangleCell]()
+  def setup(gameC: GameController): List[RectangleCell] = {
+    var list :List[RectangleCell] = List()
 
     var newList: List[MapPosition] =List(PlayerPosition, EnemyPosition, StatuePosition, PyramidPosition)
     for(i<-0 until Random.nextInt(6)) {
@@ -184,7 +184,7 @@ object MapController {
     var excludedValues: Map[Int,List[Int]] = Map()
     newList.foreach(el => {
       val rect =  el.create(gameC,excludedValues)
-      list.append(rect)
+      list = list:+rect
       if(!excludedValues.contains(rect.x.toInt)) {
         excludedValues += (rect.x.toInt -> List[Int](rect.y.toInt))
       } else {

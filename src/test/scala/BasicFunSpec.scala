@@ -65,11 +65,11 @@ class BasicFunSpec extends FunSpec with Matchers  {
   describe("A movement") {
     it(" should raise MissingCellException if done on a missing cell") {
       assertThrows[MissingCellException] {
-        val list = new ListBuffer[RectangleCell]
+        var list:List[RectangleCell] = List()
         var re = new RectangleCellImpl(true, true, true, true, 200,200,0,0)
         var re2 = new RectangleCellImpl(true, true, true, true, 200,200,0,200)
-        list.append(re)
-        list.append(re2)
+        list = list :+ re
+        list = list :+ re2
         val p = new PlayerRepresentation(re, "bot.png")
         val dash = new DashboardImpl(list)
         dash.player = p
@@ -80,12 +80,13 @@ class BasicFunSpec extends FunSpec with Matchers  {
 
     it(" should raise NoMovementException if done on a cell that doesn't allow that movement") {
       assertThrows[NoMovementException] {
-
-        val list = new ListBuffer[RectangleCell]
+        var list:List[RectangleCell] = List()
         var re = new RectangleCellImpl(true, false, true, true, 200,200,0,0)
         var re2 = new RectangleCellImpl(true, true, true, true, 200,200,0,200)
-        list.append(re)
-        list.append(re2)
+
+
+        list = list :+ re
+        list = list :+ re2
         val p = new PlayerRepresentation(re, "bot.png")
         val dash = new DashboardImpl(list)
         dash.player = p
@@ -95,4 +96,5 @@ class BasicFunSpec extends FunSpec with Matchers  {
     }
 
   }
+
 }
