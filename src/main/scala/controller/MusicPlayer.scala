@@ -2,9 +2,7 @@ package controller
 
 import controller.SoundType._
 import javafx.beans.property.SimpleDoubleProperty
-import scalafx.scene.media.MediaPlayer.Status
 import scalafx.scene.media.{Media, MediaPlayer}
-import scalafx.Includes._
 
 trait SoundType
 
@@ -16,17 +14,22 @@ object SoundType {
 }
 
 object MusicPlayer {
-  var mediaPlayer: Option[MediaPlayer] = None
+
+  private var mediaPlayer: Option[MediaPlayer] = None
+
   var observableVolume = new SimpleDoubleProperty(0.3)
+
   observableVolume.addListener(_ => mediaPlayer.get.volume = observableVolume.get)
 
   def play(soundType:SoundType): Unit = {
-    checkExistence(mediaPlayer)
+    pauseIfExists(mediaPlayer)
     mediaPlayer = setMedia(soundType)
     mediaPlayer.get.volume = observableVolume.get
     mediaPlayer.get.cycleCount = MediaPlayer.Indefinite
     mediaPlayer.get.play()
   }
+
+  def pause(): Unit = pauseIfExists(mediaPlayer)
 
   private def setMedia(soundType: SoundType): Option[MediaPlayer] = soundType match {
     case MapSound => Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Dungeon1.m4a").toString)))
@@ -35,13 +38,9 @@ object MusicPlayer {
     case LoseSound => Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Losing.m4a").toString)))
   }
 
-  private def checkExistence(mediaPlayer: Option[MediaPlayer]): Unit = mediaPlayer match {
-    case Some(mp) => checkMediaStatus(mp.status.value)
+  private def pauseIfExists(mediaPlayer: Option[MediaPlayer]): Unit = mediaPlayer match {
+    case Some(mp) => mp.pause()
     case _ => ;
   }
 
-  private def checkMediaStatus(status: MediaPlayer.Status): Unit = status match {
-    case Status.Playing => mediaPlayer.get.pause()
-    case _ => ;
-  }
 }

@@ -44,7 +44,7 @@ object MapPosition {
 case object PlayerPosition extends MapPosition {
   override def create(gameC: GameController, excludedValues : Map[Int,List[Int]]): RectangleCell = {
     val (x,y) = MapPosition.getRng(excludedValues)
-    new RectangleCellImpl(true, true, true, true, _x= x, _y=y)
+    new RectangleCellImpl(true, true, true, true, x= x, y=y)
   }
 }
 
@@ -53,7 +53,7 @@ case object EnemyPosition extends MapPosition {
     val (x,y) = MapPosition.getRng(excludedValues)
     val (top,right,bottom,left) = MapPosition.getRngBooleans
 
-    val rectcell=  new RectangleCellImpl(top, right, bottom, left, _x= x, _y=y)
+    val rectcell=  new RectangleCellImpl(top, right, bottom, left, x= x, y=y)
 
     val enem = gameC.spawnEnemy(Random.nextInt(5))
     val enemy = new PlayerRepresentation(rectcell, enem.image)
@@ -69,7 +69,7 @@ case object StatuePosition extends MapPosition {
     val (x,y) = MapPosition.getRng(excludedValues)
     val (top,right,bottom,left) = MapPosition.getRngBooleans
 
-    val rectcell=  new RectangleCellImpl(top, right, bottom, left, _x= x, _y=y)
+    val rectcell=  new RectangleCellImpl(top, right, bottom, left, x= x, y=y)
 
     val statue = new Statue(Random.nextInt(8) + 2)
     rectcell.mapEvent_(Option(MapEvent.createMapEvent(statue, new PlayerRepresentation(rectcell, "statue.png"))))
@@ -84,7 +84,7 @@ case object PyramidPosition extends MapPosition {
 
     val (x,y) = MapPosition.getRng(excludedValues)
 
-    val rectcell=  new RectangleCellImpl(true, true, true, true, _x= x, _y=y)
+    val rectcell=  new RectangleCellImpl(true, true, true, true, x= x, y=y)
     val pyramid = new Pyramid()
     rectcell.mapEvent_(Option(MapEvent.createMapEvent(pyramid, new PlayerRepresentation(rectcell, "pyramid.png"))) )
     rectcell
@@ -97,7 +97,7 @@ case object EmptyPosition extends MapPosition {
     val (x,y) = MapPosition.getRng(excludedValues)
     val (top,right,bottom,left) = MapPosition.getRngBooleans
 
-    val rectcell=  new RectangleCellImpl(top, right, bottom, left, _x= x, _y=y)
+    val rectcell=  new RectangleCellImpl(top, right, bottom, left, x= x, y=y)
 
 
     if (math.random() <= 0.3) rectcell.setDamage()

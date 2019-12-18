@@ -1,32 +1,27 @@
 package controller
 
-import controller.SoundType.{LoseSound, WinningSound}
-import model.{Card, Category, Enemy, Player, User}
+import model.{Card, Category, Player}
 import view.scenes.BattleScene
-
 import scala.language.postfixOps
-import scala.util.Random
 
 trait BattleController {
 
-  MusicPlayer.play(SoundType.BattleSound)
-
-  def user: User
-
-  user.battleDeck = Random.shuffle(user.battleDeck)
-
-  def enemy: Enemy
-
-  enemy.battleDeck = Random.shuffle(enemy.battleDeck)
-
   def battleScene: BattleScene
 
-  def drawCard(player: Player): Unit = player match {
-    case _:User => battleScene.drawCard(player)(getCardAndReinsert(user))
-    case _ => battleScene.drawCard(player)(getCardAndReinsert(enemy))
-  }
+  def drawCard(player: Player): Unit
 
-  def fight(userCard: Card, enemyCard: Card): Unit = {
+  def fight(userCard: Card, enemyCard: Card, user: Player, enemy: Player): Unit
+
+  def checkWinner(playerToCheck: Player, otherPlayer: Player): Unit
+}
+
+class BattleControllerImpl(override val battleScene: BattleScene) extends BattleController {
+
+  MusicPlayer.play(SoundType.BattleSound)
+
+  override def drawCard(player: Player): Unit = battleScene.drawCard(player)(getCardAndReinsert(player))
+
+  override def fight(userCard: Card, enemyCard: Card, user: Player, enemy: Player): Unit = {
     (userCard.family._1, enemyCard.family._1) match {
       case (Category.Attack, Category.Attack) =>
         user.actualHealthPoint -= enemyCard.value
@@ -35,20 +30,17 @@ trait BattleController {
       case (Category.Attack, Category.Defense) => calculateDamage(userCard, enemyCard, enemy)
       case (_,_) => calculateDamage(enemyCard, userCard, user)
     }
-    battleScene.playFightAnimation(userCard.family, user)
-    battleScene.playFightAnimation(enemyCard.family, enemy)
   }
 
-  def checkWinner(player: Player): Unit = player match {
-    case _: User if user.actualHealthPoint <= 0 =>
-      battleScene fadeSceneChanging enemy
-      MusicPlayer.play(LoseSound)
-    case _: Enemy if user.actualHealthPoint > 0 && enemy.actualHealthPoint <= 0 =>
-      user.coins += enemy.reward
-      user ++ enemy
+  override def checkWinner(user: Player, enemy: Player): Unit = {
+    if(user.actualHealthPoint > 0 && enemy.actualHealthPoint <= 0) {
       battleScene fadeSceneChanging user
-      MusicPlayer.play(WinningSound)
-    case _ => ;
+    } else if(user.actualHealthPoint <= 0) {
+      battleScene fadeSceneChanging enemy
+    } else {
+      battleScene.userHandCard.filter(cc => cc.clickableCard.opacity.value == 1) foreach(cc => cc.clickableCard.mouseTransparent = false)
+      battleScene.userDeck.mouseTransparent = false
+    }
   }
 
   private def calculateDamage(card1: Card, card2: Card, player: Player): Unit = {
@@ -59,26 +51,14 @@ trait BattleController {
     }
   }
 
-  private def hitPlayer(player: Player, damage: Int): Unit = player match {
-    case _:User => user.actualHealthPoint -= damage
-    case _ => enemy.actualHealthPoint -= damage
-  }
-
+  private def hitPlayer(player: Player, damage: Int): Unit = player.actualHealthPoint -= damage
 
   private def getCardAndReinsert(player: Player): Card = {
-    val card = findDeck(player).head
-    player.battleDeck = player.battleDeck.filter(cardNotToMove => cardNotToMove != card) :+ card
-    card
-  }
-
-  private def findDeck(player: Player): List[Card] = player match {
-    case _:User => user.battleDeck
-    case _ => enemy.battleDeck
+    player.battleDeck = player.battleDeck.filter(cardNotToMove => cardNotToMove.name != player.battleDeck.head.name) :+ player.battleDeck.head
+    player.battleDeck.last
   }
 }
 
-case class BattleControllerImpl(override val user: User, override val enemy: Enemy, override val battleScene: BattleScene) extends BattleController
-
 object BattleController {
-  def apply(user: User, enemy: Enemy, battleScene: BattleScene): BattleController = BattleControllerImpl(user, enemy, battleScene)
+  def apply(battleScene: BattleScene): BattleController = new BattleControllerImpl(battleScene)
 }

@@ -16,7 +16,7 @@
 
 .mainPane {
     -fx-background-image: url("images/mainBackground.jpg");
-    -fx-background-size: 1200 800;
+    -fx-background-size: 1220 820;
     -fx-background-repeat: stretch;
 }
 
@@ -63,7 +63,7 @@
     -fx-opacity: 0.4;
 }
 
-#battleField {
+.battleField {
   -fx-pref-width: 820px;
   -fx-pref-height: 500px;
 }

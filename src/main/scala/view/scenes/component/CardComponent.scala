@@ -37,9 +37,9 @@ class CardComponentImpl(marginX: Double, marginY: Double, mouseTransparency: Boo
 
   override def fadeOutAll(action: EventHandler[ActionEvent]): Unit = {
     TransitionFactory.fadeTransitionFactory(Duration(300), cardName, action).play()
-    TransitionFactory.fadeTransitionFactory(Duration(300), clickableCard, TransitionFactory.DEFAULT_ON_FINISHED).play()
-    TransitionFactory.fadeTransitionFactory(Duration(300), cardDamage, TransitionFactory.DEFAULT_ON_FINISHED).play()
-    TransitionFactory.fadeTransitionFactory(Duration(300), cardLevel, TransitionFactory.DEFAULT_ON_FINISHED).play()
+    TransitionFactory.fadeTransitionFactory(Duration(300), clickableCard).play()
+    TransitionFactory.fadeTransitionFactory(Duration(300), cardDamage).play()
+    TransitionFactory.fadeTransitionFactory(Duration(300), cardLevel).play()
   }
 
   private def fadeInAll(): Unit = {
