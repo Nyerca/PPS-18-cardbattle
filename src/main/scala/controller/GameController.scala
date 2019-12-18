@@ -8,6 +8,7 @@ import Utility.{GUIObjectFactory, GameObjectFactory}
 import model._
 import scalafx.Includes._
 import scalafx.scene.control.Alert.AlertType
+import scalafx.scene.media.MediaPlayer.Status
 import view.scenes.{BaseScene, BattleScene, EquipmentScene, GameOverScene, MainScene, MapScene, RewardScene}
 
 import scala.collection.mutable.ListBuffer
@@ -66,19 +67,24 @@ object GameController {
 
     override def setScene(fromScene: BaseScene, toScene: BaseScene): Unit =  {
       fromScene match {
-        case _: EquipmentScene => ;
+        case _: EquipmentScene => //MusicPlayer.changeStatus(Status.Playing)
         case _: MainScene => MusicPlayer.play(SoundType.MapSound)
-        case _: BattleScene => MusicPlayer.play(SoundType.LoseSound)
-        case _: RewardScene =>
+        case _: BattleScene =>
+          toScene match {
+            case _: GameOverScene => MusicPlayer.play(SoundType.LoseSound)
+            case _ => MusicPlayer.play(SoundType.WinningSound)
+          }
+      case _: RewardScene =>
           MusicPlayer.play(SoundType.MapSound)
           gameMap.removeEnemyCell()
           checkUserLevelUp
-        case _ =>
-          if (!toScene.isInstanceOf[MapScene]) {
-            MusicPlayer.pause()
-            gameMap = toScene.asInstanceOf[MapScene]
+        case _: MapScene =>
+          toScene match {
+            case _: MapScene =>
+              MusicPlayer.play(SoundType.MapSound)
+              gameMap = toScene.asInstanceOf[MapScene]
+            case _ => MusicPlayer.changeStatus(Status.Paused)
           }
-          if (toScene.isInstanceOf[GameOverScene]) MusicPlayer.play(SoundType.LoseSound)
       }
       fromScene.changeScene(toScene)
     }
@@ -99,21 +105,23 @@ object GameController {
       case Difficulty.Hard => createEnemy(enemyCount.keys.toList(randomIndex), user.level + 1, getCardLevelAvg + 1)
     }
 
+
     private def loadData(fromScene: BaseScene): Unit = {
       import FileManager._
       Try(new ObjectInputStream(new FileInputStream("./src/main/saves/save.txt"))) match {
         case Success(value) =>
           user = load[User](value)
           difficulty = FileManager.load[Difficulty](value)
-          gameMap = MapScene(fromScene.parentStage, this, load[ListBuffer[RectangleCell]](value).map(rc => new RectangleWithCell(rc.getWidth, rc.getHeight, rc.x, rc.y, rc) {fill = RectangleCell.createImage(rc.url, rc.rotation)}), Option(load[PlayerRepresentation](value).position), load[Double](value), load[Double](value))
+          gameMap = MapScene(fromScene.parentStage, this, load[List[RectangleCell]](value), Option(load[PlayerRepresentation](value).position), load[Double](value), load[Double](value))
           value.close()
         case Failure(_)  => GUIObjectFactory.alertFactory(AlertType.Error, fromScene.parentStage, "File not Found", "Load file not found").showAndWait()
       }
     }
 
+
     private def checkUserLevelUp: Unit = if(user.experience <= 0) {
       user.experience += 3 * user.level
-      gameMap.playLevelUpAnimation()
+      LevelUpAnimation.play(LevelUpAnimation.LEVELUP_PREFIX)
     }
 
     private def getCardLevelAvg: Int = {

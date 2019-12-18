@@ -12,7 +12,7 @@ class Loader[A]() {
 
 object FileManager {
   var output: ObjectOutputStream = _
-  implicit val rectangleCellsLoader: Loader[ListBuffer[RectangleCell]] =  new Loader[ListBuffer[RectangleCell]]
+  implicit val rectangleCellsLoader: Loader[List[RectangleCell]] =  new Loader[List[RectangleCell]]
   implicit val playerRepresentationLoader: Loader[PlayerRepresentation] = new Loader[PlayerRepresentation]
   implicit val playerLoader: Loader[User] = new Loader[User]
   implicit val difficultyLoader: Loader[Difficulty] = new Loader[Difficulty]

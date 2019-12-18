@@ -33,7 +33,6 @@
     -fx-text-fill: #d8d8d8;
 }
 
-
 #rootPane {
     -fx-background-image: url("/roads/noroad.png");
     -fx-background-size: 200, 200;

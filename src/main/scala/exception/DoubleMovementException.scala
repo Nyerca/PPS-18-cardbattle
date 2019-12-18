@@ -1,3 +1,3 @@
 package exception
 
-class DoubleMovementException extends Exception{}
+case class DoubleMovementException() extends Exception{}

@@ -1,6 +1,6 @@
 import java.util.concurrent.CountDownLatch
 
-import controller.{Dashboard, DashboardImpl}
+import controller.Dashboard
 import exception.{IllegalSizeException, MissingCellException, NoMovementException}
 import model.{Player, RectangleCell}
 import org.junit.runner.RunWith
@@ -40,7 +40,7 @@ class BasicFunSpec extends FunSpec with Matchers  {
   describe("A rectangle cant have all connections to false") {
     it(" should raise NoMovementException") {
       assertThrows[NoMovementException] {
-        val rect = new RectangleCellImpl(false, false, false, false, 10, 10, 0, 0)
+        val rect =  RectangleCell(false, false, false, false, 10, 10, 0, 0)
       }
     }
   }
@@ -49,7 +49,7 @@ class BasicFunSpec extends FunSpec with Matchers  {
   describe("A rectangle cant have height = 0") {
     it(" should raise IllegalSizeException") {
       assertThrows[IllegalSizeException] {
-        val r = new RectangleCellImpl(false, false, true, false, 10, 0, 0, 0)
+        val r =  RectangleCell(false, false, true, false, 10, 0, 0, 0)
       }
     }
   }
@@ -57,7 +57,7 @@ class BasicFunSpec extends FunSpec with Matchers  {
   describe("A rectangle cant have width = 0") {
     it(" should raise IllegalSizeException") {
       assertThrows[IllegalSizeException] {
-        val r = new RectangleCellImpl(false, false, true, false, 0, 10, 0, 0)
+        val r =  RectangleCell(false, false, true, false, 0, 10, 0, 0)
       }
     }
   }
@@ -65,38 +65,34 @@ class BasicFunSpec extends FunSpec with Matchers  {
   describe("A movement") {
     it(" should raise MissingCellException if done on a missing cell") {
       assertThrows[MissingCellException] {
-        val list = new ListBuffer[RectangleWithCell]
-        var re = new RectangleCellImpl(true, true, true, true, 200,200,0,0)
-        var re2 = new RectangleCellImpl(true, true, true, true, 200,200,0,200)
-        val recell = new RectangleWithCell(re.getWidth, re.getHeight, re.x, re.y,re)
-        val recell2 = new RectangleWithCell(re2.getWidth, re2.getHeight, re2.x, re2.y,re)
-        list.append(recell)
-        list.append(recell2)
-        val p = new PlayerRepresentation(re, "bot.png")
-        val dash = new DashboardImpl(list)
-        dash.player_(p)
-        println(p._position)
-        dash.move(Right,(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean)=>{})
+        var list:List[RectangleCell] = List()
+        var re =  RectangleCell(true, true, true, true, 200,200,0,0)
+        var re2 =  RectangleCell(true, true, true, true, 200,200,0,200)
+        list = list :+ re
+        list = list :+ re2
+        val p = PlayerRepresentation(re, "bot.png")
+        val dash = Dashboard(list)
+        println(p.position)
+        dash.->(Right, p,(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean)=>{})
       }
     }
 
     it(" should raise NoMovementException if done on a cell that doesn't allow that movement") {
       assertThrows[NoMovementException] {
+        var list:List[RectangleCell] = List()
+        var re =  RectangleCell(true, false, true, true, 200,200,0,0)
+        var re2 =  RectangleCell(true, true, true, true, 200,200,0,200)
 
-        val list = new ListBuffer[RectangleWithCell]
-        var re = new RectangleCellImpl(true, false, true, true, 200,200,0,0)
-        var re2 = new RectangleCellImpl(true, true, true, true, 200,200,0,200)
-        val recell = new RectangleWithCell(re.getWidth, re.getHeight, re.x, re.y,re)
-        val recell2 = new RectangleWithCell(re2.getWidth, re2.getHeight, re2.x, re2.y,re)
-        list.append(recell)
-        list.append(recell2)
-        val p = new PlayerRepresentation(re, "bot.png")
-        val dash = new DashboardImpl(list)
-        dash.player_(p)
-        println(p._position)
-        dash.move(Right,(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean)=>{})
+
+        list = list :+ re
+        list = list :+ re2
+        val p = PlayerRepresentation(re, "bot.png")
+        val dash = Dashboard(list)
+        println(p.position)
+        dash.->(Right, p,(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean)=>{})
       }
     }
 
   }
+
 }

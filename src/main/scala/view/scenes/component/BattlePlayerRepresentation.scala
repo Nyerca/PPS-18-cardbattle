@@ -56,7 +56,7 @@ trait BattlePlayerRepresentation extends Pane {
     val ratio: Double = player.actualHealthPoint.toDouble / player.totalHealthPoint.toDouble
     if ( ratio != observableHealthPoint._1.value ) {
       observableHealthPoint._1.set(if ( ratio > 0 ) ratio else 0)
-      observableHealthPoint._2.set(if ( ratio > 0 ) "Player: " + player.actualHealthPoint + "hp" else "Player: 0hp")
+      observableHealthPoint._2.set(if ( ratio > 0 ) player.name + ": " + player.actualHealthPoint + "hp" else "Player: 0hp")
       checkDamageResult()
     }
   }

@@ -1,3 +1,3 @@
 package exception
 
-class IllegalSizeException extends Exception{}
+case class IllegalSizeException() extends Exception{}
