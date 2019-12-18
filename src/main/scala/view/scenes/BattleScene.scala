@@ -108,5 +108,5 @@ object BattleScene {
     userHandCard foreach(_ => battleController drawCard gameController.user)
   }
 
-  def apply(parentStage: Stage, user: User, enemy: Enemy, gameController: GameController): BattleScene = new BattleSceneImpl(parentStage, enemy, gameController)
+  def apply(parentStage: Stage, enemy: Enemy, gameController: GameController): BattleScene = new BattleSceneImpl(parentStage, enemy, gameController)
 }

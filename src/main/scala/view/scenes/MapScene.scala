@@ -29,7 +29,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
   private val _pane: Pane = new Pane {maxHeight = 800}
 
-  private val observableHealthPoint = (new SimpleDoubleProperty(gameC.user.actualHealthPoint.toDouble / gameC.user.totalHealthPoint.toDouble), new SimpleStringProperty("Player: " + gameC.user.actualHealthPoint + "hp"))
+  private val observableHealthPoint = (new SimpleDoubleProperty(gameC.user.actualHealthPoint.toDouble / gameC.user.totalHealthPoint.toDouble), new SimpleStringProperty(gameC.user.name + ":" + gameC.user.actualHealthPoint + "hp"))
   private val life: StackPane = new StackPane {
     children = List(new ProgressBar {
       progress <== observableHealthPoint._1
@@ -296,7 +296,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     }
   }
 
-  def changeScene(user:User, enemy:Enemy): Unit = parentStage.scene_=(BattleScene(parentStage, user,enemy, gameC))
+  def changeScene(user:User, enemy:Enemy): Unit = parentStage.scene_=(BattleScene(parentStage, enemy, gameC))
 
   def removeEnemyCell(): Unit = _controller.removeEnemyCell()
 }
