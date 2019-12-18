@@ -88,7 +88,6 @@ class MapControllerImpl (override val gameC : GameController, var _list:ListBuff
 
   override def reset(): Unit = {
     val newMap =  MapScene(view.parentStage, gameC)
-    gameC.gameMap = newMap
     gameC.setScene(view, newMap)
   }
 
