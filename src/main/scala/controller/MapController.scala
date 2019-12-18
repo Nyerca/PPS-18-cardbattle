@@ -8,8 +8,6 @@ import model.{Bottom, Cell, EmptyPosition, Enemy, EnemyCell, EnemyPosition, Left
 import scalafx.Includes._
 import scalafx.scene.input.KeyCode
 import view.scenes.MapScene
-
-import scala.collection.mutable.ListBuffer
 import scala.util.Random
 import model.Placeable._
 
@@ -26,7 +24,7 @@ trait MapController {
   def list:List[RectangleCell]
   def addToList(rect: RectangleCell): Unit
 
-  def getAllEnemies: List[PlayerRepresentation]
+  def getAllEnemies: Int
 
   def handleSave(): Unit
   def handleKey(keyCode : KeyCode): Unit
@@ -44,32 +42,22 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
 
   override def list:List[RectangleCell] = _list
 
-  override def removeEnemyCell(): Unit = {
-    list.filter(f => f.mapEvent.isDefined && f == _player.position).filter(f2 => f2.mapEvent.get.cellEvent.isInstanceOf[Enemy]).map(m2 => {m2.mapEvent_(Option.empty); postInsert()} )
-
-    if(getAllEnemies.isEmpty) {
-      pyramidDoor("pyramidDoor.png")
-      postInsert()
-    }
-  }
+  override def removeEnemyCell(): Unit = list.collect { case f if f.mapEvent.isDefined && f == _player.position && f.mapEvent.get.cellEvent.isInstanceOf[Enemy] => f.mapEvent_(Option.empty); postInsert() }
+    //list.filter(f => f.mapEvent.isDefined && f == _player.position && f.mapEvent.get.cellEvent.isInstanceOf[Enemy]).map(m => {m.mapEvent_(Option.empty); postInsert()} )
 
   override def addToList(rect: RectangleCell): Unit = {
     _list = _list :+ rect
     dashboard.cells = _list
   }
 
-  var dashboard = new DashboardImpl(_list)
-  dashboard.translationX_(traslationX)
-  dashboard.translationY_(traslationY)
+  var dashboard = Dashboard(_list, traslationX, traslationY)
 
   var _player : PlayerRepresentation = _
   startingDefined match {
-    case Some(rect: RectangleCell) => _player = PlayerRepresentation(dashboard.searchPosition(rect.x, rect.y).get, "/player/bot.png")
+    case Some(rect: RectangleCell) => _player = PlayerRepresentation((dashboard ? (rect.x, rect.y)).get, "/player/bot.png")
     case _ => _player = PlayerRepresentation(list.head, "/player/bot.png")
   }
   override def player: PlayerRepresentation = _player
-
-  dashboard.player = _player
 
   var view: MapScene = _
   override def view_ (newView : MapScene): Unit = {
@@ -84,7 +72,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
     gameC.setScene(view, newMap)
   }
 
-  def checkAnimationEnd(url: String):Boolean = {
+  private def checkAnimationEnd(url: String):Boolean = {
     if(MovementAnimation.checkAnimationEnd()) {
       resetPlayer(_player.position, url + ".png")
       true
@@ -92,7 +80,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
     else throw new DoubleMovementException
   }
 
-  def afterMovement(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean): Unit ={
+  private def afterMovement(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean): Unit ={
     if(isEnded) {
       if(newRectangle.url.contains("Dmg")) {
         gameC.user.actualHealthPoint = gameC.user.actualHealthPoint - 1
@@ -108,30 +96,25 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
           case pyramid: Pyramid => if(player.position.mapEvent.get.playerRepresentation.url.contains("Door")) reset()
         }
       }
-    } else {
-      resetPlayer(_player.position, stringUrl)
-    }
+    } else resetPlayer(_player.position, stringUrl)
   }
 
   private def resetPlayer(newPosition: RectangleCell, newUrl: String): Unit = {
     _player = PlayerRepresentation(newPosition, newUrl)
-    dashboard.player = _player
     view.playerImg_(player)
   }
 
   override def handleKey(keyCode : KeyCode): Unit = {
     keyCode.getName match {
-      case "W" => if(checkAnimationEnd(Top.url())) dashboard.move(Top, afterMovement) ;
-      case "A" => if(checkAnimationEnd(Left.url())) dashboard.move(Left, afterMovement) ;
-      case "S" => if(checkAnimationEnd(Bottom.url())) dashboard.move(Bottom, afterMovement)
-      case "D" => if(checkAnimationEnd(Right.url())) dashboard.move(Right, afterMovement) ;
+      case "W" => if(checkAnimationEnd(Top.url())) dashboard -> (Top, player, afterMovement)
+      case "A" => if(checkAnimationEnd(Left.url())) dashboard -> (Left, player, afterMovement)
+      case "S" => if(checkAnimationEnd(Bottom.url())) dashboard -> (Bottom, player, afterMovement)
+      case "D" => if(checkAnimationEnd(Right.url())) dashboard -> (Right, player, afterMovement)
       case _ =>
     }
   }
 
-  override def getAllEnemies: List[PlayerRepresentation] = {
-    list.map(m=> m.mapEvent).filter(f => f.isDefined && f.get.cellEvent.isInstanceOf[Enemy]).map(mm => mm.get.playerRepresentation)
-  }
+  override def getAllEnemies: Int = list.map(m=> m.mapEvent).count(f => f.isDefined && f.get.cellEvent.isInstanceOf[Enemy])
 
   private def pyramidDoor(url: String): Unit = {
     val pyramid = list.find(f => f.mapEvent.isDefined && f.mapEvent.get.cellEvent.isInstanceOf[Pyramid]).get
@@ -152,15 +135,15 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
 
   override def postInsert(): Unit = {
     view.updateParameters()
-    if(getAllEnemies.nonEmpty) pyramidDoor("pyramid.png")
+    if(getAllEnemies > 0) pyramidDoor("pyramid.png")
+    else pyramidDoor("pyramidDoor.png")
     view.setPaneChildren(_list)
     selected = Option.empty
     view.setBPane()
   }
 
   override def handleMouseClicked(e:MouseEvent): Unit = {
-    val cell = dashboard.searchPosition(e.x - dashboard.traslationX, e.y - dashboard.traslationY)
-    //println("CLICKED : " + cell)
+    val cell = dashboard ? (e.x - dashboard.traslationX, e.y - dashboard.traslationY)
     selected match {
       case Some(rc:RectangleCell) =>
         rc.x_(e.x - dashboard.traslationX - e.x % 200)

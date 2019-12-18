@@ -30,7 +30,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
   private val observableHealthPoint = (new SimpleDoubleProperty(gameC.user.actualHealthPoint.toDouble / gameC.user.totalHealthPoint.toDouble), new SimpleStringProperty("Player: " + gameC.user.actualHealthPoint + "hp"))
 
-  private val remainingEnemies = new SimpleStringProperty("Enemies: " + _controller.getAllEnemies.size)
+  private val remainingEnemies = new SimpleStringProperty("Enemies: " + _controller.getAllEnemies)
 
   private val observableGold = new SimpleStringProperty("Gold: " +gameC.user.coins+ "x")
 
@@ -128,7 +128,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
   def updateParameters(): Unit = {
     updateHP()
-    remainingEnemies.set("Enemies: " + _controller.getAllEnemies.size)
+    remainingEnemies.set("Enemies: " + _controller.getAllEnemies)
     observableGold.set("Gold: " +gameC.user.coins+ "x")
     observableLevel.set("Player level: " + gameC.user.level)
   }

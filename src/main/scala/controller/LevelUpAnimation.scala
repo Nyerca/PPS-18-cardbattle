@@ -1,7 +1,7 @@
 package controller
 
 import javafx.scene.paint.ImagePattern
-import model.{RectangleCell, RectangleCellImpl}
+import model.RectangleCell
 import scalafx.animation.{Interpolator, TranslateTransition}
 import scalafx.scene.image.Image
 import scalafx.scene.shape.Rectangle
@@ -9,7 +9,10 @@ import scalafx.util.Duration
 import scalafx.Includes._
 
 object LevelUpAnimation {
-  val animationImg = new Rectangle() {
+  val LEVELUP_PREFIX: String = "lev"
+  private var currentPrefix: String = _
+
+  private val animationImg = new Rectangle() {
     width = 80
     height = 100
     fill_=(null)
@@ -26,13 +29,13 @@ object LevelUpAnimation {
     interpolator = Interpolator.Linear
     node = animationImg
     onFinished_=(_ => {
-      animationImg.fill_=(new ImagePattern(new Image("lev_2.png")))
+      animationImg.fill_=(new ImagePattern(new Image(currentPrefix + "_2.png")))
       onFinished_=(_ => {
-        animationImg.fill_=(new ImagePattern(new Image("lev_3.png")))
+        animationImg.fill_=(new ImagePattern(new Image(currentPrefix + "_3.png")))
         onFinished_=(_ => {
-          animationImg.fill_=(new ImagePattern(new Image("lev_2.png")))
+          animationImg.fill_=(new ImagePattern(new Image(currentPrefix + "_2.png")))
           onFinished_=(_ => {
-            animationImg.fill_=(new ImagePattern(new Image("lev_1.png")))
+            animationImg.fill_=(new ImagePattern(new Image(currentPrefix + "_1.png")))
             onFinished_=(_ => animationImg.fill_=(null))
             anim.play()
           })
@@ -44,8 +47,9 @@ object LevelUpAnimation {
     })
   }
 
-  def play(): Unit = {
-    animationImg.fill_=(new ImagePattern(new Image("lev_1.png")))
+  def play(prefix: String): Unit = {
+    currentPrefix = prefix
+    animationImg.fill_=(new ImagePattern(new Image(currentPrefix + "_1.png")))
     anim.play()
   }
 }

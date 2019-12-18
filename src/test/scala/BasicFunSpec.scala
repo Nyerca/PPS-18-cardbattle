@@ -1,6 +1,6 @@
 import java.util.concurrent.CountDownLatch
 
-import controller.{Dashboard, DashboardImpl}
+import controller.Dashboard
 import exception.{IllegalSizeException, MissingCellException, NoMovementException}
 import model.{Player, RectangleCell}
 import org.junit.runner.RunWith
@@ -71,10 +71,9 @@ class BasicFunSpec extends FunSpec with Matchers  {
         list = list :+ re
         list = list :+ re2
         val p = PlayerRepresentation(re, "bot.png")
-        val dash = new DashboardImpl(list)
-        dash.player = p
+        val dash = Dashboard(list)
         println(p.position)
-        dash.move(Right,(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean)=>{})
+        dash.->(Right, p,(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean)=>{})
       }
     }
 
@@ -88,10 +87,9 @@ class BasicFunSpec extends FunSpec with Matchers  {
         list = list :+ re
         list = list :+ re2
         val p = PlayerRepresentation(re, "bot.png")
-        val dash = new DashboardImpl(list)
-        dash.player = p
+        val dash = Dashboard(list)
         println(p.position)
-        dash.move(Right,(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean)=>{})
+        dash.->(Right, p,(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean)=>{})
       }
     }
 

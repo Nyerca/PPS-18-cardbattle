@@ -109,7 +109,7 @@ class GameControllerImpl(var difficulty: Difficulty = Difficulty.Medium) extends
 
   private def checkUserLevelUp: Unit = if(user.experience <= 0) {
     user.experience += 3 * user.level
-    LevelUpAnimation.play()
+    LevelUpAnimation.play(LevelUpAnimation.LEVELUP_PREFIX)
   }
 
   private def getCardLevelAvg: Int = {
