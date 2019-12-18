@@ -5,6 +5,9 @@ trait Statue extends CellEvent {
   def moneyRequired: Int
 }
 trait Pyramid extends CellEvent
+trait Chest extends CellEvent{
+  def money: Int
+}
 
 object Statue {
   private final case class StatueImpl(moneyRequired: Int) extends Statue
@@ -13,6 +16,10 @@ object Statue {
 object Pyramid {
   private final case class PyramidImpl() extends Pyramid
   def apply(): CellEvent = new PyramidImpl()
+}
+object Chest {
+  private final case class ChestImpl(money: Int) extends Chest
+  def apply(money: Int): Chest = new ChestImpl(money)
 }
 
 

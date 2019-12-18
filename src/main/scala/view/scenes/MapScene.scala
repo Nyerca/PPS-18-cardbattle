@@ -147,10 +147,23 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
           gameC.user.coins= gameC.user.coins - money
           gameC.user.actualHealthPoint = gameC.user.totalHealthPoint
           updateParameters()
+          LevelUpAnimation.play(LevelUpAnimation.HEAL_PREFIX)
         } else {
           println("You haven't got enough money!")
         }
       }
+    })
+  }
+
+  def showChestAlert(money: Int): Unit = {
+    Platform.runLater(() -> {
+      val alert = new Alert(AlertType.INFORMATION)
+      alert.setTitle("Chest")
+      alert.setGraphic(new ImageView(new Image("chest.png")))
+      alert.setHeaderText("You obtained: " + money + " golds")
+      gameC.user.coins= gameC.user.coins + money
+      updateParameters()
+      alert.showAndWait()
     })
   }
 
@@ -187,6 +200,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
         case e:Enemy => field.children.append(icon(el.playerRepresentation.position, el.playerRepresentation.url, 100, 90))
         case s:Statue => field.children.append(icon(el.playerRepresentation.position, el.playerRepresentation.url, 38, 110))
         case p:Pyramid => field.children.append(icon(el.playerRepresentation.position, el.playerRepresentation.url, 80, 110))
+        case c:Chest => field.children.append(icon(el.playerRepresentation.position, el.playerRepresentation.url, 50, 50))
       }
     })
   }

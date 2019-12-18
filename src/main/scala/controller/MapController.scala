@@ -4,10 +4,11 @@ import java.io.{FileOutputStream, ObjectOutputStream}
 
 import exception.DoubleMovementException
 import javafx.scene.input.MouseEvent
-import model.{Bottom, Cell, EmptyPosition, Enemy, EnemyCell, EnemyPosition, Left, MapEvent, MapPosition, PlayerPosition, PlayerRepresentation, Pyramid, PyramidPosition, RectangleCell, Right, Statue, StatuePosition, Top}
+import model.{Bottom, Cell, Chest, ChestPosition, EmptyPosition, Enemy, EnemyCell, EnemyPosition, Left, MapEvent, MapPosition, PlayerPosition, PlayerRepresentation, Pyramid, PyramidPosition, RectangleCell, Right, Statue, StatuePosition, Top}
 import scalafx.Includes._
 import scalafx.scene.input.KeyCode
 import view.scenes.MapScene
+
 import scala.util.Random
 import model.Placeable._
 
@@ -44,6 +45,8 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
 
   override def removeEnemyCell(): Unit = list.collect { case f if f.mapEvent.isDefined && f == _player.position && f.mapEvent.get.cellEvent.isInstanceOf[Enemy] => f.mapEvent_(Option.empty); postInsert() }
     //list.filter(f => f.mapEvent.isDefined && f == _player.position && f.mapEvent.get.cellEvent.isInstanceOf[Enemy]).map(m => {m.mapEvent_(Option.empty); postInsert()} )
+  private def removeChestCell(): Unit = list.collect { case f if f.mapEvent.isDefined && f == _player.position && f.mapEvent.get.cellEvent.isInstanceOf[Chest] => f.mapEvent_(Option.empty); postInsert() }
+
 
   override def addToList(rect: RectangleCell): Unit = {
     _list = _list :+ rect
@@ -94,6 +97,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
           case enemy:Enemy => view.changeScene(gameC.user, player.position.mapEvent.get.cellEvent.asInstanceOf[Enemy])
           case statue:Statue => view.showStatueAlert(player.position.mapEvent.get.cellEvent.asInstanceOf[Statue].moneyRequired)
           case pyramid: Pyramid => if(player.position.mapEvent.get.playerRepresentation.url.contains("Door")) reset()
+          case chest: Chest => {view.showChestAlert(player.position.mapEvent.get.cellEvent.asInstanceOf[Chest].money); removeChestCell}
         }
       }
     } else resetPlayer(_player.position, stringUrl)
@@ -159,8 +163,8 @@ object MapController {
   def setup(gameC: GameController): List[RectangleCell] = {
     var list :List[RectangleCell] = List()
 
-    var newList: List[MapPosition] =List(PlayerPosition, EnemyPosition, StatuePosition, PyramidPosition)
-    for(i<-0 until Random.nextInt(6)) {
+    var newList: List[MapPosition] =List(PlayerPosition, EnemyPosition, StatuePosition, PyramidPosition, ChestPosition)
+    for(i<-0 until Random.nextInt(5)) {
       val rnd = math.random()
       if(rnd < 0.8) newList = newList:+EmptyPosition
       else if(rnd <0.9) newList = newList:+StatuePosition

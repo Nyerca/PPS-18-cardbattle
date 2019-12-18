@@ -90,6 +90,21 @@ case object PyramidPosition extends MapPosition {
   }
 }
 
+case object ChestPosition extends MapPosition {
+  override def create(gameC: GameController, excludedValues : Map[Int,List[Int]]): RectangleCell = {
+    val (x,y) = MapPosition.getRng(excludedValues)
+    val (top,right,bottom,left) = MapPosition.getRngBooleans
+
+    val rectcell=  RectangleCell(top, right, bottom, left, x, y)
+
+    val chest = Chest(Random.nextInt(4) + 1)
+    rectcell.mapEvent_(Option(MapEvent(chest, PlayerRepresentation(rectcell, "chest.png"))))
+
+    //println(rectcell)
+    rectcell
+  }
+}
+
 case object EmptyPosition extends MapPosition {
   override def create(gameC: GameController, excludedValues: Map[Int, List[Int]]): RectangleCell = {
 

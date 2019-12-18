@@ -10,9 +10,10 @@ import scalafx.Includes._
 
 object LevelUpAnimation {
   val LEVELUP_PREFIX: String = "lev"
+  val HEAL_PREFIX: String = "heal"
   private var currentPrefix: String = _
 
-  private val animationImg = new Rectangle() {
+  private var animationImg = new Rectangle() {
     width = 80
     height = 100
     fill_=(null)
@@ -28,15 +29,22 @@ object LevelUpAnimation {
     duration = Duration(200.0)
     interpolator = Interpolator.Linear
     node = animationImg
-    onFinished_=(_ => {
+  }
+
+  def play(prefix: String): Unit = {
+    currentPrefix = prefix
+    animationImg.fill_=(new ImagePattern(new Image(currentPrefix + "_1.png")))
+    anim.setOnFinished(_ =>  {
       animationImg.fill_=(new ImagePattern(new Image(currentPrefix + "_2.png")))
-      onFinished_=(_ => {
+      anim.setOnFinished(_ =>  {
         animationImg.fill_=(new ImagePattern(new Image(currentPrefix + "_3.png")))
-        onFinished_=(_ => {
+        anim.setOnFinished(_ =>  {
           animationImg.fill_=(new ImagePattern(new Image(currentPrefix + "_2.png")))
-          onFinished_=(_ => {
+          anim.setOnFinished(_ =>  {
             animationImg.fill_=(new ImagePattern(new Image(currentPrefix + "_1.png")))
-            onFinished_=(_ => animationImg.fill_=(null))
+            anim.setOnFinished(_ =>  {
+              animationImg.fill_=(null)
+            })
             anim.play()
           })
           anim.play()
@@ -45,11 +53,6 @@ object LevelUpAnimation {
       })
       anim.play()
     })
-  }
-
-  def play(prefix: String): Unit = {
-    currentPrefix = prefix
-    animationImg.fill_=(new ImagePattern(new Image(currentPrefix + "_1.png")))
     anim.play()
   }
 }
