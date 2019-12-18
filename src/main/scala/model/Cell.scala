@@ -10,12 +10,12 @@ trait Cell extends Serializable {
 }
 
 object Cell {
-  def createImage(url: String, rotation: Double): ImagePattern = {
+  def createImage(url: String, rotation: Double): Image = {
     val iv = new ImageView(new Image( url))
     iv.setRotate(rotation)
     var params = new SnapshotParameters()
     params.setFill(Color.Transparent)
     val image = iv.snapshot(params, null)
-    new ImagePattern(image)
+    image
   }
 }

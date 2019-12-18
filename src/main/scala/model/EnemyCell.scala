@@ -1,18 +1,18 @@
 package model
 
-import scalafx.scene.SnapshotParameters
 import scalafx.scene.image.{Image, ImageView}
-import scalafx.scene.paint.Color
 
-class EnemyCell(private val _enemy: Enemy) extends Cell{
+trait EnemyCell extends Cell {
+  def enemy: Enemy
+}
 
-  def enemy: Enemy = _enemy
+object EnemyCell {
+  private final case class EnemyCellImpl(private val _enemy: Enemy) extends EnemyCell{
 
-  def image: Image = {
-    println("IMAGE: " + _enemy.image)
-    val iv = new ImageView(new Image( _enemy.image))
-    var params = new SnapshotParameters()
-    params.setFill(Color.Transparent)
-    iv.snapshot(params, null)
+    def enemy: Enemy = _enemy
+
+    def image: Image = Cell.createImage(_enemy.image, 0)
   }
+
+  def apply(enemy: Enemy): EnemyCell = new EnemyCellImpl(enemy)
 }

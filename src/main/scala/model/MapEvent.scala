@@ -1,25 +1,31 @@
 package model
 
 trait CellEvent
-
-case class Statue(_moneyRequired: Int) extends CellEvent {
-  def moneyRequired: Int = _moneyRequired
+trait Statue extends CellEvent {
+  def moneyRequired: Int
 }
-case class Pyramid() extends CellEvent
+trait Pyramid extends CellEvent
+
+object Statue {
+  private final case class StatueImpl(moneyRequired: Int) extends Statue
+  def apply(moneyRequired: Int): Statue = new StatueImpl(moneyRequired)
+}
+object Pyramid {
+  private final case class PyramidImpl() extends Pyramid
+  def apply(): CellEvent = new PyramidImpl()
+}
+
 
 trait MapEvent extends Serializable {
-  def callEvent: CellEvent
+  def cellEvent: CellEvent
   def playerRepresentation : PlayerRepresentation
-  def playerRepresentation_(pRep : PlayerRepresentation):Unit
 }
 
-class MapEventImpl (_cellEvent: CellEvent,var _playerRepresentation: PlayerRepresentation) extends MapEvent {
-  override def callEvent: CellEvent = _cellEvent
-  override def playerRepresentation: PlayerRepresentation = _playerRepresentation
-  override def playerRepresentation_(pRep : PlayerRepresentation):Unit = _playerRepresentation = pRep
-}
+
 
 object MapEvent {
-  def createMapEvent(cellEvent: CellEvent, playerRepresentation: PlayerRepresentation) : MapEvent = new MapEventImpl(cellEvent, playerRepresentation)
+  private final case class MapEventImpl (cellEvent: CellEvent, playerRepresentation: PlayerRepresentation) extends MapEvent
+
+  def apply(cellEvent: CellEvent, playerRepresentation: PlayerRepresentation) : MapEvent = new MapEventImpl(cellEvent, playerRepresentation)
 }
 

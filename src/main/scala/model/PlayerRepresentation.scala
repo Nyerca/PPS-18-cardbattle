@@ -1,5 +1,10 @@
 package model
+trait PlayerRepresentation extends Serializable {
+  def position: RectangleCell
+  def url: String
+}
 
-class PlayerRepresentation  (var position : RectangleCell, var url :  String) extends Serializable {
-  override def toString: String = "Url: " + url + " Position: " + position
+object PlayerRepresentation {
+  private case class PlayerRepresentationImpl  (var position : RectangleCell, var url :  String) extends PlayerRepresentation
+  def apply(position : RectangleCell, url :  String) : PlayerRepresentation = new PlayerRepresentationImpl(position, url)
 }

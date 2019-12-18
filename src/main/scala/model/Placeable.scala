@@ -33,7 +33,7 @@ object Placeable {
       if(cell.isDefined) {
         val rect = cell.get
         if(rect.mapEvent.isEmpty) {
-          rect.mapEvent_(Option(MapEvent.createMapEvent(selected.enemy, new PlayerRepresentation(rect, selected.enemy.image))) )
+          rect.mapEvent_(Option(MapEvent(selected.enemy, PlayerRepresentation(rect, selected.enemy.image))) )
           controller.postInsert()
         } else {
           throw new DoubleEnemyException

@@ -158,7 +158,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     new Button {
       var re: Cell = _
       if(math.random() <= 0.8) re = RectangleCell.generateRandomCard()
-      else re = new EnemyCell(gameC.spawnEnemy(Random.nextInt(4)))
+      else re = EnemyCell(gameC.spawnEnemy(Random.nextInt(4)))
       graphic = new ImageView(re.image) {fitWidth_=(100); fitHeight_=(100)}
       onAction = () => _controller.selected_(Option(re))
       defaultButton = true
@@ -183,7 +183,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
   def setPaneChildren(list :List[RectangleCell]): Unit = {
     field.children = list.to[ListBuffer]
     list.filter(f =>f.mapEvent.isDefined ).map(m =>m.mapEvent.get ).foreach(el => {
-      el.callEvent match {
+      el.cellEvent match {
         case e:Enemy => field.children.append(icon(el.playerRepresentation.position, el.playerRepresentation.url, 100, 90))
         case s:Statue => field.children.append(icon(el.playerRepresentation.position, el.playerRepresentation.url, 38, 110))
         case p:Pyramid => field.children.append(icon(el.playerRepresentation.position, el.playerRepresentation.url, 80, 110))
