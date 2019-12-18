@@ -224,7 +224,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     fill_=(new ImagePattern(new Image(url)))
   }
 
-  def changeScene(user:User, enemy:Enemy): Unit = parentStage.scene_=(BattleScene(parentStage, enemy, gameC))
+  def changeScene(user:User, enemy:Enemy): Unit = gameC.setScene(this, BattleScene(parentStage, enemy, gameC))
 
   def removeEnemyCell(): Unit = _controller.removeEnemyCell()
 }

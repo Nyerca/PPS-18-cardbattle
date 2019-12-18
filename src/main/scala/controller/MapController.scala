@@ -1,7 +1,6 @@
 package controller
 
-import java.io.{FileOutputStream, ObjectOutputStream}
-
+import java.io.{File, FileOutputStream, ObjectOutputStream}
 import exception.DoubleMovementException
 import javafx.scene.input.MouseEvent
 import model.{Bottom, Cell, Chest, ChestPosition, EmptyPosition, Enemy, EnemyCell, EnemyPosition, Left, MapEvent, MapPosition, PlayerPosition, PlayerRepresentation, Pyramid, PyramidPosition, RectangleCell, Right, Statue, StatuePosition, Top}
@@ -9,7 +8,7 @@ import scalafx.Includes._
 import scalafx.scene.input.KeyCode
 import view.scenes.MapScene
 
-import scala.util.Random
+import scala.util.{Random, Success, Try}
 import model.Placeable._
 
 
@@ -126,14 +125,19 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
 
   override def handleSave(): Unit = {
     import FileManager._
-    output = new ObjectOutputStream(new FileOutputStream("./src/main/saves/save.txt"))
-    save(gameC.user)
-    save(gameC.difficulty)
-    save(list.map(el => el))
-    save(player)
-    save(dashboard.traslationX)
-    save(dashboard.traslationY)
-    output.close()
+    Try(new ObjectOutputStream(new FileOutputStream("./src/main/saves/save.txt")))  match {
+      case Success(fileOut) =>
+        save(fileOut)(gameC.user)
+        save(fileOut)(gameC.difficulty)
+        save(fileOut)(list.map(el => el))
+        save(fileOut)(player)
+        save(fileOut)(dashboard.traslationX)
+        save(fileOut)(dashboard.traslationY)
+        fileOut.close()
+      case _ =>
+        new File("./src/main/saves").mkdir()
+        handleSave()
+    }
   }
 
   override def postInsert(): Unit = {

@@ -6,12 +6,10 @@ import java.io.{FileInputStream, ObjectInputStream}
 import Utility.GameObjectFactory.createCards
 import Utility.{GUIObjectFactory, GameObjectFactory}
 import model._
-import scalafx.Includes._
 import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.media.MediaPlayer.Status
-import view.scenes.{BaseScene, BattleScene, EquipmentScene, GameOverScene, MainScene, MapScene, RewardScene}
-
-import scala.collection.mutable.ListBuffer
+import view.scenes._
+import scala.language.postfixOps
 import scala.util.{Failure, Random, Success, Try}
 
 trait OperationType
@@ -62,29 +60,26 @@ object GameController {
   private class GameControllerImpl() extends GameController {
 
     private var enemyCount: Map[EnemyType, Int] = Map(EnemyType.Sphinx -> -1, EnemyType.Cobra -> -1, EnemyType.EgyptWarrior -> -1, EnemyType.Griffin -> -1, EnemyType.YellowBlob -> -1)
+
     var user: User = _
+
     var gameMap: MapScene = _
 
-    override def setScene(fromScene: BaseScene, toScene: BaseScene): Unit =  {
-      fromScene match {
-        case _: EquipmentScene => //MusicPlayer.changeStatus(Status.Playing)
-        case _: MainScene => MusicPlayer.play(SoundType.MapSound)
-        case _: BattleScene =>
-          toScene match {
-            case _: GameOverScene => MusicPlayer.play(SoundType.LoseSound)
-            case _ => MusicPlayer.play(SoundType.WinningSound)
-          }
-      case _: RewardScene =>
+    override def setScene(fromScene: BaseScene, toScene: BaseScene): Unit = {
+      (fromScene, toScene) match {
+        case (_: MainScene, _: MapScene) => MusicPlayer.play(SoundType.MapSound)
+        case (_: MapScene, _: BattleScene) => MusicPlayer.play(SoundType.BattleSound)
+        case (_: BattleScene, _: GameOverScene) => MusicPlayer.play(SoundType.LoseSound)
+        case (_: BattleScene, _: RewardScene) => MusicPlayer.play(SoundType.WinningSound)
+        case (_: RewardScene, _: MapScene) =>
           MusicPlayer.play(SoundType.MapSound)
           gameMap.removeEnemyCell()
           checkUserLevelUp
-        case _: MapScene =>
-          toScene match {
-            case _: MapScene =>
-              MusicPlayer.play(SoundType.MapSound)
-              gameMap = toScene.asInstanceOf[MapScene]
-            case _ => MusicPlayer.changeStatus(Status.Paused)
-          }
+        case (_, _: MainScene) => MusicPlayer.changeStatus(Status.Paused)
+        case (_: MapScene, newMap: MapScene) =>
+          MusicPlayer.play(SoundType.MapSound)
+          gameMap = newMap
+        case _ => ;
       }
       fromScene.changeScene(toScene)
     }
@@ -100,9 +95,9 @@ object GameController {
     }
 
     override def spawnEnemy(randomIndex: Int): Enemy = difficulty match {
-      case Difficulty.Easy => createEnemy(enemyCount.keys.toList(randomIndex), if (user.level - 1 > 0) user.level - 1 else user.level, if(getCardLevelAvg - 1 > 0) getCardLevelAvg - 1 else getCardLevelAvg)
-      case Difficulty.Medium => createEnemy(enemyCount.keys.toList(randomIndex), user.level, getCardLevelAvg)
-      case Difficulty.Hard => createEnemy(enemyCount.keys.toList(randomIndex), user.level + 1, getCardLevelAvg + 1)
+      case Difficulty.Easy => createEnemy(enemyCount.keys.toList(randomIndex), if (user.level - 1 > 0) user.level - 1 else user.level, if(Math.round(user.battleDeck.map(card => card.level).sum.toDouble / user.battleDeck.size.toDouble).toInt - 1 > 0) Math.round(user.battleDeck.map(card => card.level).sum.toDouble / user.battleDeck.size.toDouble).toInt - 1 else Math.round(user.battleDeck.map(card => card.level).sum.toDouble / user.battleDeck.size.toDouble) toInt)
+      case Difficulty.Medium => createEnemy(enemyCount.keys.toList(randomIndex), user.level, Math.round(user.battleDeck.map(card => card.level).sum.toDouble / user.battleDeck.size.toDouble) toInt)
+      case Difficulty.Hard => createEnemy(enemyCount.keys.toList(randomIndex), user.level + 1, Math.round(user.battleDeck.map(card => card.level).sum.toDouble / user.battleDeck.size.toDouble).toInt + 1)
     }
 
 
@@ -118,19 +113,9 @@ object GameController {
       }
     }
 
-
     private def checkUserLevelUp: Unit = if(user.experience <= 0) {
       user.experience += 3 * user.level
       LevelUpAnimation.play(LevelUpAnimation.LEVELUP_PREFIX)
-    }
-
-    private def getCardLevelAvg: Int = {
-      val avg: Double = user.battleDeck.map(card => card.level).sum.toDouble / user.battleDeck.size.toDouble
-      if (avg - avg.toInt > 0.4) {
-        avg.toInt + 1
-      } else {
-        avg.toInt
-      }
     }
 
     private def createEnemy(enemyType: EnemyType, enemyLevel: Int, cardLevel: Int): Enemy = {

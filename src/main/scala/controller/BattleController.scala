@@ -18,8 +18,6 @@ trait BattleController {
 object BattleController {
   private class BattleControllerImpl(override val battleScene: BattleScene) extends BattleController {
 
-    MusicPlayer.play(SoundType.BattleSound)
-
     override def drawCard(player: Player): Unit = battleScene.drawCard(player, getCardAndReinsert(player))
 
     override def fight(userCard: Card, enemyCard: Card, user: Player, enemy: Player): Unit = {
