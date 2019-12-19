@@ -11,7 +11,7 @@ trait Player extends Serializable {
   def experience: Int
 }
 
-class User(override val name: String, override val image: String, var level: Int,  var experience: Int, var allCards: List[Card], var totalHealthPoint: Int, var actualHealthPoint: Int, var coins: Int) extends Player {
+class User(override val name: String, override val image: String, var allCards: List[Card], var level: Int, var totalHealthPoint: Int, var actualHealthPoint: Int, var experience: Int, var coins: Int) extends Player {
   var battleDeck: List[Card] = allCards
   def ++(enemy: Enemy): Option[Int] = {
     experience -= enemy.experience
@@ -28,7 +28,7 @@ class User(override val name: String, override val image: String, var level: Int
 
   def ->(card: Card): Option[Card] = allCards.find(c => c.name == card.name) match {
     case Some(c) =>
-      val newCard: Card = Card ++ c
+      val newCard: Card = c.up
       updateDecks(c, newCard)
       Some(newCard)
     case _ =>
@@ -46,7 +46,9 @@ class User(override val name: String, override val image: String, var level: Int
 case class Enemy(override val name: String, override val image: String, var battleDeck: List[Card], override val level: Int, override val totalHealthPoint: Int, var actualHealthPoint: Int, var experience: Int, override val coins: Int) extends Player with CellEvent
 
 object Player {
-  def userFactory(name: String, image: String, allCards: List[Card], level: Int = 1, healthPoint: Int = 10, missingExperience: Int = 1, coins: Int = 0): User = new User(name, image, level, missingExperience, allCards, healthPoint, healthPoint, coins)
-  def enemyFactory(name: String, image: String, battleDeck: List[Card], level: Int, healthPoint: Int): Enemy = Enemy(name, image, battleDeck, level, healthPoint, healthPoint, level, 2 * level)
+  def apply(name: String, image: String, allCards: List[Card], level: Int = 1, healthPoint: Int = 10, missingExperience: Int = 1, coins: Int = 0): Player = coins match {
+    case 0 => new User(name, image, allCards, level, healthPoint, healthPoint, missingExperience, coins)
+    case _ => Enemy(name, image, allCards, level, healthPoint, healthPoint, level, level)
+  }
 }
 

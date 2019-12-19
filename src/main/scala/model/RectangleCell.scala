@@ -1,6 +1,7 @@
 package model
 
 import Utility.UrlFactory
+import com.sun.javafx.scene.shape.PathElementHelper
 import controller.GameController
 import exception.{IllegalSizeException, NoMovementException}
 import javafx.scene.paint.ImagePattern
@@ -20,84 +21,42 @@ trait RectangleCell extends Serializable with Cell {
   def left: Boolean
   def elementWidth: Double
   def elementHeight: Double
-
   def x: Double
-  def x_(newX: Double): Unit
-
   def y: Double
-  def y_(newY: Double): Unit
+  def x_(newX: Double):Unit
+  def y_(newY: Double):Unit
 
   def setDamage():Unit
   def canEqual(other: Any): Boolean
   def url: String
   def rotation: Int
-  def getWidth: Double
-  def getHeight: Double
-
   def isMoveAllowed(movement : Move): Boolean
   def mapEvent:Option[MapEvent]
   def mapEvent_(cellEve: Option[MapEvent]): Unit
-}
-
-
-class RectangleCellImpl (override val top: Boolean, override val right: Boolean, override val bottom: Boolean, override val left: Boolean, override val elementWidth: Double = 200, override val elementHeight: Double = 200, var _x: Double, var _y:Double) extends RectangleCell  {
-  var _mapEvent:Option[MapEvent] = Option.empty
-  override def mapEvent:Option[MapEvent] = _mapEvent
-  override def mapEvent_(cellEve: Option[MapEvent]): Unit = _mapEvent = cellEve
-
-  override def x: Double = _x
-  override def y: Double = _y
-  override def x_(newX: Double): Unit = _x = newX
-  override def y_(newY: Double): Unit = _y = newY
-  override def getWidth: Double = elementWidth
-  override def getHeight: Double = elementHeight
-
-  override def canEqual(other: Any): Boolean = other.isInstanceOf[RectangleCell]
-
-  override def equals(other:Any) :Boolean = other match {
-    case that : RectangleCell => that.canEqual(this) && this.x == that.x && this.y == that.y
-    case _  => false
-  }
-
-  override def hashCode(): Int = {
-    val state = Seq(_x,_y,elementWidth,elementHeight)
-    state.map(_.hashCode()).foldLeft(0)((a,b)=>31 * a + b)
-  }
-
-  override def toString :String = {
-    "Rectangle ("+_x + ", " +_y+") T: " + top + " R: " + right + " B: " + bottom + " L: " + left + " enemy: " + _mapEvent
-  }
-
-  override def image: Image = {
-    val iv = new ImageView(new Image( url))
-    iv.setRotate(rotation)
-    var params = new SnapshotParameters()
-    params.setFill(Color.Transparent)
-    iv.snapshot(params, null)
-  }
-
-  val parameters:(String,Int) = UrlFactory.getParameters(top,right,bottom,left)
-  var _url:String = parameters._1
-  var _rotation:Int = parameters._2
-  override def url: String = _url
-  override def rotation: Int = _rotation
-
-  override def setDamage(): Unit = _url = _url.substring(0, _url.length - 4) + "Dmg.png"
-
-  def isMoveAllowed(movement : Move): Boolean =movement match {
-    case Top => top
-    case Right => right
-    case Bottom => bottom
-    case Left  => left
-    case _  => false
-  }
-
-  if(!top && !right && !bottom && !left) throw new NoMovementException()
-  if(elementWidth == 0 || elementHeight == 0)  throw new IllegalSizeException()
+  def isRectangle(posX: Double, posY: Double): Boolean
 }
 
 object RectangleCell {
-  def generateRandomCard() : RectangleCellImpl = {
+  implicit def RectangleCell2Rectangle(rect : RectangleCell): Rectangle =
+    new Rectangle() {
+      width = rect.elementWidth
+      height = rect.elementHeight
+      x = rect.x
+      y = rect.y
+      fill = new ImagePattern(Cell.createImage(rect.url, rect.rotation))
+    }
+
+  implicit def RectangleCell2ListRectangle(list : ListBuffer[RectangleCell]): ListBuffer[Rectangle] = {
+    list.map(rect => new Rectangle() {
+      width = rect.elementWidth
+      height = rect.elementHeight
+      x = rect.x
+      y = rect.y
+      fill = new ImagePattern(Cell.createImage(rect.url, rect.rotation))
+    })
+  }
+
+  def generateRandomCard() : RectangleCell = {
     var top:Boolean = false
     var right:Boolean = false
     var bottom:Boolean = false
@@ -108,27 +67,68 @@ object RectangleCell {
       bottom = math.random()>0.5
       left = math.random()>0.5
     }
-    val re = new RectangleCellImpl(top, right, bottom, left, _x= 0, _y=0)
+    val re = new RectangleCellImpl(top, right, bottom, left, x= 0, y=0)
     if(math.random() <= 0.4) re.setDamage()
     re
   }
 
-  def createImage(url: String, rotation: Double): ImagePattern = {
-    val iv = new ImageView(new Image( url))
-    iv.setRotate(rotation)
-    var params = new SnapshotParameters()
-    params.setFill(Color.Transparent)
-    val image = iv.snapshot(params, null)
-    new ImagePattern(image)
-  }
 
   def createRectangle(rectangleCell: RectangleCell): Rectangle = {
     val rect:Rectangle = new Rectangle()
-    rect.fill_=(RectangleCell.createImage(rectangleCell.url, rectangleCell.rotation))
-    rect.width_=(rectangleCell.getWidth)
-    rect.height_=(rectangleCell.getHeight)
+    rect.fill_= (new ImagePattern(Cell.createImage(rectangleCell.url, rectangleCell.rotation)))
+    rect.width_=(rectangleCell.elementWidth)
+    rect.height_=(rectangleCell.elementHeight)
     rect.x_=(rectangleCell.x)
     rect.y_=(rectangleCell.y)
     rect
   }
+
+  def apply(top: Boolean, right: Boolean, bottom: Boolean, left: Boolean, elementWidth: Double = 200, elementHeight: Double = 200, x: Double, y: Double) : RectangleCell = new RectangleCellImpl(top, right, bottom, left, elementWidth, elementHeight, x, y)
+  def apply(top: Boolean, right: Boolean, bottom: Boolean, left: Boolean, x: Double, y: Double) : RectangleCell = new RectangleCellImpl(top, right, bottom, left, x = x, y = y)
+
+
+  private class RectangleCellImpl (override val top: Boolean, override val right: Boolean, override val bottom: Boolean, override val left: Boolean, override val elementWidth: Double = 200, override val elementHeight: Double = 200, var x: Double, var y:Double) extends RectangleCell  {
+    var _mapEvent:Option[MapEvent] = Option.empty
+    override def mapEvent:Option[MapEvent] = _mapEvent
+    override def mapEvent_(cellEve: Option[MapEvent]): Unit = _mapEvent = cellEve
+
+    override def x_(newX: Double):Unit = x=newX
+    override def y_(newY: Double):Unit = y=newY
+
+    override def isRectangle(posX: Double, posY: Double): Boolean = this.x <= posX && this.y <= posY && this.x + this.elementWidth > posX && this.y + this.elementHeight > posY
+
+    override def canEqual(other: Any): Boolean = other.isInstanceOf[RectangleCell]
+
+    override def equals(other:Any) :Boolean = other match {
+      case that : RectangleCell => that.canEqual(this) && this.x == that.x && this.y == that.y
+      case _  => false
+    }
+
+    override def hashCode(): Int = {
+      val state = Seq(x,y,elementWidth,elementHeight)
+      state.map(_.hashCode()).foldLeft(0)((a,b)=>31 * a + b)
+    }
+
+    override def toString :String = "Rectangle ("+x + ", " +y+") T: " + top + " R: " + right + " B: " + bottom + " L: " + left + " enemy: " + _mapEvent
+
+    override def image: Image = Cell.createImage(url,rotation)
+
+    val parameters:(String,Int) = UrlFactory.getParameters(top,right,bottom,left)
+    var url:String = parameters._1
+    var rotation:Int = parameters._2
+
+    override def setDamage(): Unit = url = url.substring(0, url.length - 4) + "Dmg.png"
+
+    def isMoveAllowed(movement : Move): Boolean =movement match {
+      case Top => top
+      case Right => right
+      case Bottom => bottom
+      case Left  => left
+      case _  => false
+    }
+
+    if(!top && !right && !bottom && !left) throw new NoMovementException()
+    if(elementWidth == 0 || elementHeight == 0)  throw new IllegalSizeException()
+  }
+
 }

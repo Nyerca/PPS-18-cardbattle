@@ -13,12 +13,10 @@ import scala.collection.mutable.ListBuffer
 
 object MovementAnimation {
 
-  private val anim: TranslateTransition = new TranslateTransition {
+  val anim: TranslateTransition = new TranslateTransition {
     duration = Duration(200.0)
     interpolator = Interpolator.Linear
   }
-
-  def play():Unit = anim.play();
 
   def setAnimationNode (pane : BorderPane): Unit = anim.node = pane.center.apply()
 

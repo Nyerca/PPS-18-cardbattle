@@ -1,26 +1,26 @@
 package view.scenes
 
 import Utility.GUIObjectFactory
-import controller.{Difficulty, GameController, OperationType}
+import controller.{GameController, OperationType}
 import scalafx.Includes._
-import scalafx.scene.control.{Button, ChoiceDialog}
+import scalafx.scene.control.Button
 import scalafx.stage.Stage
+import view.scenes.component.CustomAlert
+
+
 
 class MainScene(override val parentStage: Stage) extends BaseScene {
   private val gameController: GameController = GameController()
 
-  private lazy val setDifficulty: Option[Difficulty] = {
-    new ChoiceDialog(Difficulty.Medium, List(Difficulty.Easy, Difficulty.Medium, Difficulty.Hard)) {
-      title = "Select difficulty"
-      headerText = "Select difficulty"
-    }.showAndWait()
-  }
-
   stylesheets.add("style.css")
 
-  val newGame: Button = GUIObjectFactory.buttonFactory(950, 400, mouseTransparency = false, handle{
-    gameController.difficulty = setDifficulty.getOrElse(Difficulty.Medium)
-    gameController.setUserInformation(OperationType.NewGame, this)
+  val newGame: Button = GUIObjectFactory.buttonFactory(950, 400, mouseTransparency = false, handle {
+    new CustomAlert().showAndWait() match {
+      case (Some(name),Some(diff)) =>
+        gameController.difficulty = diff
+        gameController.setUserInformation(OperationType.NewGame, this, name)
+      case _ => ;
+    }
   }, GUIObjectFactory.DEFAULT_STYLE, "New Game")("mainPageButton")
 
   val loadGame: Button = GUIObjectFactory.buttonFactory(950, 600, mouseTransparency = false, handle {

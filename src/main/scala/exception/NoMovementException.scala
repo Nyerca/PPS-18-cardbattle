@@ -1,3 +1,3 @@
 package exception
 
-class NoMovementException extends Exception{}
+case class NoMovementException() extends Exception{}

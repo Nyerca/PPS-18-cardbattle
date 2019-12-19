@@ -13,15 +13,15 @@ class BattleTest extends FunSpec with Matchers {
   describe("base card") {
     var card = Card("fireBall", "", 1, (Category.Attack, Type.Magic), 2, 1)
     it("should have level 2 when cardMissingForNextLevel = 0") {
-      card = Card ++ card
-      card = Card ++ card
+      card = card.up.up
       assert(card.level == 2)
+      assert(card.value == 4)
     }
   }
 
   describe("base user")  {
-    val baseUser: User = Player.userFactory("user", "", List())
-    val baseEnemy: Enemy = Player.enemyFactory("enemy", "", List(), 1, 5)
+    val baseUser: User = Player("user", "", List()).asInstanceOf[User]
+    val baseEnemy: Enemy = Player("enemy", "", List(), 1, 5).asInstanceOf[Enemy]
     val card = Card("fireBall", "", 1, (Category.Attack, Type.Magic), 2, 1)
 
     it("should initially have empty deck ") {
