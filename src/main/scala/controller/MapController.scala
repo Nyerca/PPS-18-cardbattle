@@ -2,15 +2,17 @@ package controller
 
 import java.io.{FileOutputStream, ObjectOutputStream}
 
+import Utility.TransitionFactory
 import exception.DoubleMovementException
 import javafx.scene.input.MouseEvent
 import model.{Bottom, Cell, Chest, ChestPosition, EmptyPosition, Enemy, EnemyCell, EnemyPosition, Left, MapEvent, MapPosition, PlayerPosition, PlayerRepresentation, Pyramid, PyramidPosition, RectangleCell, Right, Statue, StatuePosition, Top}
 import scalafx.Includes._
 import scalafx.scene.input.KeyCode
-import view.scenes.MapScene
+import view.scenes.{MapScene, RewardScene}
 
 import scala.util.Random
 import model.Placeable._
+import scalafx.util.Duration
 
 
 trait MapController {
@@ -44,9 +46,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
   override def list:List[RectangleCell] = _list
 
   override def removeEnemyCell(): Unit = list.collect { case f if f.mapEvent.isDefined && f == _player.position && f.mapEvent.get.cellEvent.isInstanceOf[Enemy] => f.mapEvent_(Option.empty); postInsert() }
-    //list.filter(f => f.mapEvent.isDefined && f == _player.position && f.mapEvent.get.cellEvent.isInstanceOf[Enemy]).map(m => {m.mapEvent_(Option.empty); postInsert()} )
-  private def removeChestCell(): Unit = list.collect { case f if f.mapEvent.isDefined && f == _player.position && f.mapEvent.get.cellEvent.isInstanceOf[Chest] => f.mapEvent_(Option.empty); postInsert() }
-
+ private def removeChestCell(): Unit = list.collect { case f if f.mapEvent.isDefined && f == _player.position && f.mapEvent.get.cellEvent.isInstanceOf[Chest] => f.mapEvent_(Option.empty); postInsert() }
 
   override def addToList(rect: RectangleCell): Unit = {
     _list = _list :+ rect
@@ -70,8 +70,10 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
   }
 
   override def reset(): Unit = {
-    val newMap =  MapScene(view.parentStage, gameC)
-    gameC.setScene(view, newMap)
+    TransitionFactory.fadeTransitionFactory(Duration(2000), view.root.value, handle {
+      val newMap =  MapScene(view.parentStage, gameC)
+      gameC.setScene(view, newMap)
+    }).play()
   }
 
   private def checkAnimationEnd(url: String):Boolean = {

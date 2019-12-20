@@ -117,7 +117,7 @@ object GameController {
 
     private def checkUserLevelUp: Unit = if(user.experience <= 0) {
       user.experience += 3 * user.level
-      LevelUpAnimation.play(LevelUpAnimation.LEVELUP_PREFIX)
+      PlayerAnimation.play(PlayerAnimation.LEVELUP_PREFIX)
     }
 
     private def getCardLevelAvg: Int = {

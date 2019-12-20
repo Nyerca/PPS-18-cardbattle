@@ -8,7 +8,7 @@ import scalafx.scene.shape.Rectangle
 import scalafx.util.Duration
 import scalafx.Includes._
 
-object LevelUpAnimation {
+object PlayerAnimation {
   val LEVELUP_PREFIX: String = "lev"
   val HEAL_PREFIX: String = "heal"
   private var currentPrefix: String = _
