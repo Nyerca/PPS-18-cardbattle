@@ -81,7 +81,19 @@ object RectangleCell {
   def apply(top: Boolean, right: Boolean, bottom: Boolean, left: Boolean, width:Double, height: Double, x: Double, y: Double, damage: Boolean) : RectangleCell = new RectangleCellImpl(top, right, bottom, left, width, height, x, y, damage)
   def apply(top: Boolean, right: Boolean, bottom: Boolean, left: Boolean, x: Double, y: Double, damage: Boolean = false) : RectangleCell = new RectangleCellImpl(top, right, bottom, left, x = x, y = y, damage = damage)
 
-
+  /**
+    * The class that shows the single cell inside the map, with a background image and a possible event.
+    *
+    * @param top if the top direction is allowed.
+    * @param right if the right direction is allowed.
+    * @param bottom if the bottom direction is allowed.
+    * @param left if the left direction is allowed.
+    * @param elementWidth the cell width.
+    * @param elementWidth the cell height.
+    * @param x the cell x position.
+    * @param y the cell y position.
+    * @param damage if the cell is poisoned
+    */
   private class RectangleCellImpl (override val top: Boolean, override val right: Boolean, override val bottom: Boolean, override val left: Boolean, override val elementWidth: Double = 200, override val elementHeight: Double = 200, var x: Double, var y:Double, override val damage: Boolean = false) extends RectangleCell  {
     var _mapEvent:Option[MapEvent] = Option.empty
     override def mapEvent:Option[MapEvent] = _mapEvent
@@ -113,6 +125,12 @@ object RectangleCell {
     var rotation:Int = parameters._2
     if(damage)url = url.substring(0, url.length - 4) + "Dmg.png"
 
+    /**
+      * Check whether the movement in a specific direction is allowed.
+      *
+      * @param movement to check.
+      * @return whether the movement is allowed.
+      */
     def isMoveAllowed(movement : Move): Boolean =movement match {
       case Top => top
       case Right => right
