@@ -16,6 +16,14 @@ trait Dashboard {
 
 
 object Dashboard {
+
+  /**
+    * The class that keeps track of the cells of the map and the current traslations.
+    *
+    * @param cells
+    * @param traslationX
+    * @param traslationY
+    */
   private class DashboardImpl (var cells: List[RectangleCell], var traslationX: Double = 0.0, var traslationY: Double = 0.0) extends  Dashboard {
 
     override def toString :String = "Translation: ("+ traslationX + ", " +traslationY + ")" + cells

@@ -1,6 +1,6 @@
 package controller
 
-import java.io.{FileOutputStream, ObjectOutputStream}
+import java.io.{File, FileOutputStream, ObjectOutputStream}
 
 import Utility.TransitionFactory
 import exception.DoubleMovementException
@@ -32,10 +32,17 @@ trait MapController {
   def handleSave(): Unit
   def handleKey(keyCode : KeyCode): Unit
   def handleMouseClicked(e:MouseEvent): Unit
-  def reset():Unit
 }
 
-
+/**
+  * The controller class of the MapScene.
+  *
+  * @param gameC the main controller of the game.
+  * @param _list the list of RectangleCell.
+  * @param startingDefined whether the game has been loaded and the player position is different from the starting one.
+  * @param traslationX the traslationX of the map whether the game has been loaded.
+  * @param traslationY the traslationY of the map whether the game has been loaded.
+  */
 class MapControllerImpl (override val gameC : GameController, var _list:List[RectangleCell], var startingDefined : Option[RectangleCell], traslationX:Double, traslationY:Double) extends MapController {
 
   def this(gameC : GameController) {this(gameC,MapController.setup(gameC),Option.empty,0,0)}
@@ -46,7 +53,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
   override def list:List[RectangleCell] = _list
 
   override def removeEnemyCell(): Unit = list.collect { case f if f.mapEvent.isDefined && f == _player.position && f.mapEvent.get.cellEvent.isInstanceOf[Enemy] => f.mapEvent_(Option.empty); postInsert() }
- private def removeChestCell(): Unit = list.collect { case f if f.mapEvent.isDefined && f == _player.position && f.mapEvent.get.cellEvent.isInstanceOf[Chest] => f.mapEvent_(Option.empty); postInsert() }
+  private def removeChestCell(): Unit = list.collect { case f if f.mapEvent.isDefined && f == _player.position && f.mapEvent.get.cellEvent.isInstanceOf[Chest] => f.mapEvent_(Option.empty); postInsert() }
 
   override def addToList(rect: RectangleCell): Unit = {
     _list = _list :+ rect
@@ -69,7 +76,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
     view.setMenu()
   }
 
-  override def reset(): Unit = {
+  private def reset(): Unit = {
     TransitionFactory.fadeTransitionFactory(Duration(2000), view.root.value, handle {
       val newMap =  MapScene(view.parentStage, gameC)
       gameC.setScene(view, newMap)
@@ -109,6 +116,11 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
     view.playerImg_(player)
   }
 
+  /**
+    * Check the keyboard keys pressed and moves, whether possible, the player.
+    *
+    * @param keyCode the keycode pressed
+    */
   override def handleKey(keyCode : KeyCode): Unit = {
     keyCode.getName match {
       case "W" => if(checkAnimationEnd(Top.url())) dashboard -> (Top, player, afterMovement)
@@ -126,8 +138,13 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
     pyramid.mapEvent_(Option(MapEvent(pyramid.mapEvent.get.cellEvent, PlayerRepresentation(pyramid, url))))
   }
 
+  /**
+    * Saves all the informations in a save.txt file.
+    */
   override def handleSave(): Unit = {
     import FileManager._
+    val directory = new File("./src/main/saves/")
+    if(!directory.exists()) directory.mkdir
     output = new ObjectOutputStream(new FileOutputStream("./src/main/saves/save.txt"))
     save(gameC.user)
     save(gameC.difficulty)
@@ -147,6 +164,11 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
     view.setBPane()
   }
 
+  /**
+    * Check the position clicked in the map, and whether an item on the bottom pane has been previusly selected, places that item to the map.
+    *
+    * @param e Position clicked.
+    */
   override def handleMouseClicked(e:MouseEvent): Unit = {
     val cell = dashboard ? (e.x - dashboard.traslationX, e.y - dashboard.traslationY)
     selected match {
@@ -161,6 +183,12 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
 }
 
 object MapController {
+  /**
+    * Creates a randomly generated map.
+    *
+    * @param gameC the main controller of the game
+    * @return the list of RectangleCell created.
+    */
   def setup(gameC: GameController): List[RectangleCell] = {
     var list :List[RectangleCell] = List()
 
