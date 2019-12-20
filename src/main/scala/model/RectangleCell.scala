@@ -1,6 +1,6 @@
 package model
 
-import Utility.UrlFactory
+import utility.UrlFactory
 import exception.{IllegalSizeException, NoMovementException}
 import javafx.scene.paint.ImagePattern
 import model.MapPosition.STARTING_Y

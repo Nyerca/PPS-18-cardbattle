@@ -1,4 +1,4 @@
-package Utility
+package utility
 
 import javafx.event.{ActionEvent, EventHandler}
 import scalafx.scene.Node

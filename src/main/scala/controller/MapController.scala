@@ -1,8 +1,7 @@
 package controller
 
 import java.io.{File, FileOutputStream, ObjectOutputStream}
-
-import Utility.TransitionFactory
+import utility.TransitionFactory
 import exception.DoubleMovementException
 import javafx.scene.input.MouseEvent
 import model.{Bottom, Cell, Chest, ChestPosition, EmptyPosition, Enemy, EnemyCell, EnemyPosition, Left, MapEvent, MapPosition, PlayerPosition, PlayerRepresentation, Pyramid, PyramidPosition, RectangleCell, Right, Statue, StatuePosition, Top}
@@ -10,7 +9,7 @@ import scalafx.Includes._
 import scalafx.scene.input.KeyCode
 import view.scenes.{MapScene, RewardScene}
 
-import scala.util.Random
+import scala.util.{Random, Success, Try}
 import model.Placeable._
 import scalafx.util.Duration
 
@@ -94,8 +93,8 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
   private def afterMovement(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean): Unit ={
     if(isEnded) {
       if(newRectangle.url.contains("Dmg")) {
-        gameC.user.actualHealthPoint = gameC.user.actualHealthPoint - 1
-        view.updateHP()
+        gameC.user = gameC.user - 1
+        gameC.user.addObserver(view)
       }
       resetPlayer(newRectangle, _player.url)
 
@@ -145,18 +144,18 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
     import FileManager._
     val directory = new File("./src/main/saves/")
     if(!directory.exists()) directory.mkdir
-    output = new ObjectOutputStream(new FileOutputStream("./src/main/saves/save.txt"))
-    save(gameC.user)
-    save(gameC.difficulty)
-    save(list.map(el => el))
-    save(player)
-    save(dashboard.traslationX)
-    save(dashboard.traslationY)
+    val output = new ObjectOutputStream(new FileOutputStream("./src/main/saves/save.txt"))
+    save(output)(gameC.user)
+    save(output)(gameC.difficulty)
+    save(output)(list.map(el => el))
+    save(output)(player)
+    save(output)(dashboard.traslationX)
+    save(output)(dashboard.traslationY)
     output.close()
   }
 
   override def postInsert(): Unit = {
-    view.updateParameters()
+    view.updateEnemies()
     if(getAllEnemies > 0) pyramidDoor("pyramid.png")
     else pyramidDoor("pyramidDoor.png")
     view.setPaneChildren(_list)

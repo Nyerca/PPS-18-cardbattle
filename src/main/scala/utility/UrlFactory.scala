@@ -1,4 +1,4 @@
-package Utility
+package utility
 
 object UrlFactory {
   def getParameters(top: Boolean, right: Boolean, bottom: Boolean, left: Boolean): (String, Int) = (top,right,bottom,left) match {

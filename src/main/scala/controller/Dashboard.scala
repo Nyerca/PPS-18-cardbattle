@@ -2,7 +2,6 @@ package controller
 
 import exception.{MissingCellException, NoMovementException}
 import model.{Bottom, Left, Move, PlayerRepresentation, RectangleCell, Right, Top}
-import scala.collection.mutable.ListBuffer
 
 trait Dashboard {
   var cells: List[RectangleCell]

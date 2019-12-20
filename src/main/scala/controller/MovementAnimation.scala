@@ -1,15 +1,11 @@
 package controller
 
 import javafx.animation.Animation.Status
-import javafx.scene.paint.ImagePattern
 import model._
 import scalafx.Includes._
 import scalafx.animation.{Interpolator, TranslateTransition}
-import scalafx.scene.image.Image
 import scalafx.scene.layout.BorderPane
 import scalafx.util.Duration
-
-import scala.collection.mutable.ListBuffer
 
 object MovementAnimation {
 

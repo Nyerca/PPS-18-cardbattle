@@ -1,6 +1,6 @@
 package model
 
-import scalafx.scene.image.{Image, ImageView}
+import scalafx.scene.image.Image
 
 trait EnemyCell extends Cell {
   def enemy: Enemy

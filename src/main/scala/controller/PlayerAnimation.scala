@@ -2,11 +2,11 @@ package controller
 
 import javafx.scene.paint.ImagePattern
 import model.RectangleCell
+import scalafx.Includes._
 import scalafx.animation.{Interpolator, TranslateTransition}
 import scalafx.scene.image.Image
 import scalafx.scene.shape.Rectangle
 import scalafx.util.Duration
-import scalafx.Includes._
 
 object PlayerAnimation {
   val LEVELUP_PREFIX: String = "lev"
