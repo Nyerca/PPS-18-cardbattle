@@ -1,6 +1,6 @@
 package controller
 
-import java.io.{FileOutputStream, ObjectOutputStream}
+import java.io.{File, FileOutputStream, ObjectOutputStream}
 
 import Utility.TransitionFactory
 import exception.DoubleMovementException
@@ -128,6 +128,8 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
 
   override def handleSave(): Unit = {
     import FileManager._
+    val directory = new File("./src/main/saves/")
+    if(!directory.exists()) directory.mkdir
     output = new ObjectOutputStream(new FileOutputStream("./src/main/saves/save.txt"))
     save(gameC.user)
     save(gameC.difficulty)
