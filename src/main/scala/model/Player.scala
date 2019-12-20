@@ -10,7 +10,7 @@ trait Player extends Observable with Serializable {
   def totalHealthPoint: Int
   def coins: Int
   def experience: Int
-  def -(hp: Int): Unit = actualHealthPoint -= hp
+  def -(hp: Int): Unit = {actualHealthPoint -= hp; notifyObserver(this, false)}
 }
 
 class User(override val name: String, override val image: String, var level: Int, var allCards: List[Card], var totalHealthPoint: Int, var actualHealthPoint: Int, var experience: Int, var  coins: Int) extends Player {
@@ -22,17 +22,17 @@ class User(override val name: String, override val image: String, var level: Int
       actualHealthPoint = totalHealthPoint
       experience = 3 * level - (enemy.experience - experience)
       coins += enemy.coins
-      notifyObserver()
+      notifyObserver(this, true)
     } else {
       experience -= enemy.experience
-      notifyObserver()
+      notifyObserver(this, false)
     }
   }
 
   def ++(money: Int): Unit = {
     coins += money
     if(money < 0) actualHealthPoint = totalHealthPoint
-    notifyObserver()
+    notifyObserver(this, false)
   }
 
   def ++(card: Card): Unit =  allCards.find(c => c.name == card.name) match {

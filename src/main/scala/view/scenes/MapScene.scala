@@ -27,13 +27,14 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
   override def update[A](model: A): Unit = model match {
     case (player:Player, levelUp: Boolean) => {
+      println("CALL")
       observableGold.set("Gold: " +player.coins+ "x")
       observableLevel.set("Player level: " + player.level)
 
       val ratio: Double = player.actualHealthPoint.toDouble / player.totalHealthPoint.toDouble
       if(ratio == 0)  gameC.setScene(this,GameOverScene(parentStage, gameC))
       observableHealthPoint._1.set(ratio)
-      observableHealthPoint._2.set("Player: " + player.actualHealthPoint + "hp")
+      observableHealthPoint._2.set(player.name + ":" + player.actualHealthPoint + "hp")
       if(levelUp) PlayerAnimation.play(PlayerAnimation.LEVELUP_PREFIX)
     }
   }
