@@ -1,18 +1,14 @@
 package model
 
 import Utility.UrlFactory
-import com.sun.javafx.scene.shape.PathElementHelper
-import controller.GameController
 import exception.{IllegalSizeException, NoMovementException}
 import javafx.scene.paint.ImagePattern
+import model.MapPosition.STARTING_Y
 import scalafx.Includes._
-import scalafx.scene.SnapshotParameters
 import scalafx.scene.image.{Image, ImageView}
-import scalafx.scene.paint.Color
 import scalafx.scene.shape.Rectangle
 
 import scala.collection.mutable.ListBuffer
-import scala.util.Random
 
 trait RectangleCell extends Serializable with Cell {
   def top: Boolean
@@ -25,8 +21,8 @@ trait RectangleCell extends Serializable with Cell {
   def y: Double
   def x_(newX: Double):Unit
   def y_(newY: Double):Unit
+  def damage: Boolean
 
-  def setDamage():Unit
   def canEqual(other: Any): Boolean
   def url: String
   def rotation: Int
@@ -37,6 +33,8 @@ trait RectangleCell extends Serializable with Cell {
 }
 
 object RectangleCell {
+  val DAMAGE_PROBABILITY = 0.3
+
   implicit def RectangleCell2Rectangle(rect : RectangleCell): Rectangle =
     new Rectangle() {
       width = rect.elementWidth
@@ -67,9 +65,7 @@ object RectangleCell {
       bottom = math.random()>0.5
       left = math.random()>0.5
     }
-    val re = new RectangleCellImpl(top, right, bottom, left, x= 0, y=0)
-    if(math.random() <= 0.4) re.setDamage()
-    re
+    new RectangleCellImpl(top, right, bottom, left, x= 0, y=0, damage = math.random <= DAMAGE_PROBABILITY)
   }
 
 
@@ -82,12 +78,11 @@ object RectangleCell {
     rect.y_=(rectangleCell.y)
     rect
   }
+  def apply(top: Boolean, right: Boolean, bottom: Boolean, left: Boolean, width:Double, height: Double, x: Double, y: Double, damage: Boolean) : RectangleCell = new RectangleCellImpl(top, right, bottom, left, width, height, x, y, damage)
+  def apply(top: Boolean, right: Boolean, bottom: Boolean, left: Boolean, x: Double, y: Double, damage: Boolean = false) : RectangleCell = new RectangleCellImpl(top, right, bottom, left, x = x, y = y, damage = damage)
 
-  def apply(top: Boolean, right: Boolean, bottom: Boolean, left: Boolean, elementWidth: Double = 200, elementHeight: Double = 200, x: Double, y: Double) : RectangleCell = new RectangleCellImpl(top, right, bottom, left, elementWidth, elementHeight, x, y)
-  def apply(top: Boolean, right: Boolean, bottom: Boolean, left: Boolean, x: Double, y: Double) : RectangleCell = new RectangleCellImpl(top, right, bottom, left, x = x, y = y)
 
-
-  private class RectangleCellImpl (override val top: Boolean, override val right: Boolean, override val bottom: Boolean, override val left: Boolean, override val elementWidth: Double = 200, override val elementHeight: Double = 200, var x: Double, var y:Double) extends RectangleCell  {
+  private class RectangleCellImpl (override val top: Boolean, override val right: Boolean, override val bottom: Boolean, override val left: Boolean, override val elementWidth: Double = 200, override val elementHeight: Double = 200, var x: Double, var y:Double, override val damage: Boolean = false) extends RectangleCell  {
     var _mapEvent:Option[MapEvent] = Option.empty
     override def mapEvent:Option[MapEvent] = _mapEvent
     override def mapEvent_(cellEve: Option[MapEvent]): Unit = _mapEvent = cellEve
@@ -116,8 +111,7 @@ object RectangleCell {
     val parameters:(String,Int) = UrlFactory.getParameters(top,right,bottom,left)
     var url:String = parameters._1
     var rotation:Int = parameters._2
-
-    override def setDamage(): Unit = url = url.substring(0, url.length - 4) + "Dmg.png"
+    if(damage)url = url.substring(0, url.length - 4) + "Dmg.png"
 
     def isMoveAllowed(movement : Move): Boolean =movement match {
       case Top => top

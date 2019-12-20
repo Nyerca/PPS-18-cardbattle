@@ -9,7 +9,6 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.paint.ImagePattern
 import model._
 import scalafx.Includes._
-import scalafx.scene.Node
 import scalafx.scene.control._
 import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.input.KeyEvent
@@ -89,7 +88,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
   private val playerPane: Pane = new Pane {
     children.append(mapWindow)
     children.append(playerImg)
-    children.append(LevelUpAnimation.setup(_controller.list.head))
+    children.append(PlayerAnimation.setup(_controller.list.head))
     id = "rootPane"
 
     onKeyPressed = (ke : KeyEvent) =>  {
@@ -147,7 +146,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
           gameC.user.coins= gameC.user.coins - money
           gameC.user.actualHealthPoint = gameC.user.totalHealthPoint
           updateParameters()
-          LevelUpAnimation.play(LevelUpAnimation.HEAL_PREFIX)
+          PlayerAnimation.play(PlayerAnimation.HEAL_PREFIX)
         } else {
           println("You haven't got enough money!")
         }

@@ -28,7 +28,6 @@ object EquipmentScene {
 
     private def createCardPane(card: Card): Pane = new Pane {
       children = new ListBuffer[Node]
-      maxHeight = 800
       val c = new CardComponentImpl(0,0, false,handle{
         println(gameController.user.battleDeck.map(el => el.name))
 
@@ -59,7 +58,7 @@ object EquipmentScene {
       index=index+1
     }
 
-    private val gridPane: GridPane = new GridPane() {id="grid"}
+    private val gridPane: GridPane = new GridPane() {id="grid"; minHeight = 798}
     gameController.user.allCards.foreach(c => addCard(gridPane, c))
 
     private val observableCards = new SimpleStringProperty("CARDS:         " + gameController.user.battleDeck.size+ " /8")
@@ -67,6 +66,7 @@ object EquipmentScene {
 
     private def changeScene(): Unit = gameController.setScene(this)
 
+    /*
     root = new ScrollPane() {
       hbarPolicy = ScrollBarPolicy.Never
       vbarPolicy = ScrollBarPolicy.AsNeeded
@@ -84,7 +84,28 @@ object EquipmentScene {
         )
         center = gridPane
         id = "cardsPane"
+        minHeight = 798
       }
+    }
+    */
+    root = new BorderPane() {
+      top = GUIObjectFactory.toolbarFactory(
+        List(
+          (new Label{text <== observableCards}, false),
+          (new ImageView(new Image("cardSprite.png")), true),
+          (new Button("Back") {onAction = () =>
+            if(gameController.user.battleDeck.size == 8) changeScene()
+            else println("You have to take 8 cards in order to procede.")
+          }, false)
+        )
+      )
+      center = new ScrollPane() {
+        hbarPolicy = ScrollBarPolicy.Never
+        vbarPolicy = ScrollBarPolicy.AsNeeded
+        content = gridPane
+        id = "scrollPane"
+      }
+      id = "cardsPane"
     }
   }
 }
