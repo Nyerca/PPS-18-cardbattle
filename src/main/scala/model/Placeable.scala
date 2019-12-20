@@ -1,7 +1,6 @@
 package model
 import controller.MapController
-import exception.{DoubleCellException, DoubleEnemyException, DoubleMovementException, MissingCellException}
-import scalafx.Includes._
+import exception.{DoubleCellException, DoubleEnemyException, MissingCellException}
 
 trait Placeable[A <: Cell] {
   def place(a: A, cell:Option[RectangleCell],controller:MapController ): Unit

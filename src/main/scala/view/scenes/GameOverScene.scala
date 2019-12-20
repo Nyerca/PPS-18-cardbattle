@@ -1,12 +1,12 @@
 package view.scenes
 
-import Utility.{GUIObjectFactory, TransitionFactory}
+import utility.{GUIObjectFactory, TransitionFactory}
 import controller.GameController
+import scalafx.Includes._
 import scalafx.animation.Transition
 import scalafx.scene.control.Button
 import scalafx.scene.layout.Pane
 import scalafx.stage.Stage
-import scalafx.Includes._
 import scalafx.util.Duration
 
 

@@ -5,6 +5,6 @@ trait PlayerRepresentation extends Serializable {
 }
 
 object PlayerRepresentation {
-  private case class PlayerRepresentationImpl  (var position : RectangleCell, var url :  String) extends PlayerRepresentation
+  private case class PlayerRepresentationImpl(var position : RectangleCell, var url :  String) extends PlayerRepresentation
   def apply(position : RectangleCell, url :  String) : PlayerRepresentation = new PlayerRepresentationImpl(position, url)
 }

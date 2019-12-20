@@ -1,12 +1,11 @@
 package view.scenes
 
-import Utility.GUIObjectFactory
+import utility.GUIObjectFactory
 import controller.{GameController, OperationType}
 import scalafx.Includes._
 import scalafx.scene.control.Button
 import scalafx.stage.Stage
 import view.scenes.component.CustomAlert
-
 
 
 class MainScene(override val parentStage: Stage) extends BaseScene {
@@ -16,7 +15,7 @@ class MainScene(override val parentStage: Stage) extends BaseScene {
 
   val newGame: Button = GUIObjectFactory.buttonFactory(950, 400, mouseTransparency = false, handle {
     new CustomAlert().showAndWait() match {
-      case (Some(name),Some(diff)) =>
+      case (Some(name), Some(diff)) =>
         gameController.difficulty = diff
         gameController.setUserInformation(OperationType.NewGame, this, name)
       case _ => ;
@@ -33,3 +32,5 @@ class MainScene(override val parentStage: Stage) extends BaseScene {
 object MainScene {
   def apply(parentStage: Stage) = new MainScene(parentStage)
 }
+
+

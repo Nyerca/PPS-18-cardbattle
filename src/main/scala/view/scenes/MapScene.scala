@@ -1,6 +1,6 @@
 package view.scenes
 
-import Utility.GUIObjectFactory
+import utility.GUIObjectFactory
 import controller._
 import exception._
 import javafx.beans.property.{SimpleDoubleProperty, SimpleStringProperty}
@@ -9,7 +9,6 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.paint.ImagePattern
 import model._
 import scalafx.Includes._
-import scalafx.scene.Node
 import scalafx.scene.control._
 import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.input.KeyEvent
@@ -23,29 +22,32 @@ import scalafx.application.Platform
 
 
 
-class MapScene (override val parentStage: Stage, var _controller : MapController, var gameC :GameController,traslationX : Double = 0, traslationY: Double = 0) extends BaseScene{
+class MapScene (override val parentStage: Stage, var _controller : MapController, var gameC :GameController,traslationX : Double = 0, traslationY: Double = 0) extends BaseScene with ObserverScene {
   stylesheets.add("mapStyle.css")
+
+  override def update[A](model: A): Unit = model match {
+    case (player:Player, levelUp: Boolean) => {
+      observableGold.set("Gold: " +player.coins+ "x")
+      observableLevel.set("Player level: " + player.level)
+
+      val ratio: Double = player.actualHealthPoint.toDouble / player.totalHealthPoint.toDouble
+      if(ratio == 0)  gameC.setScene(this,GameOverScene(parentStage, gameC))
+      observableHealthPoint._1.set(ratio)
+      observableHealthPoint._2.set("Player: " + player.actualHealthPoint + "hp")
+      if(levelUp) PlayerAnimation.play(PlayerAnimation.LEVELUP_PREFIX)
+    }
+  }
+  def updateEnemies(): Unit = remainingEnemies.set("Enemies: " + _controller.getAllEnemies)
 
   private val field: Pane = new Pane {maxHeight = 800; translateX=traslationX; translateY=traslationY}
 
   private val observableHealthPoint = (new SimpleDoubleProperty(gameC.user.actualHealthPoint.toDouble / gameC.user.totalHealthPoint.toDouble), new SimpleStringProperty(gameC.user.name + ":" + gameC.user.actualHealthPoint + "hp"))
-  private val life: StackPane = new StackPane {
-    children = List(new ProgressBar {
-      progress <== observableHealthPoint._1
-      styleClass.add("life")
-    }, new Label {
-      styleClass.add("title")
-      text <== observableHealthPoint._2
-    })
-  }
 
   private val remainingEnemies = new SimpleStringProperty("Enemies: " + _controller.getAllEnemies)
 
   private val observableGold = new SimpleStringProperty("Gold: " +gameC.user.coins+ "x")
 
   private val observableLevel = new SimpleStringProperty("Player level: " + gameC.user.level)
-
-  var volumeSlider: Slider = createSlider("volumeSlider")
 
   lazy val backToMainMenu: Unit = gameC.setScene(this, MainScene(parentStage))
 
@@ -70,7 +72,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
       (new Label{text <== observableGold}, false),
       (new ImageView(new Image("coin.png")), true),
       (new Label{text <== remainingEnemies}, true),
-      (volumeSlider, false)
+      (createSlider("volumeSlider"), false)
     ))
     minWidth = 1200
   }
@@ -98,7 +100,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
   private val playerPane: Pane = new Pane {
     children.append(mapWindow)
     children.append(playerImg)
-    children.append(LevelUpAnimation.setup(_controller.list.head))
+    children.append(PlayerAnimation.setup(_controller.list.head))
     id = "rootPane"
 
     onKeyPressed = (ke : KeyEvent) =>  {
@@ -128,20 +130,6 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
   def setMenu(): Unit = field.toBack()
 
-  def updateHP(): Unit = {
-    val ratio: Double = gameC.user.actualHealthPoint.toDouble / gameC.user.totalHealthPoint.toDouble
-    if(ratio == 0)  gameC.setScene(this,GameOverScene(parentStage, gameC))
-    observableHealthPoint._1.set(ratio)
-    observableHealthPoint._2.set("Player: " + gameC.user.actualHealthPoint + "hp")
-  }
-
-  def updateParameters(): Unit = {
-    updateHP()
-    remainingEnemies.set("Enemies: " + _controller.getAllEnemies)
-    observableGold.set("Gold: " +gameC.user.coins+ "x")
-    observableLevel.set("Player level: " + gameC.user.level)
-  }
-
   def showStatueAlert(money: Int): Unit = {
     Platform.runLater(() -> {
       val alert = new Alert(AlertType.CONFIRMATION)
@@ -153,10 +141,9 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
       if( res.isDefined && res.get == ButtonType.OK) {
         if(gameC.user.coins >= money) {
-          gameC.user.coins= gameC.user.coins - money
-          gameC.user.actualHealthPoint = gameC.user.totalHealthPoint
-          updateParameters()
-          LevelUpAnimation.play(LevelUpAnimation.HEAL_PREFIX)
+          gameC.user = gameC.user ++ (-money)
+          gameC.user.addObserver(this);
+          PlayerAnimation.play(PlayerAnimation.HEAL_PREFIX)
         } else {
           println("You haven't got enough money!")
         }
@@ -170,8 +157,8 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
       alert.setTitle("Chest")
       alert.setGraphic(new ImageView(new Image("chest.png")))
       alert.setHeaderText("You obtained: " + money + " golds")
-      gameC.user.coins= gameC.user.coins + money
-      updateParameters()
+      gameC.user = gameC.user ++ money
+      gameC.user.addObserver(this);
       alert.showAndWait()
     })
   }

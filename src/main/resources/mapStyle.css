@@ -1,19 +1,16 @@
-#cardsPane {
-    -fx-pref-height:800;
-    -fx-background-image: url("shop.jpg");
-    -fx-background-size: auto, auto;
-}
-
 #scrollPane {
     -fx-pref-width:1200;
     -fx-pref-height:800;
 }
 
 #grid {
-    -fx-padding: 50 40 50 85;
+    -fx-padding: 80 40 50 85;
     -fx-hgap: 110;
     -fx-vgap: 150;
     -fx-pref-width:1200;
+       -fx-background-image: url("shop.jpg");
+               -fx-background-size: auto, auto;
+
 }
 
 .equipSelectedCard {

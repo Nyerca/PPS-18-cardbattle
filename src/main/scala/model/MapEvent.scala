@@ -31,7 +31,7 @@ trait MapEvent extends Serializable {
 
 
 object MapEvent {
-  private final case class MapEventImpl (cellEvent: CellEvent, playerRepresentation: PlayerRepresentation) extends MapEvent
+  private final case class MapEventImpl(cellEvent: CellEvent, playerRepresentation: PlayerRepresentation) extends MapEvent
 
   def apply(cellEvent: CellEvent, playerRepresentation: PlayerRepresentation) : MapEvent = new MapEventImpl(cellEvent, playerRepresentation)
 }

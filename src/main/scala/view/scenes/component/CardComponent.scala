@@ -1,6 +1,6 @@
 package view.scenes.component
 
-import Utility.{GUIObjectFactory, TransitionFactory}
+import utility.{GUIObjectFactory, TransitionFactory}
 import javafx.event.{ActionEvent, EventHandler}
 import model.{Card, Category}
 import scalafx.scene.control.{Button, Label}

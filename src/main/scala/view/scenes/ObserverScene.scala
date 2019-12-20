@@ -1,5 +1,5 @@
 package view.scenes
 
-trait ObservableScene {
+trait ObserverScene {
   def update[A](model: A): Unit
 }

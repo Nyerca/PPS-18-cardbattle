@@ -1,13 +1,13 @@
 package view.scenes.component
 
-import Utility.{GUIObjectFactory, TransitionFactory}
+import utility.{GUIObjectFactory, TransitionFactory}
 import javafx.beans.property.{SimpleDoubleProperty, SimpleStringProperty}
 import javafx.event.{ActionEvent, EventHandler}
 import model.{Category, Player, Type}
+import scalafx.Includes._
 import scalafx.scene.control.{Button, Label, ProgressBar}
 import scalafx.scene.layout.{Pane, StackPane}
 import scalafx.util.Duration
-import scalafx.Includes._
 
 
 trait BattlePlayerRepresentation extends Pane {
@@ -52,18 +52,17 @@ trait BattlePlayerRepresentation extends Pane {
     case Category.Defense => defense(action, family._2)
   }
 
-  def updateHP(): Unit = {
-    val ratio: Double = player.actualHealthPoint.toDouble / player.totalHealthPoint.toDouble
-    if ( ratio != observableHealthPoint._1.value ) {
-      observableHealthPoint._1.set(if ( ratio > 0 ) ratio else 0)
-      observableHealthPoint._2.set(if ( ratio > 0 ) player.name + ": " + player.actualHealthPoint + "hp" else "Player: 0hp")
-      checkDamageResult()
+  def updateHP(hp: Int): Unit = {
+    if ( hp.toDouble / player.totalHealthPoint.toDouble != observableHealthPoint._1.value ) {
+      observableHealthPoint._1.set(if ( hp > 0 ) hp.toDouble / player.totalHealthPoint.toDouble else 0)
+      observableHealthPoint._2.set(if ( hp > 0 ) player.name + ": " + hp + "hp" else "Player: 0hp")
+      checkDamageResult(hp)
     }
   }
 
   children = List(life,playerRepresentation, physicShield, magicShield, magicAttack)
 
-  private def checkDamageResult(): Unit = player.actualHealthPoint match {
+  private def checkDamageResult(hp: Double): Unit = hp match {
     case n if n <= 0 =>
       playerRepresentation.style = "-fx-background-image: url('images/ghost.png'); -fx-pref-width:150; -fx-pref-height:150; -fx-background-size: 150 150;"
       life.opacity = 0

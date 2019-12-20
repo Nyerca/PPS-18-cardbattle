@@ -1,54 +1,52 @@
 package model
 
-trait Player extends Serializable {
+
+trait Player extends Observable with Serializable {
   def name: String
   def level: Int
   def image: String
-  var battleDeck: List[Card]
-  var actualHealthPoint: Int
-  def coins: Int
+  def battleDeck: List[Card]
+  def actualHealthPoint: Int
   def totalHealthPoint: Int
+  def coins: Int
   def experience: Int
+  def -(hp: Int): Player
 }
 
-class User(override val name: String, override val image: String, var allCards: List[Card], var level: Int, var totalHealthPoint: Int, var actualHealthPoint: Int, var experience: Int, var coins: Int) extends Player {
-  var battleDeck: List[Card] = allCards
-  def ++(enemy: Enemy): Option[Int] = {
-    experience -= enemy.experience
-    coins += enemy.coins
-    if (experience <= 0) {
-      level += 1
-      totalHealthPoint += 5
-      actualHealthPoint = totalHealthPoint
-      Some(level)
+case class User(override val name: String, override val image: String, override val level: Int, override val battleDeck: List[Card], override val totalHealthPoint: Int, override val actualHealthPoint: Int, override val experience: Int, override val  coins: Int, allCards: List[Card]) extends Player {
+
+  def ++(enemy: Player): User = {
+    if(experience - enemy.experience <= 0) {
+      notifyObserver(copy(level = level + 1, totalHealthPoint = 5 + totalHealthPoint, actualHealthPoint = 5 + totalHealthPoint, experience = 3 * level - (experience - enemy.experience), coins = coins + enemy.coins), true)
+      copy(level = level + 1, totalHealthPoint = 5 + totalHealthPoint, actualHealthPoint = 5 + totalHealthPoint, experience = 3 * level - (experience - enemy.experience), coins = coins + enemy.coins)
     } else {
-      None
+      notifyObserver(copy(experience = experience - enemy.experience, coins = coins + enemy.coins), false)
+      copy(experience = experience - enemy.experience, coins = coins + enemy.coins)
     }
   }
 
-  def ->(card: Card): Option[Card] = allCards.find(c => c.name == card.name) match {
-    case Some(c) =>
-      val newCard: Card = c.up
-      updateDecks(c, newCard)
-      Some(newCard)
-    case _ =>
-      allCards = card :: allCards
-      None
+  def ++(money: Int): User = if(money > 0) {
+    notifyObserver(copy(coins = coins + money), false)
+    copy(coins = coins + money)
+  } else {
+    notifyObserver(copy(actualHealthPoint = totalHealthPoint, coins = coins + money), false)
+    copy(actualHealthPoint = totalHealthPoint, coins = coins + money)
   }
 
-  private def updateDecks(oldCard: Card, newCard: Card): Unit = {
-    allCards = allCards.filter(c => c != oldCard) :+ newCard
-    battleDeck = allCards.filter(card => battleDeck.map(c => c.name).contains(card.name))
+  def ++(card: Card): User = allCards.find(c => c.name == card.name) match {
+    case Some(_) => copy(allCards = allCards.filter(c => c != card) :+ card.up, battleDeck = if(battleDeck.contains(card)) battleDeck.filter(x => x != card) :+ card.up else battleDeck)
+    case _ => copy(allCards = card :: allCards)
+  }
+
+  def setDeck(deck: List[Card]): User = copy(battleDeck = deck)
+
+  override def -(hp: Int): User = {
+    notifyObserver(copy(actualHealthPoint = actualHealthPoint - hp), false)
+    copy(actualHealthPoint = actualHealthPoint - hp)
   }
 
 }
 
-case class Enemy(override val name: String, override val image: String, var battleDeck: List[Card], override val level: Int, override val totalHealthPoint: Int, var actualHealthPoint: Int, var experience: Int, override val coins: Int) extends Player with CellEvent
-
-object Player {
-  def apply(name: String, image: String, allCards: List[Card], level: Int = 1, healthPoint: Int = 10, missingExperience: Int = 1, coins: Int = 0): Player = coins match {
-    case 0 => new User(name, image, allCards, level, healthPoint, healthPoint, missingExperience, coins)
-    case _ => Enemy(name, image, allCards, level, healthPoint, healthPoint, level, level)
-  }
+case class Enemy(override val name: String, override val image: String, override val level: Int, override val battleDeck: List[Card], override val totalHealthPoint: Int, override val actualHealthPoint: Int, override val experience: Int, override val coins: Int) extends Player with CellEvent {
+  override def -(hp: Int): Enemy = copy(actualHealthPoint = actualHealthPoint - hp)
 }
-

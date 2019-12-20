@@ -1,13 +1,13 @@
 package model
 
 
-import view.scenes.ObservableScene
+import view.scenes.ObserverScene
 
 
 abstract class Observable {
-  private var observers: List[ObservableScene] = List()
+  private var observers: List[ObserverScene] = List()
 
-  def addObserver(observer: ObservableScene): Unit = observers = observer :: observers
+  def addObserver(observer: ObserverScene): Unit = observers = observer :: observers
 
   def notifyObserver[A](model: A): Unit = observers.foreach(ob => ob.update(model))
 }

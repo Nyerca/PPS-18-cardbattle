@@ -2,36 +2,57 @@ package controller
 
 import exception.{MissingCellException, NoMovementException}
 import model.{Bottom, Left, Move, PlayerRepresentation, RectangleCell, Right, Top}
-import scala.collection.mutable.ListBuffer
 
 trait Dashboard {
-  var cells: List[RectangleCell]
   def toString: String
-  def ? (newX : Double, newY : Double): Option[RectangleCell]
-  def ? (newX : Double, newY : Double, movement: Move): Option[RectangleCell]
+  def ? (cells: List[RectangleCell], newX : Double, newY : Double): Option[RectangleCell]
+  def ? (cells: List[RectangleCell], newX : Double, newY : Double, movement: Move): Option[RectangleCell]
   var traslationX: Double
   var traslationY: Double
-  def ->(movement : Move, player: PlayerRepresentation, fun:(RectangleCell, String, Boolean) => Unit): Unit
+  def ->(movement : Move, cells: List[RectangleCell], player: PlayerRepresentation, fun:(RectangleCell, String, Boolean) => Unit): Unit
 }
 
 
 object Dashboard {
-  private class DashboardImpl (var cells: List[RectangleCell], var traslationX: Double = 0.0, var traslationY: Double = 0.0) extends  Dashboard {
+  /**
+    * The class that handle the movement given the cells of the map and the current traslations.
+    *
+    * @param traslationX The current traslationX of the map.
+    * @param traslationY The current traslationY of the map.
+    */
+  private class DashboardImpl (var traslationX: Double = 0.0, var traslationY: Double = 0.0) extends  Dashboard {
 
-    override def toString :String = "Translation: ("+ traslationX + ", " +traslationY + ")" + cells
+    override def toString :String = "Translation: ("+ traslationX + ", " +traslationY + ")"
 
-    override def ? (newX : Double, newY : Double): Option[RectangleCell] = {
+    /**
+      * Check for existing cell in the map given (x, y)
+      *
+      * @param cells the cells of the map
+      * @param newX the x value of the cell to be found.
+      * @param newY the y value of the cell to be found.
+      * @return the Option which describe the RectangleCell whether it's there.
+      */
+    override def ? (cells: List[RectangleCell], newX : Double, newY : Double): Option[RectangleCell] = {
       (for (rectangle <- cells if rectangle.isRectangle(newX, newY)) yield rectangle).headOption
     }
 
-    override def ? (newX : Double, newY : Double, movement: Move): Option[RectangleCell] = {
+    /**
+      * Check for existing cell in the map given (x, y) and the direction of the movement
+      *
+      * @param cells the cells of the map
+      * @param newX the x value of the cell to be found.
+      * @param newY the y value of the cell to be found.
+      * @param movement the direction of tbe movement.
+      * @return the Option which describe the RectangleCell whether it's there.
+      */
+    override def ? (cells: List[RectangleCell], newX : Double, newY : Double, movement: Move): Option[RectangleCell] = {
       (for (rectangle <- cells if  rectangle.isRectangle(newX, newY) && rectangle.isMoveAllowed(movement)) yield rectangle).headOption
     }
 
-    private def move(movement:Move, player: PlayerRepresentation, incX : Double, incY : Double, fun:(RectangleCell, String, Boolean) => Unit): Unit = {
+    private def move(movement:Move, cells: List[RectangleCell], player: PlayerRepresentation, incX : Double, incY : Double, fun:(RectangleCell, String, Boolean) => Unit): Unit = {
       MovementAnimation.setAnimation(traslationX, traslationX + incX.toInt * (-5), traslationY, traslationY + incY.toInt * (-5))
 
-      val newRectangle = ? (player.position.x + incX.toInt * (-5), player.position.y + incY.toInt * (-5), movement.opposite)
+      val newRectangle = ? (cells, player.position.x + incX.toInt * (-5), player.position.y + incY.toInt * (-5), movement.opposite)
 
       if(player.position.isMoveAllowed(movement)) {
         if(newRectangle.isDefined) {
@@ -43,16 +64,24 @@ object Dashboard {
       } else throw new NoMovementException
     }
 
-    override def ->(movement : Move, player: PlayerRepresentation, fun:(RectangleCell, String, Boolean) => Unit): Unit = movement match {
-      case Top  => move(movement, player, 0,+40, fun)
-      case Right => move(movement, player, -40,0, fun)
-      case Bottom => move(movement, player, 0,-40, fun)
-      case Left => move(movement, player, +40,0, fun)
+    /**
+      * Handle the movement in a specific direction.
+      *
+      * @param movement the direction of the movement.
+      * @param cells the cells of the map
+      * @param player the player that is moving.
+      * @param fun the function to call at the end of the movement.
+      */
+    override def ->(movement : Move, cells: List[RectangleCell], player: PlayerRepresentation, fun:(RectangleCell, String, Boolean) => Unit): Unit = movement match {
+      case Top  => move(movement, cells, player, 0,+40, fun)
+      case Right => move(movement, cells, player, -40,0, fun)
+      case Bottom => move(movement, cells, player, 0,-40, fun)
+      case Left => move(movement, cells, player, +40,0, fun)
     }
   }
 
-  def apply(cells: List[RectangleCell]): Dashboard = new DashboardImpl(cells)
-  def apply(cells: List[RectangleCell], traslationX: Double, traslationY: Double): Dashboard = new DashboardImpl(cells, traslationX, traslationY)
+  def apply(): Dashboard = new DashboardImpl()
+  def apply(traslationX: Double, traslationY: Double): Dashboard = new DashboardImpl(traslationX, traslationY)
 }
 
 
