@@ -52,9 +52,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
   override def removeEnemyCell(): Unit = list.collect { case f if f.mapEvent.isDefined && f == _player.position && f.mapEvent.get.cellEvent.isInstanceOf[Enemy] => f.mapEvent_(Option.empty); postInsert() }
   private def removeChestCell(): Unit = list.collect { case f if f.mapEvent.isDefined && f == _player.position && f.mapEvent.get.cellEvent.isInstanceOf[Chest] => f.mapEvent_(Option.empty); postInsert() }
 
-  override def addToList(rect: RectangleCell): Unit = {
-    _list = _list :+ rect
-  }
+  override def addToList(rect: RectangleCell): Unit =  _list = _list :+ rect
 
   var dashboard = Dashboard(traslationX, traslationY)
 
