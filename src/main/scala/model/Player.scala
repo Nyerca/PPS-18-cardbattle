@@ -2,51 +2,51 @@ package model
 
 
 trait Player extends Observable with Serializable {
+  var actualHealthPoint: Int
   def name: String
   def level: Int
   def image: String
   def battleDeck: List[Card]
-  def actualHealthPoint: Int
   def totalHealthPoint: Int
   def coins: Int
   def experience: Int
-  def -(hp: Int): Player
+  def -(hp: Int): Unit = actualHealthPoint -= hp
 }
 
-case class User(override val name: String, override val image: String, override val level: Int, override val battleDeck: List[Card], override val totalHealthPoint: Int, override val actualHealthPoint: Int, override val experience: Int, override val  coins: Int, allCards: List[Card]) extends Player {
-
-  def ++(enemy: Player): User = {
-    if(experience - enemy.experience <= 0) {
-      notifyObserver(copy(level = level + 1, totalHealthPoint = 5 + totalHealthPoint, actualHealthPoint = 5 + totalHealthPoint, experience = 3 * level - (experience - enemy.experience), coins = coins + enemy.coins), true)
-      copy(level = level + 1, totalHealthPoint = 5 + totalHealthPoint, actualHealthPoint = 5 + totalHealthPoint, experience = 3 * level - (experience - enemy.experience), coins = coins + enemy.coins)
+class User(override val name: String, override val image: String, var level: Int, var allCards: List[Card], var totalHealthPoint: Int, var actualHealthPoint: Int, var experience: Int, var  coins: Int) extends Player {
+  var battleDeck: List[Card] = allCards
+  def ++(enemy: Player): Unit = {
+    if ( experience - enemy.experience <= 0 ) {
+      level += 1
+      totalHealthPoint += 5
+      actualHealthPoint = totalHealthPoint
+      experience = 3 * level - (enemy.experience - experience)
+      coins += enemy.coins
+      notifyObserver()
     } else {
-      notifyObserver(copy(experience = experience - enemy.experience, coins = coins + enemy.coins), false)
-      copy(experience = experience - enemy.experience, coins = coins + enemy.coins)
+      experience -= enemy.experience
+      notifyObserver()
     }
   }
 
-  def ++(money: Int): User = if(money > 0) {
-    notifyObserver(copy(coins = coins + money), false)
-    copy(coins = coins + money)
-  } else {
-    notifyObserver(copy(actualHealthPoint = totalHealthPoint, coins = coins + money), false)
-    copy(actualHealthPoint = totalHealthPoint, coins = coins + money)
+  def ++(money: Int): Unit = {
+    coins += money
+    if(money < 0) actualHealthPoint = totalHealthPoint
+    notifyObserver()
   }
 
-  def ++(card: Card): User = allCards.find(c => c.name == card.name) match {
-    case Some(_) => copy(allCards = allCards.filter(c => c != card) :+ card.up, battleDeck = if(battleDeck.contains(card)) battleDeck.filter(x => x != card) :+ card.up else battleDeck)
-    case _ => copy(allCards = card :: allCards)
-  }
-
-  def setDeck(deck: List[Card]): User = copy(battleDeck = deck)
-
-  override def -(hp: Int): User = {
-    notifyObserver(copy(actualHealthPoint = actualHealthPoint - hp), false)
-    copy(actualHealthPoint = actualHealthPoint - hp)
+  def ++(card: Card): Unit =  allCards.find(c => c.name == card.name) match {
+    case Some(_) =>
+      allCards = card.up :: allCards.filter(c => c != card)
+      battleDeck = allCards.filter(c => battleDeck.contains(c))
+    case _ => allCards = card :: allCards
   }
 
 }
 
-case class Enemy(override val name: String, override val image: String, override val level: Int, override val battleDeck: List[Card], override val totalHealthPoint: Int, override val actualHealthPoint: Int, override val experience: Int, override val coins: Int) extends Player with CellEvent {
-  override def -(hp: Int): Enemy = copy(actualHealthPoint = actualHealthPoint - hp)
+class Enemy(override val name: String, override val image: String, override val level: Int, override val battleDeck: List[Card], override val totalHealthPoint: Int,  var actualHealthPoint: Int, override val experience: Int, override val coins: Int) extends Player with CellEvent
+
+object Player {
+  def Enemy(name: String, image: String, level: Int, battleDeck: List[Card], totalHealthPoint: Int, actualHealthPoint: Int, exp: Int, coins: Int): Enemy = new Enemy(name, image, level , battleDeck, totalHealthPoint, actualHealthPoint, exp, coins)
+  def User(name: String, image: String, level: Int, allCards: List[Card], totalHealthPoint: Int, actualHealthPoint: Int, exp: Int, coins: Int): User  = new User(name, image, level , allCards, totalHealthPoint, actualHealthPoint, exp, coins)
 }
