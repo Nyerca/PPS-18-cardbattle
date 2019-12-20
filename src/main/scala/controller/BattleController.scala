@@ -24,7 +24,7 @@ object BattleController {
     override def fight(userCard: Card, enemyCard: Card): Unit = game.fight(userCard, enemyCard)
 
     override def checkWinner(): Unit = game.checkWinner() match {
-      case (Some(user), Some(enemy)) => gameController.user = user.asInstanceOf[User] ++ enemy
+      case (Some(user), Some(enemy)) => user.asInstanceOf[User] ++ enemy
       case _ => ;
     }
   }

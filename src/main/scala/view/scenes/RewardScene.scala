@@ -26,7 +26,7 @@ object RewardScene {
     ) yield CardComponent(marginX = 115 + (n * 385), marginY = 300, mouseTransparency = false, action = handle {
       rewards(n).fadeOutAll()
       rewards.foreach(cc => cc.clickableCard.mouseTransparent = true)
-      gameController.user = gameController.user ++ rewards(n).card
+      gameController.user ++ rewards(n).card
       GUIObjectFactory.alertFactory(AlertType.Information, parentStage, "Card gained","Congratulations, you gained a card").showAndWait()
       gameController.setScene(this)
     })

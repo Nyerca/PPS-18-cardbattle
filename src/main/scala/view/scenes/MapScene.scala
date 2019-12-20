@@ -141,8 +141,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
       if( res.isDefined && res.get == ButtonType.OK) {
         if(gameC.user.coins >= money) {
-          gameC.user = gameC.user ++ (-money)
-          gameC.user.addObserver(this);
+          gameC.user ++ (-money)
           PlayerAnimation.play(PlayerAnimation.HEAL_PREFIX)
         } else {
           println("You haven't got enough money!")
@@ -157,8 +156,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
       alert.setTitle("Chest")
       alert.setGraphic(new ImageView(new Image("chest.png")))
       alert.setHeaderText("You obtained: " + money + " golds")
-      gameC.user = gameC.user ++ money
-      gameC.user.addObserver(this);
+      gameC.user ++ money
       alert.showAndWait()
     })
   }

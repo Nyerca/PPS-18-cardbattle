@@ -95,8 +95,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
   private def afterMovement(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean): Unit ={
     if(isEnded) {
       if(newRectangle.url.contains("Dmg")) {
-        gameC.user = gameC.user - 1
-        gameC.user.addObserver(view)
+        gameC.user - 1
       }
       resetPlayer(newRectangle, _player.url)
 
