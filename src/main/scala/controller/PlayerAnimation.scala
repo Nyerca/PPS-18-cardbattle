@@ -31,6 +31,11 @@ object PlayerAnimation {
     node = animationImg
   }
 
+  /**
+    * Plays the animation after setting the pattern of images
+    *
+    * @param prefix prefix of the animation to play.
+    */
   def play(prefix: String): Unit = {
     currentPrefix = prefix
     animationImg.fill_=(new ImagePattern(new Image(currentPrefix + "_1.png")))

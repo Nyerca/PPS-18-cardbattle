@@ -67,28 +67,6 @@ object EquipmentScene {
 
     private def changeScene(): Unit = gameController.setScene(this)
 
-    /*
-    root = new ScrollPane() {
-      hbarPolicy = ScrollBarPolicy.Never
-      vbarPolicy = ScrollBarPolicy.AsNeeded
-      id= "scrollPane"
-      content = new BorderPane() {
-        top = GUIObjectFactory.toolbarFactory(
-          List(
-            (new Label{text <== observableCards}, false),
-            (new ImageView(new Image("cardSprite.png")), true),
-            (new Button("Back") {onAction = () =>
-              if(gameController.user.battleDeck.size == 8) changeScene()
-              else println("You have to take 8 cards in order to procede.")
-            }, false)
-          )
-        )
-        center = gridPane
-        id = "cardsPane"
-        minHeight = 798
-      }
-    }
-    */
     root = new BorderPane() {
       top = GUIObjectFactory.toolbarFactory(
         List(

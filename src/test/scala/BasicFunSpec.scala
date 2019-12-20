@@ -71,9 +71,9 @@ class BasicFunSpec extends FunSpec with Matchers  {
         list = list :+ re
         list = list :+ re2
         val p = PlayerRepresentation(re, "bot.png")
-        val dash = Dashboard(list)
+        val dash = Dashboard()
         println(p.position)
-        dash.->(Right, p,(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean)=>{})
+        dash.->(Right, list, p,(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean)=>{})
       }
     }
 
@@ -87,9 +87,9 @@ class BasicFunSpec extends FunSpec with Matchers  {
         list = list :+ re
         list = list :+ re2
         val p = PlayerRepresentation(re, "bot.png")
-        val dash = Dashboard(list)
+        val dash = Dashboard()
         println(p.position)
-        dash.->(Right, p,(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean)=>{})
+        dash.->(Right, list, p,(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean)=>{})
       }
     }
 

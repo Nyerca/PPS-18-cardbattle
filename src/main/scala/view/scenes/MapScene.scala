@@ -37,31 +37,17 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
       if(levelUp) PlayerAnimation.play(PlayerAnimation.LEVELUP_PREFIX)
     }
   }
+  def updateEnemies(): Unit = remainingEnemies.set("Enemies: " + _controller.getAllEnemies)
 
   private val field: Pane = new Pane {maxHeight = 800; translateX=traslationX; translateY=traslationY}
 
   private val observableHealthPoint = (new SimpleDoubleProperty(gameC.user.actualHealthPoint.toDouble / gameC.user.totalHealthPoint.toDouble), new SimpleStringProperty(gameC.user.name + ":" + gameC.user.actualHealthPoint + "hp"))
-  private val life: StackPane = new StackPane {
-    children = List(new ProgressBar {
-      progress <== observableHealthPoint._1
-      styleClass.add("life")
-    }, new Label {
-      styleClass.add("title")
-      text <== observableHealthPoint._2
-    })
-  }
-
-  def updateEnemies(): Unit = {
-    remainingEnemies.set("Enemies: " + _controller.getAllEnemies)
-  }
 
   private val remainingEnemies = new SimpleStringProperty("Enemies: " + _controller.getAllEnemies)
 
   private val observableGold = new SimpleStringProperty("Gold: " +gameC.user.coins+ "x")
 
   private val observableLevel = new SimpleStringProperty("Player level: " + gameC.user.level)
-
-  var volumeSlider: Slider = createSlider("volumeSlider")
 
   lazy val backToMainMenu: Unit = gameC.setScene(this, MainScene(parentStage))
 
@@ -86,7 +72,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
       (new Label{text <== observableGold}, false),
       (new ImageView(new Image("coin.png")), true),
       (new Label{text <== remainingEnemies}, true),
-      (volumeSlider, false)
+      (createSlider("volumeSlider"), false)
     ))
     minWidth = 1200
   }

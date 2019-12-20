@@ -25,9 +25,7 @@ trait MapController {
   def postInsert(): Unit
   def list:List[RectangleCell]
   def addToList(rect: RectangleCell): Unit
-
   def getAllEnemies: Int
-
   def handleSave(): Unit
   def handleKey(keyCode : KeyCode): Unit
   def handleMouseClicked(e:MouseEvent): Unit
@@ -56,14 +54,13 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
 
   override def addToList(rect: RectangleCell): Unit = {
     _list = _list :+ rect
-    dashboard.cells = _list
   }
 
-  var dashboard = Dashboard(_list, traslationX, traslationY)
+  var dashboard = Dashboard(traslationX, traslationY)
 
   var _player : PlayerRepresentation = _
   startingDefined match {
-    case Some(rect: RectangleCell) => _player = PlayerRepresentation((dashboard ? (rect.x, rect.y)).get, "/player/bot.png")
+    case Some(rect: RectangleCell) => _player = PlayerRepresentation((dashboard ? (list, rect.x, rect.y)).get, "/player/bot.png")
     case _ => _player = PlayerRepresentation(list.head, "/player/bot.png")
   }
   override def player: PlayerRepresentation = _player
@@ -90,6 +87,13 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
     else throw new DoubleMovementException
   }
 
+  /**
+    * Check for cell type and event after the movement.
+    *
+    * @param newRectangle the new cell reached after the movement.
+    * @param stringUrl the new url reached.
+    * @param isEnded whether the animation is ended.
+    */
   private def afterMovement(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean): Unit ={
     if(isEnded) {
       if(newRectangle.url.contains("Dmg")) {
@@ -101,10 +105,10 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
       val event = player.position.mapEvent
       if(event.isDefined) {
         event.get.cellEvent match {
-          case enemy:Enemy => view.changeScene(gameC.user, player.position.mapEvent.get.cellEvent.asInstanceOf[Enemy])
-          case statue:Statue => view.showStatueAlert(player.position.mapEvent.get.cellEvent.asInstanceOf[Statue].moneyRequired)
+          case enemy:Enemy => view.changeScene(gameC.user, enemy)
+          case statue:Statue => view.showStatueAlert(statue.moneyRequired)
           case pyramid: Pyramid => if(player.position.mapEvent.get.playerRepresentation.url.contains("Door")) reset()
-          case chest: Chest => {view.showChestAlert(player.position.mapEvent.get.cellEvent.asInstanceOf[Chest].money); removeChestCell}
+          case chest: Chest => {view.showChestAlert(chest.money); removeChestCell}
         }
       }
     } else resetPlayer(_player.position, stringUrl)
@@ -122,10 +126,10 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
     */
   override def handleKey(keyCode : KeyCode): Unit = {
     keyCode.getName match {
-      case "W" => if(checkAnimationEnd(Top.url())) dashboard -> (Top, player, afterMovement)
-      case "A" => if(checkAnimationEnd(Left.url())) dashboard -> (Left, player, afterMovement)
-      case "S" => if(checkAnimationEnd(Bottom.url())) dashboard -> (Bottom, player, afterMovement)
-      case "D" => if(checkAnimationEnd(Right.url())) dashboard -> (Right, player, afterMovement)
+      case "W" => if(checkAnimationEnd(Top.url())) dashboard -> (Top, list, player, afterMovement)
+      case "A" => if(checkAnimationEnd(Left.url())) dashboard -> (Left, list, player, afterMovement)
+      case "S" => if(checkAnimationEnd(Bottom.url())) dashboard -> (Bottom, list, player, afterMovement)
+      case "D" => if(checkAnimationEnd(Right.url())) dashboard -> (Right, list, player, afterMovement)
       case _ =>
     }
   }
@@ -169,7 +173,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
     * @param e Position clicked.
     */
   override def handleMouseClicked(e:MouseEvent): Unit = {
-    val cell = dashboard ? (e.x - dashboard.traslationX, e.y - dashboard.traslationY)
+    val cell = dashboard ? (list, e.x - dashboard.traslationX, e.y - dashboard.traslationY)
     selected match {
       case Some(rc:RectangleCell) =>
         rc.x_(e.x - dashboard.traslationX - e.x % 200)
