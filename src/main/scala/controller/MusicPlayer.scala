@@ -18,7 +18,7 @@ object MusicPlayer {
 
   private var mediaPlayer: Option[MediaPlayer] = None
 
-  var observableVolume = new SimpleDoubleProperty(0.3)
+  val observableVolume = new SimpleDoubleProperty(0.3)
 
   observableVolume.addListener(_ => mediaPlayer.get.volume = observableVolume.get)
 
@@ -48,6 +48,7 @@ object MusicPlayer {
   private def setStatus(mediaPlayer: MediaPlayer, status: Status): Unit = status match {
     case Status.Paused => mediaPlayer.pause()
     case Status.Ready => mediaPlayer.play()
+    case _ => ;
   }
 
 }

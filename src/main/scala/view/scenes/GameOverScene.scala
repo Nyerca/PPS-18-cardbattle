@@ -1,7 +1,7 @@
 package view.scenes
 
 import utility.{GUIObjectFactory, TransitionFactory}
-import controller.GameController
+import controller.{GameController, MusicPlayer, SoundType}
 import scalafx.Includes._
 import scalafx.animation.Transition
 import scalafx.scene.control.Button
@@ -15,6 +15,8 @@ trait GameOverScene extends BaseScene
 object GameOverScene {
 
   private class GameOver(override val parentStage: Stage, val gameController: GameController) extends GameOverScene {
+
+    MusicPlayer.play(SoundType.LoseSound)
 
     stylesheets.add("style.css")
 

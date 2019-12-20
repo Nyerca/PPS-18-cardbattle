@@ -2,6 +2,7 @@ package model
 
 
 trait Player extends Observable with Serializable {
+
   var actualHealthPoint: Int
   def name: String
   def level: Int
@@ -11,6 +12,7 @@ trait Player extends Observable with Serializable {
   def coins: Int
   def experience: Int
   def -(hp: Int): Unit = actualHealthPoint -= hp
+
 }
 
 class User(override val name: String, override val image: String, var level: Int, var allCards: List[Card], var totalHealthPoint: Int, var actualHealthPoint: Int, var experience: Int, var  coins: Int) extends Player {

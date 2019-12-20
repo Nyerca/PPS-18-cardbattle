@@ -22,7 +22,7 @@ object Battle {
     override def fight(userCard: Card, enemyCard: Card): Unit = {
       (userCard.family._1, enemyCard.family._1) match {
         case (Category.Attack, Category.Attack) =>
-         user  - enemyCard.value
+          user  - enemyCard.value
           enemy - userCard.value
         case (Category.Defense, Category.Defense) => ;
         case (Category.Attack, Category.Defense) => calculateDamage(userCard, enemyCard, enemy)

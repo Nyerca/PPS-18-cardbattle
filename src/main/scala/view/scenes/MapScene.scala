@@ -23,6 +23,9 @@ import scalafx.application.Platform
 
 
 class MapScene (override val parentStage: Stage, var _controller : MapController, var gameC :GameController,traslationX : Double = 0, traslationY: Double = 0) extends BaseScene with ObserverScene {
+
+  MusicPlayer.play(SoundType.MapSound)
+
   stylesheets.add("mapStyle.css")
 
   override def update[A](model: A): Unit = model match {

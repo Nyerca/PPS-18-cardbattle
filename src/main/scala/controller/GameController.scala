@@ -7,7 +7,6 @@ import utility.GameObjectFactory.createCards
 import utility.{GUIObjectFactory, GameObjectFactory}
 import model._
 import scalafx.scene.control.Alert.AlertType
-import scalafx.scene.media.MediaPlayer.Status
 import view.scenes._
 import scala.language.postfixOps
 import scala.util.{Failure, Random, Success, Try}
@@ -38,19 +37,12 @@ object Difficulty {
 }
 
 trait GameController {
-
-  def gameMap: MapScene
-
+  var difficulty: Difficulty
   var user: User
-
+  def gameMap: MapScene
   def allCards: List[Card] = GameObjectFactory.createCards(1)
-
-  var difficulty: Difficulty = _
-
   def setScene(fromScene: BaseScene, toScene: BaseScene = gameMap): Unit
-
   def setUserInformation(operationType: OperationType, fromScene: BaseScene, name: String = ""): Unit
-
   def spawnEnemy(randomIndex: Int): Enemy
 }
 
@@ -64,18 +56,15 @@ object GameController {
 
     var gameMap: MapScene = _
 
+    var difficulty: Difficulty = _
+
     override def setScene(fromScene: BaseScene, toScene: BaseScene): Unit = {
       (fromScene, toScene) match {
-        case (_: MainScene, _: MapScene) => MusicPlayer.play(SoundType.MapSound)
-        case (_: MapScene, _: BattleScene) => MusicPlayer.play(SoundType.BattleSound)
-        case (_: BattleScene, _: GameOverScene) => MusicPlayer.play(SoundType.LoseSound)
-        case (_: BattleScene, _: RewardScene) => MusicPlayer.play(SoundType.WinningSound)
         case (_: RewardScene, _: MapScene) =>
           MusicPlayer.play(SoundType.MapSound)
           gameMap.removeEnemyCell()
-        case (_, _: MainScene) => MusicPlayer.changeStatus(Status.Paused)
         case (_: MapScene, newMap: MapScene) =>
-          MusicPlayer.play(SoundType.MapSound)
+          user.removeObserver(gameMap)
           gameMap = newMap
           user.addObserver(gameMap)
         case _ => ;
@@ -125,5 +114,6 @@ object GameController {
       }
     }
   }
+
   def apply(): GameController = new GameControllerImpl()
 }

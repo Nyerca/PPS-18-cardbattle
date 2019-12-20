@@ -9,6 +9,7 @@ class CustomAlert extends Dialog[(Option[String], Option[Difficulty])] {
   title = "Setting"
   val name: TextField = new TextField() {
     style = "-fx-pref-width:150px"
+    text = "Player1"
     translateY = 25
     translateX = 110
   }
@@ -17,6 +18,7 @@ class CustomAlert extends Dialog[(Option[String], Option[Difficulty])] {
     translateX = 10
   }
   val difficulty: ComboBox[Difficulty] = new ComboBox[Difficulty](List(Difficulty.Easy, Difficulty.Medium, Difficulty.Hard)) {
+    value = Difficulty.Medium
     translateY = 70
     translateX = 110
     style = "-fx-pref-width:150px"
@@ -33,7 +35,7 @@ class CustomAlert extends Dialog[(Option[String], Option[Difficulty])] {
     style = "-fx-pref-width:300px; -fx-pref-height:200px"
     buttonTypes = List(ButtonType.OK)
     resultConverter = {
-      case ButtonType.OK => (if ( name.text.value == "" ) None else Some(name.text.value), if ( difficulty.value.value == null ) None else Some(difficulty.value.value))
+      case ButtonType.OK => (if ( name.text.value == "" ) None else Some(name.text.value), Option(difficulty.value.value))
       case _ => (None,None)
     }
     content = new Pane() {

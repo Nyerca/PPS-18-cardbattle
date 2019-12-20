@@ -1,7 +1,7 @@
 package view.scenes
 
 import utility.{GUIObjectFactory, TransitionFactory}
-import controller.{BattleController, GameController}
+import controller.{BattleController, GameController, MusicPlayer, SoundType}
 import model._
 import scalafx.Includes._
 import scalafx.scene.control.Button
@@ -9,37 +9,33 @@ import scalafx.scene.layout.Pane
 import scalafx.stage.Stage
 import scalafx.util.Duration
 import view.scenes.component.{BattleEnemyRepresentation, BattlePlayerRepresentation, BattleUserRepresentation, CardComponent}
+
 import scala.language.postfixOps
 import scala.util.{Success, Try}
 
 trait BattleScene extends BaseScene with ObserverScene {
 
   def userDeck: Button
-
   def cpuDeck: Button
-
   def cpuCardIndicator: Button
-
   def cpuHandCard: CardComponent
-
   def userCardIndicators: List[Button]
-
   def userHandCard: List[CardComponent]
-
   def userRepresentation: BattlePlayerRepresentation
-
   def enemyRepresentation: BattlePlayerRepresentation
-
   def battleField: Pane
+
 }
 
 object BattleScene {
 
   private class BattleSceneImpl(override val parentStage: Stage, enemy: Enemy, gameController: GameController) extends BattleScene {
 
+    MusicPlayer.play(SoundType.BattleSound)
+
     stylesheets.add("style.css")
 
-    private val battleController: BattleController = BattleController(this, Battle(gameController.user, enemy), gameController)
+    private val battleController: BattleController = BattleController(this, Battle(gameController.user, enemy))
 
     override val userDeck: Button = GUIObjectFactory.buttonFactory(35, 50, mouseTransparency = false, handle(battleController.drawCard(gameController.user)))("card", "deck")
 
@@ -100,7 +96,7 @@ object BattleScene {
 
     private def checkWinner(player: Option[Player]): Unit = Try(player.get) match {
       case Success(value) => value match {
-        case _: User => TransitionFactory.fadeTransitionFactory(Duration(2000), root.value, handle(gameController.setScene(this, RewardScene(parentStage, gameController, enemy)))).play()
+        case _: User => TransitionFactory.fadeTransitionFactory(Duration(2000), root.value, handle(gameController.setScene(this, RewardScene(parentStage, gameController)))).play()
         case _ => TransitionFactory.fadeTransitionFactory(Duration(2000), root.value, handle(gameController.setScene(this, GameOverScene(parentStage, gameController)))).play()
       }
       case _ =>
