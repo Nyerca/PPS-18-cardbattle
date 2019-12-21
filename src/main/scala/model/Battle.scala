@@ -13,6 +13,8 @@ trait Battle extends Observable {
 
 }
 
+case class LevelUp()
+
 object Battle {
 
   private class BattleImpl(var user: Player, var enemy: Player) extends Battle {
@@ -34,14 +36,15 @@ object Battle {
 
     override def checkWinner(): (Option[Player], Option[Player]) = {
       if(user.actualHealthPoint > 0 && enemy.actualHealthPoint <= 0) {
-        notifyObserver(Some(user))
+        if(user.experience <= enemy.experience) notifyObserver(Some(user), Some(LevelUp))
+        else notifyObserver(Some(user), None)
         (Some(user), Some(enemy))
       } else if(user.actualHealthPoint <= 0) {
-        notifyObserver(Some(enemy))
+        notifyObserver(Some(enemy), None)
         (None,None)
       }
       else {
-        notifyObserver(None)
+        notifyObserver(None, None)
         (None,None)
       }
     }

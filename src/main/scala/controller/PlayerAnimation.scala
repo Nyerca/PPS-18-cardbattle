@@ -37,6 +37,7 @@ object PlayerAnimation {
     * @param prefix prefix of the animation to play.
     */
   def play(prefix: String): Unit = {
+    println("LEVEL UP ANIMATION")
     currentPrefix = prefix
     animationImg.fill_=(new ImagePattern(new Image(currentPrefix + "_1.png")))
     anim.setOnFinished(_ =>  {
