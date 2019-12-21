@@ -4,12 +4,11 @@ import java.io.{File, FileOutputStream, ObjectOutputStream}
 import utility.TransitionFactory
 import exception.DoubleMovementException
 import javafx.scene.input.MouseEvent
-import model.{Bottom, Cell, Chest, ChestPosition, EmptyPosition, Enemy, EnemyCell, EnemyPosition, Left, MapEvent, MapPosition, PlayerPosition, PlayerRepresentation, Pyramid, PyramidPosition, RectangleCell, Right, Statue, StatuePosition, Top}
+import model.{Bottom, Cell, ChestPosition, EmptyPosition, EnemyCell, EnemyPosition, Left, MapPosition, PlayerPosition, PyramidPosition, RectangleCell, Right, StatuePosition, Top}
 import scalafx.Includes._
 import scalafx.scene.input.KeyCode
-import view.scenes.{MapScene, RewardScene}
-
-import scala.util.{Random, Success, Try}
+import view.scenes.MapScene
+import scala.util.Random
 import model.Placeable._
 import scalafx.util.Duration
 
@@ -18,7 +17,7 @@ trait MapController {
   def gameC: GameController
   def selected(element: Option[Cell]):Unit
   def view_ (newView : MapScene): Unit
-  def getAllEnemies(): Int
+  def getAllEnemies: Int
   def reset(): Unit
   def handleSave(): Unit
   def handleKey(keyCode : KeyCode): Unit
@@ -39,8 +38,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
 
   def this(gameC : GameController) {this(gameC,MapController.setup(gameC),Option.empty,0,0)}
 
-  val dashboard = model.Dashboard(_list, startingDefined, traslationX:Double, traslationY:Double, gameC.user)
-
+  val dashboard = model.Dashboard(_list, startingDefined, traslationX, traslationY, gameC.user)
 
   var view: MapScene = _
   override def view_ (newView : MapScene): Unit = {
@@ -65,8 +63,8 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
     else throw new DoubleMovementException
   }
 
-  def selected(element :  Option[Cell]) = dashboard.selected = element
-  def getAllEnemies() : Int = dashboard.getAllEnemies
+  def selected(element :  Option[Cell]): Unit = dashboard.selected = element
+  def getAllEnemies : Int = dashboard.getAllEnemies
 
 
   /**
@@ -76,10 +74,10 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
     */
   override def handleKey(keyCode : KeyCode): Unit = {
     keyCode.getName match {
-      case "W" => if(checkAnimationEnd(Top.url())) dashboard -> (Top)
-      case "A" => if(checkAnimationEnd(Left.url())) dashboard -> (Left)
-      case "S" => if(checkAnimationEnd(Bottom.url())) dashboard -> (Bottom)
-      case "D" => if(checkAnimationEnd(Right.url())) dashboard -> (Right)
+      case "W" => if(checkAnimationEnd(Top.url())) dashboard -> Top
+      case "A" => if(checkAnimationEnd(Left.url())) dashboard -> Left
+      case "S" => if(checkAnimationEnd(Bottom.url())) dashboard -> Bottom
+      case "D" => if(checkAnimationEnd(Right.url())) dashboard -> Right
       case _ =>
     }
   }

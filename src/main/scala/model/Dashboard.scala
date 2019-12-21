@@ -1,34 +1,28 @@
 package model
 
 import controller.MovementAnimation
-import exception.{DoubleMovementException, MissingCellException, NoMovementException}
-import javafx.scene.input.MouseEvent
-import scalafx.Includes.handle
-import scalafx.scene.input.KeyCode
-import scalafx.util.Duration
-import utility.TransitionFactory
-import view.scenes.MapScene
+import exception.{MissingCellException, NoMovementException}
+
 
 trait Dashboard extends Observable{
   var list: List[RectangleCell]
   var selected: Option[Cell]
   var traslationX : Double
   var traslationY : Double
-  def removeEnemyCell(): Unit
-  def startingDefined: Option[RectangleCell]
   def player: PlayerRepresentation
+
+  def removeEnemyCell(): Unit
   def postInsert(): Unit
   def setPlayer(newPosition: RectangleCell, newUrl: String): Unit
   def getAllEnemies: Int
   def ? (cells: List[RectangleCell], newX : Double, newY : Double): Option[RectangleCell]
   def ? (cells: List[RectangleCell], newX : Double, newY : Double, movement: Move): Option[RectangleCell]
-  def ->(movement : Move): Unit
-  def afterMovement(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean): Unit
+  def -> (movement : Move): Unit
 }
 
 object Dashboard {
 
-  private class DashboardImpl(var list: List[RectangleCell], var startingDefined : Option[RectangleCell], var traslationX:Double, var traslationY:Double, user: Player) extends Dashboard {
+  private class DashboardImpl(var list: List[RectangleCell], startingDefined : Option[RectangleCell], var traslationX:Double, var traslationY:Double, user: Player) extends Dashboard {
     var selected: Option[Cell] = Option.empty
 
     override def removeEnemyCell(): Unit = list.collect { case f if f.mapEvent.isDefined && f == player.position && f.mapEvent.get.cellEvent.isInstanceOf[Enemy] => f.mapEvent_(Option.empty); postInsert() }
@@ -85,9 +79,6 @@ object Dashboard {
       * Handle the movement in a specific direction.
       *
       * @param movement the direction of the movement.
-      * @param cells the cells of the map
-      * @param player the player that is moving.
-      * @param fun the function to call at the end of the movement.
       */
     override def ->(movement : Move): Unit = movement match {
       case Top  => move(movement, list, player, 0,+40)
@@ -105,7 +96,7 @@ object Dashboard {
       * @param stringUrl the new url reached.
       * @param isEnded whether the animation is ended.
       */
-    override def afterMovement(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean): Unit ={
+    private def afterMovement(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean): Unit ={
       if(isEnded) {
         if(newRectangle.url.contains("Dmg")) {
           user - 1
@@ -118,7 +109,7 @@ object Dashboard {
             case enemy:Enemy => notifyObserver(enemy)
             case statue:Statue => notifyObserver(statue)
             case pyramid: Pyramid => if(player.position.mapEvent.get.playerRepresentation.url.contains("Door")) notifyObserver(pyramid)
-            case chest: Chest => {notifyObserver(chest); removeChestCell}
+            case chest: Chest => {notifyObserver(chest); removeChestCell()}
           }
         }
       } else setPlayer(player.position, stringUrl)
