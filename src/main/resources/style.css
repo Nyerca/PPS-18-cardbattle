@@ -1,12 +1,3 @@
-/***IMPORT FONTS***/
-
-@font-face {
-    font-family: "Great-Vibes";
-    src: url("./font/GreatVibes-Regular.otf");
-}
-
-/****************/
-
 .common {
    -fx-pref-width: 1200px;
    -fx-pref-height: 800px;
@@ -114,8 +105,8 @@
 }
 /****REWARD SCENE*****/
 .rewardTitle {
-   -fx-font-size: 100px;
-   -fx-font-family: "Great-Vibes";
+   -fx-font-size: 90px;
+   -fx-font-family: "Courier New";
    -fx-text-fill: "white"
 }
 /***************/

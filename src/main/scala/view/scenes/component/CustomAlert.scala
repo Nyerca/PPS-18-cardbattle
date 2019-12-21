@@ -7,16 +7,18 @@ import scalafx.Includes._
 
 class CustomAlert extends Dialog[(Option[String], Option[Difficulty])] {
   title = "Setting"
-  val enterName: TextField = new TextField() {
+  val name: TextField = new TextField() {
     style = "-fx-pref-width:150px"
+    text = "Player1"
     translateY = 25
     translateX = 110
   }
-  val labelName: Label = new Label("Enter your name") {
+  val nameLabel: Label = new Label("Enter your name") {
     translateY = 30
     translateX = 10
   }
-  val setDifficulty: ComboBox[Difficulty] = new ComboBox[Difficulty](List(Difficulty.Easy, Difficulty.Medium, Difficulty.Hard)) {
+  val difficulty: ComboBox[Difficulty] = new ComboBox[Difficulty](List(Difficulty.Easy, Difficulty.Medium, Difficulty.Hard)) {
+    value = Difficulty.Medium
     translateY = 70
     translateX = 110
     style = "-fx-pref-width:150px"
@@ -33,11 +35,11 @@ class CustomAlert extends Dialog[(Option[String], Option[Difficulty])] {
     style = "-fx-pref-width:300px; -fx-pref-height:200px"
     buttonTypes = List(ButtonType.OK)
     resultConverter = {
-      case ButtonType.OK => (if ( enterName.text.value == "" ) None else Some(enterName.text.value), if ( setDifficulty.value.value == null ) None else Some(setDifficulty.value.value))
+      case ButtonType.OK => (if ( name.text.value == "" ) None else Some(name.text.value), Option(difficulty.value.value))
       case _ => (None,None)
     }
     content = new Pane() {
-      children = List(labelName, enterName, difficultyLabel, setDifficulty)
+      children = List(nameLabel, name, difficultyLabel, difficulty)
     }
   }
 

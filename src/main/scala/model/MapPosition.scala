@@ -1,8 +1,6 @@
 package model
 
 import controller.GameController
-
-
 import scala.util.Random
 
 trait MapPosition {
@@ -11,15 +9,12 @@ trait MapPosition {
 object MapPosition {
   val STARTING_X = 400
   val STARTING_Y = 200
-  val rngX = STARTING_X
-  val rngY = STARTING_Y
-
 
   def getRng(excludedValues : Map[Int,List[Int]]): (Int,Int) = {
-    var outX = rngX
-    var outY = rngY
+    var outX = STARTING_X
+    var outY = STARTING_Y
 
-    while(excludedValues.contains(outX) && excludedValues.get(outX).get.contains(outY)) {
+    while(excludedValues.contains(outX) && excludedValues(outX).contains(outY)) {
       outX = Random.nextInt(6) * 200
       outY = Random.nextInt(4) * 200
     }
@@ -41,7 +36,7 @@ object MapPosition {
   }
   def createCell(excludedValues : Map[Int,List[Int]], damage: Boolean = false): RectangleCell = {
     val (x,y) = MapPosition.getRng(excludedValues)
-    RectangleCell(true, true, true, true, x, y, damage = damage && math.random() <= 0.3)
+    RectangleCell(top = true, right = true, bottom = true, left = true, x, y, damage = damage && math.random() <= 0.3)
   }
   def createRngCell(excludedValues : Map[Int,List[Int]], damage: Boolean = false): RectangleCell = {
     val (x,y) = MapPosition.getRng(excludedValues)
@@ -56,41 +51,38 @@ case object PlayerPosition extends MapPosition {
 
 case object EnemyPosition extends MapPosition {
   override def create(gameC: GameController, excludedValues : Map[Int,List[Int]]): RectangleCell = {
-    val rectcell: RectangleCell = MapPosition.createRngCell(excludedValues, true)
-    val enem = gameC.spawnEnemy(Random.nextInt(5))
-    val enemy = PlayerRepresentation(rectcell, enem.image)
-    rectcell.mapEvent_(Option(MapEvent(enem, enemy)))
-    rectcell
+    val rectangle_cell: RectangleCell = MapPosition.createRngCell(excludedValues, damage = true)
+    val enemy = gameC.spawnEnemy(Random.nextInt(5))
+    rectangle_cell.mapEvent_(Option(MapEvent(enemy, PlayerRepresentation(rectangle_cell, enemy.image))))
+    rectangle_cell
   }
 }
 case object StatuePosition extends MapPosition {
   override def create(gameC: GameController, excludedValues : Map[Int,List[Int]]): RectangleCell = {
-    val rectcell: RectangleCell = MapPosition.createRngCell(excludedValues)
-    val statue = Statue(Random.nextInt(8) + 2)
-    rectcell.mapEvent_(Option(MapEvent(statue, PlayerRepresentation(rectcell, "statue.png"))))
-    rectcell
+    val rectangle_cell: RectangleCell = MapPosition.createRngCell(excludedValues)
+    rectangle_cell.mapEvent_(Option(MapEvent(Statue(Random.nextInt(8) + 2), PlayerRepresentation(rectangle_cell, "statue.png"))))
+    rectangle_cell
   }
 }
 
 case object PyramidPosition extends MapPosition {
   override def create(gameC: GameController, excludedValues : Map[Int,List[Int]]): RectangleCell = {
-    val rectcell: RectangleCell = MapPosition.createCell(excludedValues)
-    rectcell.mapEvent_(Option(MapEvent(Pyramid(), PlayerRepresentation(rectcell, "pyramid.png"))) )
-    rectcell
+    val rectangle_cell: RectangleCell = MapPosition.createCell(excludedValues)
+    rectangle_cell.mapEvent_(Option(MapEvent(Pyramid(), PlayerRepresentation(rectangle_cell, "pyramid.png"))) )
+    rectangle_cell
   }
 }
 
 case object ChestPosition extends MapPosition {
   override def create(gameC: GameController, excludedValues : Map[Int,List[Int]]): RectangleCell = {
-    val rectcell: RectangleCell = MapPosition.createRngCell(excludedValues)
-    val chest = Chest(Random.nextInt(4) + 1)
-    rectcell.mapEvent_(Option(MapEvent(chest, PlayerRepresentation(rectcell, "chest.png"))))
-    rectcell
+    val rectangle_cell: RectangleCell = MapPosition.createRngCell(excludedValues)
+    rectangle_cell.mapEvent_(Option(MapEvent(Chest(Random.nextInt(4) + 1), PlayerRepresentation(rectangle_cell, "chest.png"))))
+    rectangle_cell
   }
 }
 
 case object EmptyPosition extends MapPosition {
-  override def create(gameC: GameController, excludedValues: Map[Int, List[Int]]): RectangleCell = MapPosition.createRngCell(excludedValues, true)
+  override def create(gameC: GameController, excludedValues: Map[Int, List[Int]]): RectangleCell = MapPosition.createRngCell(excludedValues, damage = true)
 }
 
 

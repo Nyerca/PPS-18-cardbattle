@@ -1,15 +1,10 @@
 package controller
 
-import javafx.animation.Animation.Status
-import javafx.scene.paint.ImagePattern
 import model._
 import scalafx.Includes._
 import scalafx.animation.{Interpolator, TranslateTransition}
-import scalafx.scene.image.Image
 import scalafx.scene.layout.BorderPane
 import scalafx.util.Duration
-
-import scala.collection.mutable.ListBuffer
 
 object MovementAnimation {
 
@@ -39,15 +34,15 @@ object MovementAnimation {
     anim.toX = anim.fromX.toDouble + incrementX
     anim.toY = anim.fromY.toDouble + incrementY
 
-    anim.setOnFinished(e =>  {
+    anim.setOnFinished(_ =>  {
       setAnim(newRectangle,incrementX,incrementY,stringUrl + "2.png",fun)
-      anim.setOnFinished(e => {
+      anim.setOnFinished(_ => {
         setAnim(newRectangle,incrementX,incrementY,stringUrl + ".png",fun)
-        anim.setOnFinished(e => {
+        anim.setOnFinished(_ => {
           setAnim(newRectangle,incrementX,incrementY,stringUrl + "1.png",fun)
-          anim.setOnFinished(e => {
+          anim.setOnFinished(_ => {
             setAnim(newRectangle,incrementX,incrementY,stringUrl + ".png",fun)
-            anim.setOnFinished(e => {
+            anim.setOnFinished(_ => {
               anim.stop()
                 fun(newRectangle,stringUrl+ ".png", true)
             })
@@ -56,10 +51,5 @@ object MovementAnimation {
         anim.play()})
       anim.play()
     })
-  }
-
-  def checkAnimationEnd():Boolean = anim.status.getValue match {
-    case Status.STOPPED => true
-    case _ => false
   }
 }

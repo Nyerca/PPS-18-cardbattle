@@ -1,7 +1,7 @@
 package view.scenes
 
-import Utility.{GUIObjectFactory, TransitionFactory}
-import controller.{BattleController, GameController}
+import utility.{GUIObjectFactory, TransitionFactory}
+import controller.{BattleController, GameController, MusicPlayer, SoundType}
 import model._
 import scalafx.Includes._
 import scalafx.scene.control.Button
@@ -11,61 +11,52 @@ import scalafx.util.Duration
 import view.scenes.component.{BattleEnemyRepresentation, BattlePlayerRepresentation, BattleUserRepresentation, CardComponent}
 
 import scala.language.postfixOps
-import scala.util.Try
+import scala.util.{Success, Try}
 
-trait BattleScene extends BaseScene {
-
-  def drawCard(player: Player, card: Card): Unit
-
-  def fadeSceneChanging(player: Player): Unit
+trait BattleScene extends BaseScene with ObserverScene {
 
   def userDeck: Button
-
   def cpuDeck: Button
-
   def cpuCardIndicator: Button
-
   def cpuHandCard: CardComponent
-
   def userCardIndicators: List[Button]
-
   def userHandCard: List[CardComponent]
-
   def userRepresentation: BattlePlayerRepresentation
-
   def enemyRepresentation: BattlePlayerRepresentation
-
   def battleField: Pane
+
 }
 
 object BattleScene {
+
   private class BattleSceneImpl(override val parentStage: Stage, enemy: Enemy, gameController: GameController) extends BattleScene {
+
+    MusicPlayer.play(SoundType.BattleSound)
 
     stylesheets.add("style.css")
 
-    private val battleController: BattleController = BattleController(this)
+    private val battleController: BattleController = BattleController(this, Battle(gameController.user, enemy))
 
     override val userDeck: Button = GUIObjectFactory.buttonFactory(35, 50, mouseTransparency = false, handle(battleController.drawCard(gameController.user)))("card", "deck")
 
-    override val cpuDeck: Button = GUIObjectFactory.buttonFactory(995, 50, mouseTransparency = true)( "card", "deck")
+    override val cpuDeck: Button = GUIObjectFactory.buttonFactory(995, 50, mouseTransparency = true)("card", "deck")
 
     override val cpuCardIndicator: Button = GUIObjectFactory.buttonFactory(995, 450, mouseTransparency = true)("cardIndicator")
 
-    override val cpuHandCard: CardComponent = CardComponent(995, 450, mouseTransparency = true, handle(cpuHandCard.fadeOutAll(handle(playFightAnimation(cpuHandCard.card.family, enemy)))))
+    override val cpuHandCard: CardComponent = CardComponent(995, 450, mouseTransparency = true, handle(cpuHandCard.fadeOutAll()))
 
     override val userCardIndicators: List[Button] = for (
       n <- 1 until 4 toList
-    ) yield GUIObjectFactory.buttonFactory(35 + n * 240, 50,mouseTransparency = true)("cardIndicator")
+    ) yield GUIObjectFactory.buttonFactory(35 + n * 240, 50, mouseTransparency = true)("cardIndicator")
 
-    override val userHandCard: List[CardComponent] = for(
+    override val userHandCard: List[CardComponent] = for (
       n <- 1 until 4 toList
     ) yield CardComponent(35 + n * 240, 50, mouseTransparency = false, handle {
       cpuHandCard.clickableCard.fire()
       userDeck.mouseTransparent = true
-      userHandCard foreach(x => x.clickableCard.mouseTransparent = true)
-      userHandCard(n - 1).fadeOutAll(handle{
-        battleController.fight(userHandCard(n - 1).card, cpuHandCard.card, gameController.user, enemy)
-        playFightAnimation(userHandCard(n - 1).card.family, gameController.user)
+      userHandCard foreach (x => x.clickableCard.mouseTransparent = true)
+      userHandCard(n - 1).fadeOutAll(handle {
+        battleController.fight(userHandCard(n - 1).card, cpuHandCard.card)
       })
     })
 
@@ -75,38 +66,44 @@ object BattleScene {
 
     override val battleField: Pane = GUIObjectFactory.paneFactory(List(enemyRepresentation, userRepresentation))("battleField")(45, 280)
 
-    override def drawCard(player: Player, card: Card): Unit = player match {
-      case _: Enemy => cpuHandCard.setCardInformation(card)
-      case _ => Try(userHandCard.find(cc => cc.clickableCard.opacity.value == 0 || cc.cardName.text.value == "").get.setCardInformation(card))
+    override def update[A](model: A): Unit = model match {
+      case (card: Card, player: Player) => drawCard(card, player)
+      case (player: Player, card: Card) => playFightAnimation(card.family, player)
+      case (optionPlayer: Option[Player], optionLevelUp: Option[LevelUp]) => checkWinner(optionPlayer, optionLevelUp)
     }
 
-    override def fadeSceneChanging(player: Player): Unit = player match {
-      case _: User => TransitionFactory.fadeTransitionFactory(Duration(2000), root.value, handle {
-        gameController.user ++ enemy
-        gameController.setScene(this, RewardScene(parentStage, gameController))
-      }).play()
-      case _ => TransitionFactory.fadeTransitionFactory(Duration(2000), root.value, handle(gameController.setScene(this, GameOverScene(parentStage, gameController)))).play()
-    }
+    root = GUIObjectFactory.paneFactory(userCardIndicators ++ userHandCard.map(x => x.clickableCard) ++ userHandCard.map(x => x.cardLevel) ++ userHandCard.map(x => x.cardName) ++ userHandCard.map(x => x.cardDamage) ++ List(cpuCardIndicator, userDeck, cpuDeck, cpuHandCard.clickableCard, cpuHandCard.cardName, cpuHandCard.cardDamage, cpuHandCard.cardLevel, battleField))("common", "battleScene")(0, 0)
 
-    private def playFightAnimation(family: (Category, Type), player: Player): Unit = {
-      player match {
+    for (_ <- 0 until 3) yield battleController.drawCard(gameController.user)
+
+    battleController.drawCard(enemy)
+
+    private def playFightAnimation(family: (Category, Type), player: Player): Unit = player match {
         case _: Enemy => enemyRepresentation.playAnimation(-90, family, handle {
           battleController.drawCard(enemy)
-          enemyRepresentation.updateHP()
+          enemyRepresentation.updateHP(player.actualHealthPoint)
         })
         case _ => userRepresentation.playAnimation(90, family, handle {
-          userRepresentation.updateHP()
-          battleController.checkWinner(gameController.user, enemy)
+          userRepresentation.updateHP(player.actualHealthPoint)
+          battleController.checkWinner()
         })
       }
+
+    private def drawCard(card: Card, player: Player): Unit = player match {
+      case _: User => Try(userHandCard.find(cc => cc.clickableCard.opacity.value == 0 || cc.cardName.text.value == "").get.setCardInformation(card))
+      case _ => cpuHandCard.setCardInformation(card)
     }
 
-    root = GUIObjectFactory.paneFactory(userCardIndicators ++ userHandCard.map(x => x.clickableCard) ++ userHandCard.map(x => x.cardLevel) ++ userHandCard.map(x => x.cardName) ++ userHandCard.map(x => x.cardDamage) ++ List(cpuCardIndicator, userDeck, cpuDeck, cpuHandCard.clickableCard, cpuHandCard.cardName, cpuHandCard.cardDamage, cpuHandCard.cardLevel, battleField))( "common", "battleScene")(0,0)
-
-    battleController drawCard enemy
-
-    userHandCard foreach(_ => battleController drawCard gameController.user)
+    private def checkWinner(player: Option[Player], levelUp: Option[LevelUp]): Unit = Try(player.get) match {
+      case Success(value) => value match {
+        case _: User => TransitionFactory.fadeTransitionFactory(Duration(2000), root.value, handle(gameController.setScene(this, RewardScene(parentStage, gameController, levelUp)))).play()
+        case _ => TransitionFactory.fadeTransitionFactory(Duration(2000), root.value, handle(gameController.setScene(this, GameOverScene(parentStage, gameController)))).play()
+      }
+      case _ =>
+        userHandCard.filter(cc => cc.clickableCard.opacity.value == 1) foreach (cc => cc.clickableCard.mouseTransparent = false)
+        userDeck.mouseTransparent = false
+    }
   }
 
-  def apply(parentStage: Stage, user: User, enemy: Enemy, gameController: GameController): BattleScene = new BattleSceneImpl(parentStage, enemy, gameController)
+  def apply(parentStage: Stage, enemy: Enemy, gameController: GameController): BattleScene = new BattleSceneImpl(parentStage, enemy, gameController)
 }
