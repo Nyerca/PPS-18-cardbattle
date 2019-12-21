@@ -26,8 +26,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
   stylesheets.add("mapStyle.css")
 
   override def update[A](model: A): Unit = model match {
-    case (player:Player, levelUp: Boolean) => {
-      println("CALL")
+    case player:Player => {
       observableGold.set("Gold: " +player.coins+ "x")
       observableLevel.set("Player level: " + player.level)
 
@@ -35,10 +34,18 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
       if(ratio == 0)  gameC.setScene(this,GameOverScene(parentStage, gameC))
       observableHealthPoint._1.set(ratio)
       observableHealthPoint._2.set(player.name + ":" + player.actualHealthPoint + "hp")
-      if(levelUp) PlayerAnimation.play(PlayerAnimation.LEVELUP_PREFIX)
+
+      //if(levelUp) PlayerAnimation.play(PlayerAnimation.LEVELUP_PREFIX)
     }
+    case enemy:Enemy => changeScene(gameC.user, enemy)
+    case _:Pyramid => _controller.reset()
+    case statue:Statue => showStatueAlert(statue.moneyRequired)
+    case chest: Chest => {print("CHESt from model"); showChestAlert(chest.money);}
+    case playerRep: PlayerRepresentation => playerImg_(playerRep)
+    case remainingEnem : Int => remainingEnemies.set("Enemies: " + remainingEnem)
+    case cellList : List[RectangleCell] => {setPaneChildren(cellList); setBPane()}
+
   }
-  def updateEnemies(): Unit = remainingEnemies.set("Enemies: " + _controller.getAllEnemies)
 
   private val field: Pane = new Pane {maxHeight = 800; translateX=traslationX; translateY=traslationY}
 
@@ -95,13 +102,13 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
   _controller.view_(this)
 
-  private var playerImg: Rectangle = icon(_controller.list.head, _controller.player.url)
+  private var playerImg: Rectangle = icon(_controller.dashboard.list.head, _controller.dashboard.player.url)
   def playerImg_(player: PlayerRepresentation):Unit = {playerImg.fill_=(new ImagePattern(new Image(player.url)))}
 
   private val playerPane: Pane = new Pane {
     children.append(mapWindow)
     children.append(playerImg)
-    children.append(PlayerAnimation.setup(_controller.list.head))
+    children.append(PlayerAnimation.setup(_controller.dashboard.list.head))
     id = "rootPane"
 
     onKeyPressed = (ke : KeyEvent) =>  {
@@ -125,7 +132,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     }
   }
 
-  setPaneChildren(_controller.list)
+  setPaneChildren(_controller.dashboard.list)
   root = playerPane
 
 
@@ -168,7 +175,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
       if(math.random() <= 0.8) re = RectangleCell.generateRandomCard()
       else re = EnemyCell(gameC.spawnEnemy(Random.nextInt(4)))
       graphic = new ImageView(re.image) {fitWidth_=(100); fitHeight_=(100)}
-      onAction = () => _controller.selected_(Option(re))
+      onAction = () => _controller.dashboard.selected=Option(re)
       defaultButton = true
       styleClass.add("bottomButton")
     }
@@ -212,7 +219,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
   def changeScene(user:User, enemy:Enemy): Unit = gameC.setScene(this, BattleScene(parentStage, enemy, gameC))
 
-  def removeEnemyCell(): Unit = _controller.removeEnemyCell()
+  def removeEnemyCell(): Unit = _controller.dashboard.removeEnemyCell()
 }
 
 object MapScene {

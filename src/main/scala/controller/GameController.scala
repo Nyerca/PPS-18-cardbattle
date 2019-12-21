@@ -88,7 +88,6 @@ object GameController {
         case OperationType.NewGame =>
           user = Player.User(name, "images/user.png", 1, Random.shuffle(allCards).take(8), 10, 10, 1, 0)
           gameMap = MapScene(fromScene.parentStage, this)
-          user.addObserver(gameMap)
         case _ => loadData(fromScene)
       }
       user.addObserver(gameMap)

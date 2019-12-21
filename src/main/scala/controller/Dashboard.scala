@@ -3,6 +3,7 @@ package controller
 import exception.{MissingCellException, NoMovementException}
 import model.{Bottom, Left, Move, PlayerRepresentation, RectangleCell, Right, Top}
 
+/*
 trait Dashboard {
   def toString: String
   def ? (cells: List[RectangleCell], newX : Double, newY : Double): Option[RectangleCell]
@@ -83,5 +84,5 @@ object Dashboard {
   def apply(): Dashboard = new DashboardImpl()
   def apply(traslationX: Double, traslationY: Double): Dashboard = new DashboardImpl(traslationX, traslationY)
 }
-
+*/
 

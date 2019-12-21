@@ -16,23 +16,22 @@ trait Player extends Observable with Serializable {
 class User(override val name: String, override val image: String, var level: Int, var allCards: List[Card], var totalHealthPoint: Int, var actualHealthPoint: Int, var experience: Int, var  coins: Int) extends Player {
   var battleDeck: List[Card] = allCards
   def ++(enemy: Player): Unit = {
+    coins += enemy.coins
     if ( experience - enemy.experience <= 0 ) {
       level += 1
       totalHealthPoint += 5
       actualHealthPoint = totalHealthPoint
       experience = 3 * level - (enemy.experience - experience)
-      coins += enemy.coins
-      notifyObserver(this, true)
-    } else {
-      experience -= enemy.experience
-      notifyObserver(this, false)
-    }
+      println("LEVEL UP")
+    } else experience -= enemy.experience
+    notifyObserver(this)
   }
 
   def ++(money: Int): Unit = {
     coins += money
+    println("Coins from player: " + coins)
     if(money < 0) actualHealthPoint = totalHealthPoint
-    notifyObserver(this, false)
+    notifyObserver(this)
   }
 
   def ++(card: Card): Unit =  allCards.find(c => c.name == card.name) match {
