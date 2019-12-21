@@ -7,12 +7,9 @@ trait EnemyCell extends Cell {
 }
 
 object EnemyCell {
-  private final case class EnemyCellImpl(private val _enemy: Enemy) extends EnemyCell{
-
-    def enemy: Enemy = _enemy
-
-    def image: Image = Cell.createImage(_enemy.image, 0)
+  private final case class EnemyCellImpl(override val enemy: Enemy) extends EnemyCell{
+    override def image: Image = Cell.createImage(enemy.image, 0)
   }
 
-  def apply(enemy: Enemy): EnemyCell = new EnemyCellImpl(enemy)
+  def apply(enemy: Enemy): EnemyCell = EnemyCellImpl(enemy)
 }

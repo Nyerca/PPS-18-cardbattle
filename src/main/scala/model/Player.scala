@@ -2,7 +2,6 @@ package model
 
 
 trait Player extends Observable with Serializable {
-
   var actualHealthPoint: Int
   def name: String
   def level: Int
@@ -36,11 +35,11 @@ class User(override val name: String, override val image: String, var level: Int
   def ++(card: Card): Unit =  allCards.find(c => c.name == card.name) match {
     case Some(_) =>
       allCards = card.up :: allCards.filter(c => c != card)
-      battleDeck = allCards.filter(c => battleDeck.contains(c))
+      battleDeck = allCards.filter(c => battleDeck.map(m => m.name).contains(c.name))
     case _ => allCards = card :: allCards
   }
 
-  override def -(hp: Int): Unit = super.-(hp); notifyObserver(this)
+  override def -(hp: Int): Unit = { super.-(hp); notifyObserver(this) }
 
 }
 

@@ -22,13 +22,13 @@ object GameOverScene {
 
     val brokenHeart: Button = GUIObjectFactory.buttonFactory(550, 200, mouseTransparency = true)("brokenHeart")
 
-    val anubiDefeated: Button = GUIObjectFactory.buttonFactory(470, 310, mouseTransparency = true)("anubiDefeated")
+    val anubisDefeated: Button = GUIObjectFactory.buttonFactory(470, 310, mouseTransparency = true)("anubiDefeated")
 
     val retryButton: Button = GUIObjectFactory.buttonFactory(500,550, mouseTransparency = false, handle(gameController.setScene(this, MainScene(parentStage))), GUIObjectFactory.DEFAULT_STYLE, "Retry")("mainPageButton")
     root = new Pane {
       styleClass.add("common")
       style = "-fx-background-color: black;"
-      children = List(brokenHeart, retryButton, anubiDefeated)
+      children = List(brokenHeart, retryButton, anubisDefeated)
     }
     TransitionFactory.translateTransitionFactory(Duration(1000), brokenHeart, TransitionFactory.DEFAULT_ON_FINISHED, 0, -100, Transition.Indefinite, autoReversible = true).play()
   }

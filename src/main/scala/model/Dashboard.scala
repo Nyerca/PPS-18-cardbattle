@@ -5,13 +5,13 @@ import exception.{MissingCellException, NoMovementException}
 
 
 trait Dashboard extends Observable{
-  var list: List[RectangleCell]
+  var cells: List[RectangleCell]
   var selected: Option[Cell]
-  var traslationX : Double
-  var traslationY : Double
+  var translationX : Double
+  var translationY : Double
   def player: PlayerRepresentation
 
-  def removeEnemyCell(): Unit
+  def remove[A <: CellEvent]() :Unit
   def postInsert(): Unit
   def setPlayer(newPosition: RectangleCell, newUrl: String): Unit
   def getAllEnemies: Int
@@ -22,54 +22,49 @@ trait Dashboard extends Observable{
 
 object Dashboard {
 
-  private class DashboardImpl(var list: List[RectangleCell], startingDefined : Option[RectangleCell], var traslationX:Double, var traslationY:Double, user: Player) extends Dashboard {
+  private class DashboardImpl(var cells: List[RectangleCell], startingDefined : Option[RectangleCell], var translationX:Double, var translationY:Double, user: Player) extends Dashboard {
     var selected: Option[Cell] = Option.empty
 
-    override def removeEnemyCell(): Unit = list.collect { case f if f.mapEvent.isDefined && f == player.position && f.mapEvent.get.cellEvent.isInstanceOf[Enemy] => f.mapEvent_(Option.empty); postInsert() }
-    private def removeChestCell(): Unit = list.collect { case f if f.mapEvent.isDefined && f == player.position && f.mapEvent.get.cellEvent.isInstanceOf[Chest] => f.mapEvent_(Option.empty); postInsert() }
+   override def remove[A]() :Unit = cells.collect { case f if f.mapEvent.isDefined && f == player.position && f.mapEvent.get.cellEvent.isInstanceOf[A] => f.mapEvent_(Option.empty); postInsert() }
 
     var player : PlayerRepresentation = _
     startingDefined match {
-      case Some(rect: RectangleCell) => player = PlayerRepresentation((? (list, rect.x, rect.y)).get, "/player/bot.png")
-      case _ => player = PlayerRepresentation(list.head, "/player/bot.png")
+      case Some(rect: RectangleCell) => player = PlayerRepresentation(? (cells, rect.x, rect.y).get, "/player/bot.png")
+      case _ => player = PlayerRepresentation(cells.head, "/player/bot.png")
     }
 
 
     /**
       * Check for existing cell in the map given (x, y)
       *
-      * @param cells the cells of the map
+      * @param cell_list the cells of the map
       * @param newX the x value of the cell to be found.
       * @param newY the y value of the cell to be found.
       * @return the Option which describe the RectangleCell whether it's there.
       */
-    override def ? (cells: List[RectangleCell], newX : Double, newY : Double): Option[RectangleCell] = {
-      (for (rectangle <- cells if rectangle.isRectangle(newX, newY)) yield rectangle).headOption
-    }
+    override def ? (cell_list: List[RectangleCell], newX : Double, newY : Double): Option[RectangleCell] = cell_list.find(rectangle => rectangle.isRectangle(newX, newY))
 
     /**
       * Check for existing cell in the map given (x, y) and the direction of the movement
       *
-      * @param cells the cells of the map
+      * @param cell_list the cells of the map
       * @param newX the x value of the cell to be found.
       * @param newY the y value of the cell to be found.
       * @param movement the direction of tbe movement.
       * @return the Option which describe the RectangleCell whether it's there.
       */
-    override def ? (cells: List[RectangleCell], newX : Double, newY : Double, movement: Move): Option[RectangleCell] = {
-      (for (rectangle <- cells if  rectangle.isRectangle(newX, newY) && rectangle.isMoveAllowed(movement)) yield rectangle).headOption
-    }
+    override def ? (cell_list: List[RectangleCell], newX : Double, newY : Double, movement: Move): Option[RectangleCell] = cell_list.find(rectangle => rectangle.isRectangle(newX, newY) && rectangle.isMoveAllowed(movement))
 
-    private def move(movement:Move, cells: List[RectangleCell], player: PlayerRepresentation, incX : Double, incY : Double): Unit = {
-      MovementAnimation.setAnimation(traslationX, traslationX + incX.toInt * (-5), traslationY, traslationY + incY.toInt * (-5))
+    private def move(movement:Move, incX : Double, incY : Double): Unit = {
+      MovementAnimation.setAnimation(translationX, translationX + incX.toInt * (-5), translationY, translationY + incY.toInt * (-5))
 
       val newRectangle = ? (cells, player.position.x + incX.toInt * (-5), player.position.y + incY.toInt * (-5), movement.opposite)
 
       if(player.position.isMoveAllowed(movement)) {
         if(newRectangle.isDefined) {
           MovementAnimation.setAnimationIncrement(newRectangle.get, incX, incY, movement.url(), afterMovement)
-          traslationX += incX * 5
-          traslationY += incY * 5
+          translationX += incX * 5
+          translationY += incY * 5
           MovementAnimation.anim.play()
         } else throw new MissingCellException
       } else throw new NoMovementException
@@ -81,10 +76,10 @@ object Dashboard {
       * @param movement the direction of the movement.
       */
     override def ->(movement : Move): Unit = movement match {
-      case Top  => move(movement, list, player, 0,+40)
-      case Right => move(movement, list, player, -40,0)
-      case Bottom => move(movement, list, player, 0,-40)
-      case Left => move(movement, list, player, +40,0)
+      case Top  => move(movement, 0,+40)
+      case Right => move(movement, -40,0)
+      case Bottom => move(movement, 0,-40)
+      case Left => move(movement, +40,0)
     }
 
 
@@ -98,9 +93,7 @@ object Dashboard {
       */
     private def afterMovement(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean): Unit ={
       if(isEnded) {
-        if(newRectangle.url.contains("Dmg")) {
-          user - 1
-        }
+        if(newRectangle.url.contains("Dmg")) user - 1
         setPlayer(newRectangle, player.url)
 
         val event = player.position.mapEvent
@@ -109,7 +102,7 @@ object Dashboard {
             case enemy:Enemy => notifyObserver(enemy)
             case statue:Statue => notifyObserver(statue)
             case pyramid: Pyramid => if(player.position.mapEvent.get.playerRepresentation.url.contains("Door")) notifyObserver(pyramid)
-            case chest: Chest => {notifyObserver(chest); removeChestCell()}
+            case chest: Chest => notifyObserver(chest); remove[Chest]()
           }
         }
       } else setPlayer(player.position, stringUrl)
@@ -121,18 +114,17 @@ object Dashboard {
     }
 
 
-    def getAllEnemies: Int = list.map(m=> m.mapEvent).count(f => f.isDefined && f.get.cellEvent.isInstanceOf[Enemy])
+    def getAllEnemies: Int = cells.map(m=> m.mapEvent).count(f => f.isDefined && f.get.cellEvent.isInstanceOf[Enemy])
 
     private def pyramidDoor(url: String): Unit = {
-      val pyramid = list.find(f => f.mapEvent.isDefined && f.mapEvent.get.cellEvent.isInstanceOf[Pyramid]).get
+      val pyramid = cells.find(f => f.mapEvent.isDefined && f.mapEvent.get.cellEvent.isInstanceOf[Pyramid]).get
       pyramid.mapEvent_(Option(MapEvent(pyramid.mapEvent.get.cellEvent, PlayerRepresentation(pyramid, url))))
     }
 
     override def postInsert(): Unit = {
-      notifyObserver(getAllEnemies)
       if(getAllEnemies > 0) pyramidDoor("pyramid.png")
       else pyramidDoor("pyramidDoor.png")
-      notifyObserver(list)
+      notifyObserver(cells, getAllEnemies)
       selected = Option.empty
     }
   }

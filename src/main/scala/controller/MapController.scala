@@ -1,13 +1,16 @@
 package controller
 
 import java.io.{File, FileOutputStream, ObjectOutputStream}
+
 import utility.TransitionFactory
 import exception.DoubleMovementException
 import javafx.scene.input.MouseEvent
 import model.{Bottom, Cell, ChestPosition, EmptyPosition, EnemyCell, EnemyPosition, Left, MapPosition, PlayerPosition, PyramidPosition, RectangleCell, Right, StatuePosition, Top}
-import scalafx.Includes._
 import scalafx.scene.input.KeyCode
 import view.scenes.MapScene
+import javafx.animation.Animation.Status
+import scalafx.Includes._
+
 import scala.util.Random
 import model.Placeable._
 import scalafx.util.Duration
@@ -31,14 +34,14 @@ trait MapController {
   * @param gameC the main controller of the game.
   * @param _list the list of RectangleCell.
   * @param startingDefined whether the game has been loaded and the player position is different from the starting one.
-  * @param traslationX the traslationX of the map whether the game has been loaded.
-  * @param traslationY the traslationY of the map whether the game has been loaded.
+  * @param translationX the traslationX of the map whether the game has been loaded.
+  * @param translationY the traslationY of the map whether the game has been loaded.
   */
-class MapControllerImpl (override val gameC : GameController, var _list:List[RectangleCell], var startingDefined : Option[RectangleCell], traslationX:Double, traslationY:Double) extends MapController {
+class MapControllerImpl (override val gameC : GameController, var _list:List[RectangleCell], var startingDefined : Option[RectangleCell], translationX:Double, translationY:Double) extends MapController {
 
   def this(gameC : GameController) {this(gameC,MapController.setup(gameC),Option.empty,0,0)}
 
-  val dashboard = model.Dashboard(_list, startingDefined, traslationX, traslationY, gameC.user)
+  val dashboard = model.Dashboard(_list, startingDefined, translationX, translationY, gameC.user)
 
   var view: MapScene = _
   override def view_ (newView : MapScene): Unit = {
@@ -48,19 +51,13 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
     view.setMenu()
   }
 
-  override def reset(): Unit = {
-    TransitionFactory.fadeTransitionFactory(Duration(2000), view.root.value, handle {
-      val newMap =  MapScene(view.parentStage, gameC)
-      gameC.setScene(view, newMap)
-    }).play()
-  }
+  override def reset(): Unit = TransitionFactory.fadeTransitionFactory(Duration(2000), view.root.value, handle {gameC.setScene(view, MapScene(view.parentStage, gameC))}).play()
 
-  private def checkAnimationEnd(url: String):Boolean = {
-    if(MovementAnimation.checkAnimationEnd()) {
+  private def checkAnimationEnd(url: String):Boolean = MovementAnimation.anim.status.value match {
+    case Status.STOPPED =>
       dashboard.setPlayer(dashboard.player.position, url + ".png")
       true
-    }
-    else throw new DoubleMovementException
+    case _ => throw new DoubleMovementException
   }
 
   def selected(element :  Option[Cell]): Unit = dashboard.selected = element
@@ -93,10 +90,10 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
     val output = new ObjectOutputStream(new FileOutputStream("./src/main/saves/save.txt"))
     save(output)(gameC.user)
     save(output)(gameC.difficulty)
-    save(output)(dashboard.list.map(el => el))
+    save(output)(dashboard.cells.map(el => el))
     save(output)(dashboard.player)
-    save(output)(dashboard.traslationX)
-    save(output)(dashboard.traslationY)
+    save(output)(dashboard.translationX)
+    save(output)(dashboard.translationY)
     output.close()
   }
 
@@ -107,11 +104,11 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
     * @param e Position clicked.
     */
   override def handleMouseClicked(e:MouseEvent): Unit = {
-    val cell = dashboard ? (dashboard.list, e.x - dashboard.traslationX, e.y - dashboard.traslationY)
+    val cell = dashboard ? (dashboard.cells, e.x - dashboard.translationX, e.y - dashboard.translationY)
     dashboard.selected match {
       case Some(rc:RectangleCell) =>
-        rc.x_(e.x - dashboard.traslationX - e.x % 200)
-        rc.y_(e.y - dashboard.traslationY - e.y % 200)
+        rc.x_(e.x - dashboard.translationX - e.x % 200)
+        rc.y_(e.y - dashboard.translationY - e.y % 200)
         place(rc,cell,dashboard)
       case Some(ec:EnemyCell) => place(ec,cell,dashboard)
       case _ =>
@@ -130,7 +127,7 @@ object MapController {
     var list :List[RectangleCell] = List()
 
     var newList: List[MapPosition] =List(PlayerPosition, EnemyPosition, StatuePosition, PyramidPosition, ChestPosition)
-    for(i<-0 until Random.nextInt(5)) {
+    for(_<-0 until Random.nextInt(5)) {
       val rnd = math.random()
       if(rnd < 0.8) newList = newList:+EmptyPosition
       else if(rnd <0.9) newList = newList:+StatuePosition
@@ -141,12 +138,9 @@ object MapController {
     newList.foreach(el => {
       val rect =  el.create(gameC,excludedValues)
       list = list:+rect
-      if(!excludedValues.contains(rect.x.toInt)) {
-        excludedValues += (rect.x.toInt -> List[Int](rect.y.toInt))
-      } else {
-        val tmplist: List[Int] = excludedValues.get(rect.x.toInt).get :+ rect.y.toInt
-        excludedValues += (rect.x.toInt -> tmplist)
-      }
+
+      if(!excludedValues.contains(rect.x.toInt)) excludedValues += (rect.x.toInt -> List[Int](rect.y.toInt))
+      else excludedValues += (rect.x.toInt -> (excludedValues(rect.x.toInt) :+ rect.y.toInt))
     })
     list
   }

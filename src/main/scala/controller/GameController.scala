@@ -2,7 +2,6 @@ package controller
 
 
 import java.io.{FileInputStream, ObjectInputStream}
-
 import utility.GameObjectFactory.createCards
 import utility.{GUIObjectFactory, GameObjectFactory}
 import model._
@@ -60,9 +59,7 @@ object GameController {
 
     override def setScene(fromScene: BaseScene, toScene: BaseScene): Unit = {
       (fromScene, toScene) match {
-        case (_: RewardScene, _: MapScene) =>
-          MusicPlayer.play(SoundType.MapSound)
-          gameMap.removeEnemyCell()
+        case (_: RewardScene, _: MapScene) => MusicPlayer.play(SoundType.MapSound)
         case (_: MapScene, newMap: MapScene) =>
           user.removeObserver(gameMap)
           gameMap = newMap

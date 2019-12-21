@@ -8,9 +8,8 @@ import scalafx.scene.control.Label
 import scalafx.stage.Stage
 import utility.GUIObjectFactory
 import view.scenes.component.CardComponent
-
 import scala.language.postfixOps
-import scala.util.{Random}
+import scala.util.Random
 
 trait RewardScene extends BaseScene
 
@@ -32,7 +31,7 @@ object RewardScene {
       gameController.user ++ rewards(n).card
       GUIObjectFactory.alertFactory(AlertType.Information, parentStage, "Card gained","Congratulations, you gained a card").showAndWait()
       gameController.setScene(this)
-      if(levelUp isDefined) PlayerAnimation.play(PlayerAnimation.LEVELUP_PREFIX)
+      if(levelUp isDefined) PlayerAnimation.play(PlayerAnimation.LEVEL_UP_PREFIX)
     })
 
     val title: Label = GUIObjectFactory.labelFactory(120, 50, "Choose your reward", "rewardTitle")

@@ -3,12 +3,9 @@ package model
 import utility.UrlFactory
 import exception.{IllegalSizeException, NoMovementException}
 import javafx.scene.paint.ImagePattern
-import model.MapPosition.STARTING_Y
 import scalafx.Includes._
-import scalafx.scene.image.{Image, ImageView}
+import scalafx.scene.image.Image
 import scalafx.scene.shape.Rectangle
-
-import scala.collection.mutable.ListBuffer
 
 trait RectangleCell extends Serializable with Cell {
   def top: Boolean
@@ -35,16 +32,7 @@ trait RectangleCell extends Serializable with Cell {
 object RectangleCell {
   val DAMAGE_PROBABILITY = 0.3
 
-  implicit def RectangleCell2Rectangle(rect : RectangleCell): Rectangle =
-    new Rectangle() {
-      width = rect.elementWidth
-      height = rect.elementHeight
-      x = rect.x
-      y = rect.y
-      fill = new ImagePattern(Cell.createImage(rect.url, rect.rotation))
-    }
-
-  implicit def RectangleCell2ListRectangle(list : ListBuffer[RectangleCell]): ListBuffer[Rectangle] = {
+  implicit def RectangleCell2ListRectangle(list : List[RectangleCell]): List[Rectangle] = {
     list.map(rect => new Rectangle() {
       width = rect.elementWidth
       height = rect.elementHeight
@@ -68,16 +56,6 @@ object RectangleCell {
     new RectangleCellImpl(top, right, bottom, left, x= 0, y=0, damage = math.random <= DAMAGE_PROBABILITY)
   }
 
-
-  def createRectangle(rectangleCell: RectangleCell): Rectangle = {
-    val rect:Rectangle = new Rectangle()
-    rect.fill_= (new ImagePattern(Cell.createImage(rectangleCell.url, rectangleCell.rotation)))
-    rect.width_=(rectangleCell.elementWidth)
-    rect.height_=(rectangleCell.elementHeight)
-    rect.x_=(rectangleCell.x)
-    rect.y_=(rectangleCell.y)
-    rect
-  }
   def apply(top: Boolean, right: Boolean, bottom: Boolean, left: Boolean, width:Double, height: Double, x: Double, y: Double, damage: Boolean) : RectangleCell = new RectangleCellImpl(top, right, bottom, left, width, height, x, y, damage)
   def apply(top: Boolean, right: Boolean, bottom: Boolean, left: Boolean, x: Double, y: Double, damage: Boolean = false) : RectangleCell = new RectangleCellImpl(top, right, bottom, left, x = x, y = y, damage = damage)
 
@@ -89,7 +67,7 @@ object RectangleCell {
     * @param bottom if the bottom direction is allowed.
     * @param left if the left direction is allowed.
     * @param elementWidth the cell width.
-    * @param elementWidth the cell height.
+    * @param elementHeight the cell height.
     * @param x the cell x position.
     * @param y the cell y position.
     * @param damage if the cell is poisoned
@@ -131,7 +109,7 @@ object RectangleCell {
       * @param movement to check.
       * @return whether the movement is allowed.
       */
-    def isMoveAllowed(movement : Move): Boolean =movement match {
+    override def isMoveAllowed(movement : Move): Boolean =movement match {
       case Top => top
       case Right => right
       case Bottom => bottom
@@ -139,8 +117,8 @@ object RectangleCell {
       case _  => false
     }
 
-    if(!top && !right && !bottom && !left) throw new NoMovementException()
-    if(elementWidth == 0 || elementHeight == 0)  throw new IllegalSizeException()
+    if(!top && !right && !bottom && !left) throw NoMovementException()
+    if(elementWidth == 0 || elementHeight == 0)  throw IllegalSizeException()
   }
 
 }

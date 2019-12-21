@@ -15,42 +15,37 @@ import scalafx.scene.input.KeyEvent
 import scalafx.scene.layout._
 import scalafx.scene.shape.Rectangle
 import scalafx.stage.Stage
-import scala.collection.mutable.ListBuffer
 import scala.util.Random
 import model.Cell
 import scalafx.application.Platform
 
 
 
-class MapScene (override val parentStage: Stage, var _controller : MapController, var gameC :GameController,traslationX : Double = 0, traslationY: Double = 0) extends BaseScene with ObserverScene {
+class MapScene (override val parentStage: Stage, val _controller : MapController, var gameC :GameController, translationX : Double = 0, translationY: Double = 0) extends BaseScene with ObserverScene {
 
   MusicPlayer.play(SoundType.MapSound)
 
   stylesheets.add("mapStyle.css")
 
   override def update[A](model: A): Unit = model match {
-    case player:User => {
+    case player:User =>
       observableGold.set("Gold: " +player.coins+ "x")
+      removeEnemyCell()
       observableLevel.set("Player level: " + player.level)
-
       val ratio: Double = player.actualHealthPoint.toDouble / player.totalHealthPoint.toDouble
       if(ratio == 0)  gameC.setScene(this,GameOverScene(parentStage, gameC))
       observableHealthPoint._1.set(ratio)
       observableHealthPoint._2.set(player.name + ":" + player.actualHealthPoint + "hp")
-
-      //if(levelUp) PlayerAnimation.play(PlayerAnimation.LEVELUP_PREFIX)
-    }
     case enemy:Enemy => changeScene(gameC.user, enemy)
     case _:Pyramid => _controller.reset()
     case statue:Statue => showStatueAlert(statue.moneyRequired)
-    case chest: Chest => {print("CHESt from model"); showChestAlert(chest.money);}
+    case chest: Chest => showChestAlert(chest.money)
     case playerRep: PlayerRepresentation => playerImg_(playerRep)
-    case remainingEnem : Int => remainingEnemies.set("Enemies: " + remainingEnem)
-    case cellList : List[RectangleCell] => {setPaneChildren(cellList); setBPane()}
+    case (cellList: List[RectangleCell], remainingEnem : Int) => setPaneChildren(cellList); remainingEnemies.set("Enemies: " + remainingEnem); setBPane()
 
   }
 
-  private val field: Pane = new Pane {maxHeight = 800; translateX=traslationX; translateY=traslationY}
+  private val field: Pane = new Pane {maxHeight = 800; translateX=translationX; translateY=translationY}
 
   private val observableHealthPoint = (new SimpleDoubleProperty(gameC.user.actualHealthPoint.toDouble / gameC.user.totalHealthPoint.toDouble), new SimpleStringProperty(gameC.user.name + ":" + gameC.user.actualHealthPoint + "hp"))
 
@@ -105,13 +100,13 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
   _controller.view_(this)
 
-  private var playerImg: Rectangle = icon(_controller.dashboard.list.head, _controller.dashboard.player.url)
+  private var playerImg: Rectangle = icon(_controller.dashboard.cells.head, _controller.dashboard.player.url)
   def playerImg_(player: PlayerRepresentation):Unit = {playerImg.fill_=(new ImagePattern(new Image(player.url)))}
 
   private val playerPane: Pane = new Pane {
     children.append(mapWindow)
     children.append(playerImg)
-    children.append(PlayerAnimation.setup(_controller.dashboard.list.head))
+    children.append(PlayerAnimation.setup(_controller.dashboard.cells.head))
     id = "rootPane"
 
     onKeyPressed = (ke : KeyEvent) =>  {
@@ -135,7 +130,7 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
     }
   }
 
-  setPaneChildren(_controller.dashboard.list)
+  setPaneChildren(_controller.dashboard.cells)
   root = playerPane
 
 
@@ -143,10 +138,8 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
   def showStatueAlert(money: Int): Unit = {
     Platform.runLater(() -> {
-      val alert = new Alert(AlertType.CONFIRMATION)
-      alert.setTitle("God statue")
+      val alert = GUIObjectFactory.alertFactory(AlertType.CONFIRMATION, parentStage, "God statue", "Would you like to heal donating " + money + " golds?")
       alert.setGraphic(new ImageView(new Image("statue.png")))
-      alert.setHeaderText("Would you like to heal donating " + money + " golds?")
 
       val res = alert.showAndWait()
 
@@ -163,16 +156,14 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
   def showChestAlert(money: Int): Unit = {
     Platform.runLater(() -> {
-      val alert = new Alert(AlertType.INFORMATION)
-      alert.setTitle("Chest")
+      val alert = GUIObjectFactory.alertFactory(AlertType.INFORMATION, parentStage, "Chest", "You obtained: " + money + " golds")
       alert.setGraphic(new ImageView(new Image("chest.png")))
-      alert.setHeaderText("You obtained: " + money + " golds")
       gameC.user ++ money
       alert.showAndWait()
     })
   }
 
-  def createBottomCard(): List[Button] = (0 to 4).toList.map(el =>{
+  def createBottomCard(): List[Button] = (0 to 4).toList.map(_ =>{
     new Button {
       var re: Cell = _
       if(math.random() <= 0.8) re = RectangleCell.generateRandomCard()
@@ -199,13 +190,13 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
   }
 
   def setPaneChildren(list :List[RectangleCell]): Unit = {
-    field.children = list.to[ListBuffer]
+    field.children = list
     list.filter(f =>f.mapEvent.isDefined ).map(m =>m.mapEvent.get ).foreach(el => {
       el.cellEvent match {
-        case e:Enemy => field.children.append(icon(el.playerRepresentation.position, el.playerRepresentation.url, 100, 90))
-        case s:Statue => field.children.append(icon(el.playerRepresentation.position, el.playerRepresentation.url, 38, 110))
-        case p:Pyramid => field.children.append(icon(el.playerRepresentation.position, el.playerRepresentation.url, 80, 110))
-        case c:Chest => field.children.append(icon(el.playerRepresentation.position, el.playerRepresentation.url, 50, 50))
+        case _:Enemy => field.children.append(icon(el.playerRepresentation.position, el.playerRepresentation.url, 100, 90))
+        case _:Statue => field.children.append(icon(el.playerRepresentation.position, el.playerRepresentation.url, 38, 110))
+        case _:Pyramid => field.children.append(icon(el.playerRepresentation.position, el.playerRepresentation.url, 80, 110))
+        case _:Chest => field.children.append(icon(el.playerRepresentation.position, el.playerRepresentation.url, 50, 50))
       }
     })
   }
@@ -222,10 +213,10 @@ class MapScene (override val parentStage: Stage, var _controller : MapController
 
   def changeScene(user:User, enemy:Enemy): Unit = gameC.setScene(this, BattleScene(parentStage, enemy, gameC))
 
-  def removeEnemyCell(): Unit = _controller.dashboard.removeEnemyCell()
+  def removeEnemyCell(): Unit = _controller.dashboard.remove[Enemy]()
 }
 
 object MapScene {
   def apply(parentStage: Stage, gameC : GameController): MapScene = new MapScene(parentStage, new MapControllerImpl(gameC),gameC)
-  def apply(parentStage: Stage, gameC : GameController, list:List[RectangleCell],startingDefined : Option[RectangleCell], traslationX : Double, traslationY: Double): MapScene = new MapScene(parentStage, new MapControllerImpl(gameC, list, startingDefined,traslationX,traslationY),gameC,traslationX,traslationY)
+  def apply(parentStage: Stage, gameC : GameController, list:List[RectangleCell], startingDefined : Option[RectangleCell], translationX : Double, translationY: Double): MapScene = new MapScene(parentStage, new MapControllerImpl(gameC, list, startingDefined,translationX,translationY),gameC,translationX,translationY)
 }

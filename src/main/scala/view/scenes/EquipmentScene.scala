@@ -19,7 +19,7 @@ import scala.collection.mutable.ListBuffer
 trait EquipmentScene extends BaseScene
 
 object EquipmentScene {
-  def apply(parentStage: Stage, gameController: GameController): EquipmentScene = new EquipmentSceneImpl(parentStage, gameController)
+  def apply(parentStage: Stage, gameController: GameController): EquipmentScene = EquipmentSceneImpl(parentStage, gameController)
 
   private case class EquipmentSceneImpl(override val parentStage: Stage, gameController: GameController) extends EquipmentScene{
 

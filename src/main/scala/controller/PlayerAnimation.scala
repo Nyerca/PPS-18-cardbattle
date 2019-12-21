@@ -9,7 +9,7 @@ import scalafx.scene.shape.Rectangle
 import scalafx.util.Duration
 
 object PlayerAnimation {
-  val LEVELUP_PREFIX: String = "lev"
+  val LEVEL_UP_PREFIX: String = "lev"
   val HEAL_PREFIX: String = "heal"
   private var currentPrefix: String = _
 
@@ -37,7 +37,6 @@ object PlayerAnimation {
     * @param prefix prefix of the animation to play.
     */
   def play(prefix: String): Unit = {
-    println("LEVEL UP ANIMATION")
     currentPrefix = prefix
     animationImg.fill_=(new ImagePattern(new Image(currentPrefix + "_1.png")))
     anim.setOnFinished(_ =>  {
