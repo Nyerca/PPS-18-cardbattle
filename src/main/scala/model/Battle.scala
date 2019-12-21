@@ -13,6 +13,8 @@ trait Battle extends Observable {
 
 }
 
+case class LevelUp()
+
 object Battle {
 
   private class BattleImpl(var user: Player, var enemy: Player) extends Battle {
@@ -22,7 +24,7 @@ object Battle {
     override def fight(userCard: Card, enemyCard: Card): Unit = {
       (userCard.family._1, enemyCard.family._1) match {
         case (Category.Attack, Category.Attack) =>
-         user  - enemyCard.value
+          user  - enemyCard.value
           enemy - userCard.value
         case (Category.Defense, Category.Defense) => ;
         case (Category.Attack, Category.Defense) => calculateDamage(userCard, enemyCard, enemy)
@@ -34,14 +36,15 @@ object Battle {
 
     override def checkWinner(): (Option[Player], Option[Player]) = {
       if(user.actualHealthPoint > 0 && enemy.actualHealthPoint <= 0) {
-        notifyObserver(Some(user))
+        if(user.experience <= enemy.experience) notifyObserver(Some(user), Some(LevelUp))
+        else notifyObserver(Some(user), None)
         (Some(user), Some(enemy))
       } else if(user.actualHealthPoint <= 0) {
-        notifyObserver(Some(enemy))
+        notifyObserver(Some(enemy), None)
         (None,None)
       }
       else {
-        notifyObserver(None)
+        notifyObserver(None, None)
         (None,None)
       }
     }

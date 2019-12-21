@@ -1,21 +1,24 @@
 package view.scenes
 
-import utility.GUIObjectFactory
-import controller.GameController
-import model.{Card, Enemy}
+import controller.{GameController, MusicPlayer, PlayerAnimation, SoundType}
+import model.{Card, LevelUp}
 import scalafx.Includes._
 import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.control.Label
 import scalafx.stage.Stage
+import utility.GUIObjectFactory
 import view.scenes.component.CardComponent
+
 import scala.language.postfixOps
-import scala.util.Random
+import scala.util.{Random}
 
 trait RewardScene extends BaseScene
 
 object RewardScene {
 
-  private class Reward(override val parentStage: Stage, gameController: GameController, enemy: Enemy) extends RewardScene {
+  private class Reward(override val parentStage: Stage, gameController: GameController, levelUp: Option[LevelUp]) extends RewardScene {
+
+    MusicPlayer.play(SoundType.WinningSound)
 
     stylesheets.add("style.css")
 
@@ -29,6 +32,7 @@ object RewardScene {
       gameController.user ++ rewards(n).card
       GUIObjectFactory.alertFactory(AlertType.Information, parentStage, "Card gained","Congratulations, you gained a card").showAndWait()
       gameController.setScene(this)
+      if(levelUp isDefined) PlayerAnimation.play(PlayerAnimation.LEVELUP_PREFIX)
     })
 
     val title: Label = GUIObjectFactory.labelFactory(120, 50, "Choose your reward", "rewardTitle")
@@ -38,6 +42,6 @@ object RewardScene {
     root = GUIObjectFactory.paneFactory(rewards.map(x => x.cardDamage) ++ rewards.map(x => x.cardLevel) ++ rewards.map(x => x.clickableCard) ++ rewards.map(x => x.cardName) :+ title)( "common", "battleScene")(0,0)
   }
 
-  def apply(parentStage: Stage, gameController: GameController, enemy2: Enemy): RewardScene = new Reward(parentStage, gameController, enemy2)
+  def apply(parentStage: Stage, gameController: GameController, levelUp: Option[LevelUp]): RewardScene = new Reward(parentStage, gameController, levelUp)
 }
 

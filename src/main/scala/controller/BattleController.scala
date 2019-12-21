@@ -7,7 +7,6 @@ trait BattleController {
 
   def battleScene: BattleScene
   def game: Battle
-  def gameController: GameController
   def drawCard(playerType: Player): Unit
   def fight(userCard: Card, enemyCard: Card): Unit
   def checkWinner(): Unit
@@ -15,7 +14,8 @@ trait BattleController {
 }
 
 object BattleController {
-  private class BattleControllerImpl(override val battleScene: BattleScene, override val game: Battle, override val gameController: GameController) extends BattleController {
+
+  private class BattleControllerImpl(override val battleScene: BattleScene, override val game: Battle) extends BattleController {
 
     game.addObserver(battleScene)
 
@@ -28,5 +28,5 @@ object BattleController {
       case _ => ;
     }
   }
-  def apply(battleScene2: BattleScene, game: Battle, gameController2: GameController): BattleController = new BattleControllerImpl(battleScene2, game, gameController2)
+  def apply(battleScene2: BattleScene, game: Battle): BattleController = new BattleControllerImpl(battleScene2, game)
 }

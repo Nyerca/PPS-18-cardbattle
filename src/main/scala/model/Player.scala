@@ -2,6 +2,7 @@ package model
 
 
 trait Player extends Observable with Serializable {
+
   var actualHealthPoint: Int
   def name: String
   def level: Int
@@ -10,7 +11,7 @@ trait Player extends Observable with Serializable {
   def totalHealthPoint: Int
   def coins: Int
   def experience: Int
-  def -(hp: Int): Unit = {actualHealthPoint -= hp; notifyObserver(this, false)}
+  def -(hp: Int): Unit = actualHealthPoint -= hp
 }
 
 class User(override val name: String, override val image: String, var level: Int, var allCards: List[Card], var totalHealthPoint: Int, var actualHealthPoint: Int, var experience: Int, var  coins: Int) extends Player {
@@ -22,14 +23,12 @@ class User(override val name: String, override val image: String, var level: Int
       totalHealthPoint += 5
       actualHealthPoint = totalHealthPoint
       experience = 3 * level - (enemy.experience - experience)
-      println("LEVEL UP")
     } else experience -= enemy.experience
     notifyObserver(this)
   }
 
   def ++(money: Int): Unit = {
     coins += money
-    println("Coins from player: " + coins)
     if(money < 0) actualHealthPoint = totalHealthPoint
     notifyObserver(this)
   }
@@ -40,6 +39,8 @@ class User(override val name: String, override val image: String, var level: Int
       battleDeck = allCards.filter(c => battleDeck.contains(c))
     case _ => allCards = card :: allCards
   }
+
+  override def -(hp: Int): Unit = super.-(hp); notifyObserver(this)
 
 }
 
