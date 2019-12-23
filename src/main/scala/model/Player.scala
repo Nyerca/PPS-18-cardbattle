@@ -15,6 +15,11 @@ trait Player extends Observable with Serializable {
 
 class User(override val name: String, override val image: String, var level: Int, var allCards: List[Card], var totalHealthPoint: Int, var actualHealthPoint: Int, var experience: Int, var  coins: Int) extends Player {
   var battleDeck: List[Card] = allCards
+
+  /**
+   * Updates user's params.
+   * @param enemy defeated.
+   */
   def ++(enemy: Player): Unit = {
     coins += enemy.coins
     if ( experience - enemy.experience <= 0 ) {
@@ -26,12 +31,20 @@ class User(override val name: String, override val image: String, var level: Int
     notifyObserver(this)
   }
 
+  /**
+   * If money > 0 user gains money otherwise user spends money and recharge his/her life.
+   * @param money gained/spent.
+   */
   def ++(money: Int): Unit = {
     coins += money
     if(money < 0) actualHealthPoint = totalHealthPoint
     notifyObserver(this)
   }
 
+  /**
+   * Add card gained to user's cards.
+   * @param card gained.
+   */
   def ++(card: Card): Unit =  allCards.find(c => c.name == card.name) match {
     case Some(_) =>
       allCards = card.up :: allCards.filter(c => c != card)
