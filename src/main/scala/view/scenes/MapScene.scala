@@ -145,7 +145,7 @@ class MapScene (override val parentStage: Stage, val _controller : MapController
 
       if( res.isDefined && res.get == ButtonType.OK) {
         if(gameC.user.coins >= money) {
-          gameC.user ++ (-money)
+          _controller.setGold(-money)
           PlayerAnimation.play(PlayerAnimation.HEAL_PREFIX)
         } else {
           println("You haven't got enough money!")
@@ -158,7 +158,7 @@ class MapScene (override val parentStage: Stage, val _controller : MapController
     Platform.runLater(() -> {
       val alert = GUIObjectFactory.alertFactory(AlertType.INFORMATION, parentStage, "Chest", "You obtained: " + money + " golds")
       alert.setGraphic(new ImageView(new Image("chest.png")))
-      gameC.user ++ money
+      _controller.setGold(money)
       alert.showAndWait()
     })
   }
@@ -169,7 +169,7 @@ class MapScene (override val parentStage: Stage, val _controller : MapController
       if(math.random() <= 0.8) re = RectangleCell.generateRandomCard()
       else re = EnemyCell(gameC.spawnEnemy(Random.nextInt(4)))
       graphic = new ImageView(re.image) {fitWidth_=(100); fitHeight_=(100)}
-      onAction = () => _controller.dashboard.selected=Option(re)
+      onAction = () => _controller.setDashboardSelected(Option(re))
       defaultButton = true
       styleClass.add("bottomButton")
     }

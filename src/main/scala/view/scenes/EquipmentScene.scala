@@ -31,13 +31,10 @@ object EquipmentScene {
       val c = new CardComponentImpl(0,0, false,handle{
         println(gameController.user.battleDeck.map(el => el.name))
 
-        if(gameController.user.battleDeck.contains(card)) {
-          gameController.user.battleDeck = gameController.user.battleDeck.filter(c => c != card)
-          btn.styleClass.remove("equipSelectedCard")
-        } else {
-          gameController.user.battleDeck = card :: gameController.user.battleDeck
-          btn.styleClass.add("equipSelectedCard")
-        }
+        gameController.setDeck(card)
+        if(btn.styleClass.contains("equipSelectedCard")) btn.styleClass.remove("equipSelectedCard")
+        else btn.styleClass.add("equipSelectedCard")
+
         setCards()
       })
       c.setCardInformation(card)

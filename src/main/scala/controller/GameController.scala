@@ -2,11 +2,13 @@ package controller
 
 
 import java.io.{FileInputStream, ObjectInputStream}
+
 import utility.GameObjectFactory.createCards
 import utility.{GUIObjectFactory, GameObjectFactory}
-import model._
+import model.{Card, _}
 import scalafx.scene.control.Alert.AlertType
 import view.scenes._
+
 import scala.language.postfixOps
 import scala.util.{Failure, Random, Success, Try}
 
@@ -41,6 +43,8 @@ trait GameController {
   def gameMap: MapScene
   def allCards: List[Card] = GameObjectFactory.createCards(1)
   def setScene(fromScene: BaseScene, toScene: BaseScene = gameMap): Unit
+  def gainCard(card: Card): Unit
+  def setDeck(card: Card): Unit
   def setUserInformation(operationType: OperationType, fromScene: BaseScene, name: String = ""): Unit
   def spawnEnemy(randomIndex: Int): Enemy
 }
@@ -67,6 +71,15 @@ object GameController {
         case _ => ;
       }
       fromScene.changeScene(toScene)
+    }
+
+    override def gainCard(card: Card): Unit = user ++ card
+
+    override def setDeck(card: Card): Unit = {
+      user.battleDeck.find(c => c == card) match {
+        case Some(_) => user.battleDeck = user.battleDeck.filter(c => c != card)
+        case _ => user.battleDeck = card :: user.battleDeck
+      }
     }
 
     override def setUserInformation(operationType: OperationType, fromScene: BaseScene, name: String): Unit = {

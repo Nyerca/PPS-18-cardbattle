@@ -5,7 +5,7 @@ import java.io.{File, FileOutputStream, ObjectOutputStream}
 import utility.TransitionFactory
 import exception.DoubleMovementException
 import javafx.scene.input.MouseEvent
-import model.{Bottom, Cell, ChestPosition, EmptyPosition, EnemyCell, EnemyPosition, Left, MapPosition, PlayerPosition, PyramidPosition, RectangleCell, Right, StatuePosition, Top}
+import model.{Bottom, Cell, ChestPosition, Dashboard, EmptyPosition, EnemyCell, EnemyPosition, Left, MapPosition, PlayerPosition, PyramidPosition, RectangleCell, Right, StatuePosition, Top}
 import scalafx.scene.input.KeyCode
 import view.scenes.MapScene
 import javafx.animation.Animation.Status
@@ -26,6 +26,8 @@ trait MapController {
   def handleKey(keyCode : KeyCode): Unit
   def handleMouseClicked(e:MouseEvent): Unit
   def dashboard:model.Dashboard
+  def setDashboardSelected(selectedElem:Option[Cell]): Unit
+  def setGold(money: Int): Unit
 }
 
 /**
@@ -114,6 +116,10 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
       case _ =>
     }
   }
+
+  override def setDashboardSelected(selectedElem:Option[Cell]): Unit = dashboard.selected = selectedElem
+
+  override def setGold(money: Int): Unit = gameC.user ++ money
 }
 
 object MapController {
