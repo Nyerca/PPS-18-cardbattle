@@ -79,15 +79,12 @@ object BattleScene {
     battleController.drawCard(enemy)
 
     /**
-     * Handles fight animation and at the end checks the winner, handles draw card operation and updates HP.
+     * Handles fight animation and at the end checks the winner and updates HP.
      * @param family of card played
      * @param player has to be animated
      */
     private def playFightAnimation(family: (Category, Type), player: Player): Unit = player match {
-        case _: Enemy => enemyRepresentation.playAnimation(-90, family, handle {
-          battleController.drawCard(enemy)
-          enemyRepresentation.updateHP(player.actualHealthPoint)
-        })
+        case _: Enemy => enemyRepresentation.playAnimation(-90, family, handle (enemyRepresentation.updateHP(player.actualHealthPoint)))
         case _ => userRepresentation.playAnimation(90, family, handle {
           userRepresentation.updateHP(player.actualHealthPoint)
           battleController.checkWinner()
@@ -116,6 +113,7 @@ object BattleScene {
         case _ => TransitionFactory.fadeTransitionFactory(Duration(2000), root.value, handle(gameController.setScene(this, GameOverScene(parentStage, gameController)))).play()
       }
       case _ =>
+        battleController.drawCard(enemy)
         userHandCard.filter(cc => cc.clickableCard.opacity.value == 1) foreach (cc => cc.clickableCard.mouseTransparent = false)
         userDeck.mouseTransparent = false
     }
