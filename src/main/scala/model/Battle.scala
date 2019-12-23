@@ -19,8 +19,17 @@ object Battle {
 
   private class BattleImpl(var user: Player, var enemy: Player) extends Battle {
 
+    /**
+     * Handles draw card action for a specific player.
+     * @param player has to draw.
+     */
     override def drawCard(player: Player): Unit = notifyObserver(player.battleDeck(Random.nextInt(player.battleDeck.length)), player)
 
+    /**
+     * Checks over card type and family and compute damage for each player.
+     * @param userCard played by the user.
+     * @param enemyCard played by the enemy.
+     */
     override def fight(userCard: Card, enemyCard: Card): Unit = {
       (userCard.family._1, enemyCard.family._1) match {
         case (Category.Attack, Category.Attack) =>
@@ -34,6 +43,10 @@ object Battle {
       notifyObserver(enemy, enemyCard)
     }
 
+    /**
+     * Checks the winner: user win if has HP > 0 and enemy has HP <= 0; enemy win if user's HP <= 0, otherwise game goes on.
+     * @return (Option[Player],Option[Player]).
+     */
     override def checkWinner(): (Option[Player], Option[Player]) = {
       if(user.actualHealthPoint > 0 && enemy.actualHealthPoint <= 0) {
         if(user.experience <= enemy.experience) notifyObserver(Some(user), Some(LevelUp))

@@ -78,28 +78,42 @@ object BattleScene {
 
     battleController.drawCard(enemy)
 
+    /**
+     * Handles fight animation and at the end checks the winner and updates HP.
+     * @param family of card played
+     * @param player has to be animated
+     */
     private def playFightAnimation(family: (Category, Type), player: Player): Unit = player match {
-        case _: Enemy => enemyRepresentation.playAnimation(-90, family, handle {
-          battleController.drawCard(enemy)
-          enemyRepresentation.updateHP(player.actualHealthPoint)
-        })
+        case _: Enemy => enemyRepresentation.playAnimation(-90, family, handle (enemyRepresentation.updateHP(player.actualHealthPoint)))
         case _ => userRepresentation.playAnimation(90, family, handle {
           userRepresentation.updateHP(player.actualHealthPoint)
           battleController.checkWinner()
         })
       }
 
+    /**
+     * Handles draw card operation checking if the operation is allowed.
+     * @param card to draw
+     * @param player has to draw
+     */
+
     private def drawCard(card: Card, player: Player): Unit = player match {
       case _: User => Try(userHandCard.find(cc => cc.clickableCard.opacity.value == 0 || cc.cardName.text.value == "").get.setCardInformation(card))
       case _ => cpuHandCard.setCardInformation(card)
     }
 
+    /**
+     * Handles the end of the fight
+     * @param player winner.
+     * @param levelUp optional params determines if user has to be levelled up.
+     */
     private def checkWinner(player: Option[Player], levelUp: Option[LevelUp]): Unit = Try(player.get) match {
       case Success(value) => value match {
         case _: User => TransitionFactory.fadeTransitionFactory(Duration(2000), root.value, handle(gameController.setScene(this, RewardScene(parentStage, gameController, levelUp)))).play()
         case _ => TransitionFactory.fadeTransitionFactory(Duration(2000), root.value, handle(gameController.setScene(this, GameOverScene(parentStage, gameController)))).play()
       }
       case _ =>
+        battleController.drawCard(enemy)
         userHandCard.filter(cc => cc.clickableCard.opacity.value == 1) foreach (cc => cc.clickableCard.mouseTransparent = false)
         userDeck.mouseTransparent = false
     }

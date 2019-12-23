@@ -61,7 +61,12 @@ object GameController {
 
     var difficulty: Difficulty = _
 
-    override def setScene(fromScene: BaseScene, toScene: BaseScene): Unit = {
+    /**
+     * Handles change scene.
+     * @param fromScene, previous scene
+     * @param toScene, new scene
+     */
+    override def setScene(fromScene: BaseScene, toScene: BaseScene) = {
       (fromScene, toScene) match {
         case (_: RewardScene, _: MapScene) => MusicPlayer.play(SoundType.MapSound)
         case (_: MapScene, newMap: MapScene) =>
@@ -73,6 +78,7 @@ object GameController {
       fromScene.changeScene(toScene)
     }
 
+
     override def gainCard(card: Card): Unit = user ++ card
 
     override def setDeck(card: Card): Unit = {
@@ -82,6 +88,13 @@ object GameController {
       }
     }
 
+
+    /**
+     * Handles load and new game operation.
+     * @param operationType
+     * @param fromScene, previous scene
+     * @param name of the user
+     */
     override def setUserInformation(operationType: OperationType, fromScene: BaseScene, name: String): Unit = {
       operationType match {
         case OperationType.NewGame =>
@@ -93,6 +106,11 @@ object GameController {
       setScene(fromScene)
     }
 
+    /**
+     * Handles generation of enemies.
+     * @param randomIndex determines the type of enemy spawned.
+     * @return enemy spawned.
+     */
     override def spawnEnemy(randomIndex: Int): Enemy = difficulty match {
       case Difficulty.Easy => createEnemy(enemyCount.keys.toList(randomIndex), if ( user.level - 1 > 0 ) user.level - 1 else user.level, if ( Math.round(user.battleDeck.map(card => card.level).sum.toDouble / user.battleDeck.size.toDouble).toInt - 1 > 0 ) Math.round(user.battleDeck.map(card => card.level).sum.toDouble / user.battleDeck.size.toDouble).toInt - 1 else Math.round(user.battleDeck.map(card => card.level).sum.toDouble / user.battleDeck.size.toDouble) toInt)
       case Difficulty.Medium => createEnemy(enemyCount.keys.toList(randomIndex), user.level, Math.round(user.battleDeck.map(card => card.level).sum.toDouble / user.battleDeck.size.toDouble) toInt)
