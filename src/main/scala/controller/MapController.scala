@@ -87,9 +87,11 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
     */
   override def handleSave(): Unit = {
     import FileManager._
-    val directory = new File("./src/main/saves/")
+    val PATH = System.getProperty("user.home") + System.getProperty("file.separator")
+    println(PATH)
+    val directory = new File(PATH + ".CARDBATTLE/")
     if(!directory.exists()) directory.mkdir
-    val output = new ObjectOutputStream(new FileOutputStream("./src/main/saves/save.txt"))
+    val output = new ObjectOutputStream(new FileOutputStream(PATH + ".CARDBATTLE/save.txt"))
     save(output)(gameC.user)
     save(output)(gameC.difficulty)
     save(output)(dashboard.cells.map(el => el))

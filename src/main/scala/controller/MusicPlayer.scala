@@ -34,10 +34,10 @@ object MusicPlayer {
 
 
   private def setMedia(soundType: SoundType): Option[MediaPlayer] = soundType match {
-    case MapSound => Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Dungeon1.m4a").toString)))
-    case BattleSound => Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Battle1.m4a").toString)))
-    case WinningSound => Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Winning.m4a").toString)))
-    case LoseSound => Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Losing.m4a").toString)))
+    case MapSound => Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Battle1.wav").toString)))
+    case BattleSound => Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Battle1.wav").toString)))
+    case WinningSound => Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Winning.mp3").toString)))
+    case LoseSound => Some(new MediaPlayer(new Media(getClass.getClassLoader.getResource("music/Losing.mp3").toString)))
   }
 
   private def turnToStatusIfExists(mediaPlayer: Option[MediaPlayer], status: Status): Unit = mediaPlayer match {
