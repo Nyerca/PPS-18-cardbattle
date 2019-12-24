@@ -18,14 +18,13 @@ import scalafx.util.Duration
 
 trait MapController {
   def gameC: GameController
-  def selected(element: Option[Cell]):Unit
   def view_ (newView : MapScene): Unit
   def getAllEnemies: Int
   def reset(): Unit
   def handleSave(): Unit
   def handleKey(keyCode : KeyCode): Unit
   def handleMouseClicked(e:MouseEvent): Unit
-  def dashboard:model.Dashboard
+  def dashboard: Dashboard
   def setDashboardSelected(selectedElem:Option[Cell]): Unit
   def setGold(money: Int): Unit
 }
@@ -62,7 +61,6 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
     case _ => throw new DoubleMovementException
   }
 
-  def selected(element :  Option[Cell]): Unit = dashboard.selected = element
   def getAllEnemies : Int = dashboard.getAllEnemies
 
 

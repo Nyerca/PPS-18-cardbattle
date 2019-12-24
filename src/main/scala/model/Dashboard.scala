@@ -10,7 +10,6 @@ trait Dashboard extends Observable{
   var translationX : Double
   var translationY : Double
   def player: PlayerRepresentation
-
   def remove[A <: CellEvent]() :Unit
   def postInsert(): Unit
   def setPlayer(newPosition: RectangleCell, newUrl: String): Unit

@@ -51,7 +51,7 @@ case object PlayerPosition extends MapPosition {
 
 case object EnemyPosition extends MapPosition {
   override def create(gameC: GameController, excludedValues : Map[Int,List[Int]]): RectangleCell = {
-    val rectangle_cell: RectangleCell = MapPosition.createRngCell(excludedValues, damage = true)
+    val rectangle_cell: RectangleCell = MapPosition.createCell(excludedValues, damage = true)
     val enemy = gameC.spawnEnemy(Random.nextInt(5))
     rectangle_cell.mapEvent_(Option(MapEvent(enemy, PlayerRepresentation(rectangle_cell, enemy.image))))
     rectangle_cell

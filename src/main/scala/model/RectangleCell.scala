@@ -7,7 +7,7 @@ import scalafx.Includes._
 import scalafx.scene.image.Image
 import scalafx.scene.shape.Rectangle
 
-trait RectangleCell extends Serializable with Cell {
+trait RectangleCell extends Cell {
   def top: Boolean
   def right: Boolean
   def bottom: Boolean
