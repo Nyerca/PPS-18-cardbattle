@@ -120,7 +120,8 @@ object GameController {
 
     private def loadData(fromScene: BaseScene): Unit = {
       import FileManager._
-      Try(new ObjectInputStream(new FileInputStream("./src/main/saves/save.txt"))) match {
+      val PATH = System.getProperty("user.home") + System.getProperty("file.separator")
+      Try(new ObjectInputStream(new FileInputStream(PATH + ".CARDBATTLE/save.txt"))) match {
         case Success(value) =>
           user = load[User](value)
           difficulty = FileManager.load[Difficulty](value)

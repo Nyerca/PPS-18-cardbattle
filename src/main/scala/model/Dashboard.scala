@@ -96,7 +96,7 @@ object Dashboard {
         setPlayer(newRectangle, player.url)
 
         val event = player.position.mapEvent
-        if(event.isDefined) {
+        if(event.isDefined && user.actualHealthPoint > 0) {
           event.get.cellEvent match {
             case enemy:Enemy => notifyObserver(enemy)
             case statue:Statue => notifyObserver(statue)
