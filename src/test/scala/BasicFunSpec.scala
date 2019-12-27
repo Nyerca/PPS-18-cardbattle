@@ -1,20 +1,13 @@
-import java.util.concurrent.CountDownLatch
-
 import exception.{IllegalSizeException, MissingCellException, NoMovementException}
-import model.{Player, RectangleCell}
+import model.RectangleCell
 import org.junit.runner.RunWith
 import org.scalatestplus.junit.JUnitRunner
-import org.scalatest.{FlatSpec, FunSpec, FunSuite, Matchers}
+import org.scalatest.{FunSpec, Matchers}
 import model._
-
-import scala.collection.mutable.ListBuffer
-
-
 
 @RunWith(classOf[JUnitRunner])
 class BasicFunSpec extends FunSpec with Matchers  {
   var rect : RectangleCell = _
-
 
   describe(" A Set ") {
     describe(" when empty ") {
@@ -32,7 +25,6 @@ class BasicFunSpec extends FunSpec with Matchers  {
       it("should have the correct size") { // Here, 'it' refers to "A Set (when non-empty)". This test's full
         assert(Set(1, 2, 3).size == 3)     // name is: "A Set (when non-empty) should have the correct size"
       }
-
     }
   }
 
@@ -81,8 +73,6 @@ class BasicFunSpec extends FunSpec with Matchers  {
         var list:List[RectangleCell] = List()
         var re =  RectangleCell(true, false, true, true, 200,200,0,0, false)
         var re2 =  RectangleCell(true, true, true, true, 200,200,0,200, false)
-
-
         list = list :+ re
         list = list :+ re2
         val p = PlayerRepresentation(re, "bot.png")
@@ -91,7 +81,6 @@ class BasicFunSpec extends FunSpec with Matchers  {
         dash.->(Right)
       }
     }
-
   }
 
 }

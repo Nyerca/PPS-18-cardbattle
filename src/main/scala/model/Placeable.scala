@@ -1,4 +1,5 @@
 package model
+
 import exception.{DoubleCellException, DoubleEnemyException, MissingCellException}
 
 trait Placeable[A <: Cell] {
@@ -8,8 +9,8 @@ trait Placeable[A <: Cell] {
 object Placeable {
 
   def apply[A <: Cell](implicit pleaceable: Placeable[A ]): Placeable[A] = pleaceable
-  def place[A <: Cell :Placeable](a: A, cell:Option[RectangleCell], dashboard:Dashboard): Unit = Placeable[A].place(a, cell, dashboard)
 
+  def place[A <: Cell :Placeable](a: A, cell:Option[RectangleCell], dashboard:Dashboard): Unit = Placeable[A].place(a, cell, dashboard)
 
   def instance[A <: Cell](func: (A, Option[RectangleCell], Dashboard) => Unit): Placeable[A] = (a: A, cell: Option[RectangleCell], dashboard: Dashboard) => func(a, cell, dashboard)
 
@@ -17,7 +18,7 @@ object Placeable {
     instance((selected, cell, dashboard) => {
       if(cell.isEmpty) {
         dashboard.cells = dashboard.cells :+ selected
-        dashboard.postInsert()
+        dashboard.postInsert(true)
       } else {
         throw new DoubleCellException
       }
@@ -29,7 +30,7 @@ object Placeable {
         val rect = cell.get
         if(rect.mapEvent.isEmpty) {
           rect.mapEvent_(Option(MapEvent(selected.enemy, PlayerRepresentation(rect, selected.enemy.image))) )
-          dashboard.postInsert()
+          dashboard.postInsert(true)
         } else {
           throw new DoubleEnemyException
         }

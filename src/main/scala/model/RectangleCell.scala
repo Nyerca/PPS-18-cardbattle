@@ -19,7 +19,6 @@ trait RectangleCell extends Cell {
   def x_(newX: Double):Unit
   def y_(newY: Double):Unit
   def damage: Boolean
-
   def canEqual(other: Any): Boolean
   def url: String
   def rotation: Int
@@ -30,6 +29,7 @@ trait RectangleCell extends Cell {
 }
 
 object RectangleCell {
+
   val DAMAGE_PROBABILITY = 0.3
 
   implicit def RectangleCell2ListRectangle(list : List[RectangleCell]): List[Rectangle] = {
@@ -57,6 +57,7 @@ object RectangleCell {
   }
 
   def apply(top: Boolean, right: Boolean, bottom: Boolean, left: Boolean, width:Double, height: Double, x: Double, y: Double, damage: Boolean) : RectangleCell = new RectangleCellImpl(top, right, bottom, left, width, height, x, y, damage)
+
   def apply(top: Boolean, right: Boolean, bottom: Boolean, left: Boolean, x: Double, y: Double, damage: Boolean = false) : RectangleCell = new RectangleCellImpl(top, right, bottom, left, x = x, y = y, damage = damage)
 
   /**
@@ -73,11 +74,23 @@ object RectangleCell {
     * @param damage if the cell is poisoned
     */
   private class RectangleCellImpl (override val top: Boolean, override val right: Boolean, override val bottom: Boolean, override val left: Boolean, override val elementWidth: Double = 200, override val elementHeight: Double = 200, var x: Double, var y:Double, override val damage: Boolean = false) extends RectangleCell  {
+
     var _mapEvent:Option[MapEvent] = Option.empty
+
+    val parameters:(String,Int) = UrlFactory.getParameters(top,right,bottom,left)
+
+    var url:String = parameters._1
+
+    var rotation:Int = parameters._2
+
+    if(damage)url = url.substring(0, url.length - 4) + "Dmg.png"
+
     override def mapEvent:Option[MapEvent] = _mapEvent
+
     override def mapEvent_(cellEve: Option[MapEvent]): Unit = _mapEvent = cellEve
 
     override def x_(newX: Double):Unit = x=newX
+
     override def y_(newY: Double):Unit = y=newY
 
     override def isRectangle(posX: Double, posY: Double): Boolean = this.x <= posX && this.y <= posY && this.x + this.elementWidth > posX && this.y + this.elementHeight > posY
@@ -97,11 +110,6 @@ object RectangleCell {
     override def toString :String = "Rectangle ("+x + ", " +y+") T: " + top + " R: " + right + " B: " + bottom + " L: " + left + " enemy: " + _mapEvent
 
     override def image: Image = Cell.createImage(url,rotation)
-
-    val parameters:(String,Int) = UrlFactory.getParameters(top,right,bottom,left)
-    var url:String = parameters._1
-    var rotation:Int = parameters._2
-    if(damage)url = url.substring(0, url.length - 4) + "Dmg.png"
 
     /**
       * Check whether the movement in a specific direction is allowed.

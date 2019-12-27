@@ -4,13 +4,11 @@ import model.{Battle, Card, Player, User}
 import view.scenes.BattleScene
 
 trait BattleController {
-
   def battleScene: BattleScene
   def game: Battle
   def drawCard(playerType: Player): Unit
   def fight(userCard: Card, enemyCard: Card): Unit
   def checkWinner(): Unit
-
 }
 
 object BattleController {
@@ -28,5 +26,6 @@ object BattleController {
       case _ => ;
     }
   }
+
   def apply(battleScene2: BattleScene, game: Battle): BattleController = new BattleControllerImpl(battleScene2, game)
 }

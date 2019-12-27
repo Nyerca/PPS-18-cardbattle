@@ -2,13 +2,11 @@ package controller
 
 
 import java.io.{FileInputStream, ObjectInputStream}
-
 import utility.GameObjectFactory.createCards
 import utility.{GUIObjectFactory, GameObjectFactory}
 import model.{Card, _}
 import scalafx.scene.control.Alert.AlertType
 import view.scenes._
-
 import scala.language.postfixOps
 import scala.util.{Failure, Random, Success, Try}
 
@@ -66,7 +64,7 @@ object GameController {
      * @param fromScene, previous scene
      * @param toScene, new scene
      */
-    override def setScene(fromScene: BaseScene, toScene: BaseScene) = {
+    override def setScene(fromScene: BaseScene, toScene: BaseScene): Unit = {
       (fromScene, toScene) match {
         case (_: RewardScene, _: MapScene) => MusicPlayer.play(SoundType.MapSound)
         case (_: MapScene, newMap: MapScene) =>
@@ -91,7 +89,7 @@ object GameController {
 
     /**
      * Handles load and new game operation.
-     * @param operationType
+     * @param operationType type of the operation
      * @param fromScene, previous scene
      * @param name of the user
      */
@@ -134,11 +132,11 @@ object GameController {
     private def createEnemy(enemyType: EnemyType, enemyLevel: Int, cardLevel: Int): Enemy = {
       enemyCount += (enemyType -> (enemyCount(enemyType) + 1))
       enemyType match {
-        case EnemyType.Sphinx => Player.Enemy("Sphinx", "images/sphinx.png", enemyLevel, Random.shuffle(createCards(cardLevel)).take(8), 5 + enemyCount(enemyType), 5 + enemyCount(enemyType), enemyLevel, enemyLevel)
-        case EnemyType.Cobra => Player.Enemy("Cobra", "images/cobra.png", enemyLevel, Random.shuffle(createCards(cardLevel)).take(8), 5 + enemyCount(enemyType), 5 + enemyCount(enemyType), enemyLevel, enemyLevel)
-        case EnemyType.Griffin => Player.Enemy("Griffin", "images/griffin.png", enemyLevel, Random.shuffle(createCards(cardLevel)).take(8), 5 + enemyCount(enemyType), 5 + enemyCount(enemyType), enemyLevel, enemyLevel)
-        case EnemyType.EgyptWarrior => Player.Enemy("Egypt Warrior", "images/warrior.png", enemyLevel, Random.shuffle(createCards(cardLevel)).take(8), 5 + enemyCount(enemyType), 5 + enemyCount(enemyType), enemyLevel, enemyLevel)
-        case EnemyType.YellowBlob => Player.Enemy("Yellow Blob", "images/blob.png", enemyLevel, Random.shuffle(createCards(cardLevel)).take(8), 5 + enemyCount(enemyType), 5 + enemyCount(enemyType), enemyLevel, enemyLevel)
+        case EnemyType.Sphinx => Player.Enemy("Sphinx", "images/sphinx.png", enemyLevel, Random.shuffle(createCards(cardLevel)).take(8), 6 + enemyCount(enemyType), 6 + enemyCount(enemyType), enemyLevel + 1, enemyLevel + 1)
+        case EnemyType.Cobra => Player.Enemy("Cobra", "images/cobra.png", enemyLevel, Random.shuffle(createCards(cardLevel)).take(8), 4 + enemyCount(enemyType), 4 + enemyCount(enemyType), enemyLevel, enemyLevel)
+        case EnemyType.Griffin => Player.Enemy("Griffin", "images/griffin.png", enemyLevel, Random.shuffle(createCards(cardLevel)).take(8), 5 + enemyCount(enemyType), 5 + enemyCount(enemyType), enemyLevel + 1, enemyLevel)
+        case EnemyType.EgyptWarrior => Player.Enemy("Egypt Warrior", "images/warrior.png", enemyLevel, Random.shuffle(createCards(cardLevel)).take(8), 5 + enemyCount(enemyType), 5 + enemyCount(enemyType), enemyLevel, enemyLevel + 1)
+        case EnemyType.YellowBlob => Player.Enemy("Yellow Blob", "images/blob.png", enemyLevel, Random.shuffle(createCards(cardLevel)).take(8), 3 + enemyCount(enemyType), 3 + enemyCount(enemyType), enemyLevel, enemyLevel)
       }
     }
   }

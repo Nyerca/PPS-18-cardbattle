@@ -1,7 +1,6 @@
 package controller
 
 import java.io.{File, FileOutputStream, ObjectOutputStream}
-
 import utility.TransitionFactory
 import exception.DoubleMovementException
 import javafx.scene.input.MouseEvent
@@ -10,7 +9,6 @@ import scalafx.scene.input.KeyCode
 import view.scenes.MapScene
 import javafx.animation.Animation.Status
 import scalafx.Includes._
-
 import scala.util.Random
 import model.Placeable._
 import scalafx.util.Duration
@@ -40,11 +38,12 @@ trait MapController {
   */
 class MapControllerImpl (override val gameC : GameController, var _list:List[RectangleCell], var startingDefined : Option[RectangleCell], translationX:Double, translationY:Double) extends MapController {
 
-  def this(gameC : GameController) {this(gameC,MapController.setup(gameC),Option.empty,0,0)}
-
   val dashboard = model.Dashboard(_list, startingDefined, translationX, translationY, gameC.user)
 
   var view: MapScene = _
+
+  def this(gameC : GameController) {this(gameC,MapController.setup(gameC),Option.empty,0,0)}
+
   override def view_ (newView : MapScene): Unit = {
     view = newView
     dashboard.addObserver(view)
@@ -54,15 +53,7 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
 
   override def reset(): Unit = TransitionFactory.fadeTransitionFactory(Duration(2000), view.root.value, handle {gameC.setScene(view, MapScene(view.parentStage, gameC))}).play()
 
-  private def checkAnimationEnd(url: String):Boolean = MovementAnimation.anim.status.value match {
-    case Status.STOPPED =>
-      dashboard.setPlayer(dashboard.player.position, url + ".png")
-      true
-    case _ => throw new DoubleMovementException
-  }
-
-  def getAllEnemies : Int = dashboard.getAllEnemies
-
+  override def getAllEnemies : Int = dashboard.getAllEnemies
 
   /**
     * Check the keyboard keys pressed and moves, whether possible, the player.
@@ -79,17 +70,15 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
     }
   }
 
-
   /**
     * Saves all the informations in a save.txt file.
     */
   override def handleSave(): Unit = {
     import FileManager._
-    val PATH = System.getProperty("user.home") + System.getProperty("file.separator")
-    println(PATH)
-    val directory = new File(PATH + ".CARDBATTLE/")
+    val path = System.getProperty("user.home") + System.getProperty("file.separator")
+    val directory = new File(path + ".CARDBATTLE/")
     if(!directory.exists()) directory.mkdir
-    val output = new ObjectOutputStream(new FileOutputStream(PATH + ".CARDBATTLE/save.txt"))
+    val output = new ObjectOutputStream(new FileOutputStream(path + ".CARDBATTLE/save.txt"))
     save(output)(gameC.user)
     save(output)(gameC.difficulty)
     save(output)(dashboard.cells.map(el => el))
@@ -98,7 +87,6 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
     save(output)(dashboard.translationY)
     output.close()
   }
-
 
   /**
     * Check the position clicked in the map, and whether an item on the bottom pane has been previusly selected, places that item to the map.
@@ -120,6 +108,13 @@ class MapControllerImpl (override val gameC : GameController, var _list:List[Rec
   override def setDashboardSelected(selectedElem:Option[Cell]): Unit = dashboard.selected = selectedElem
 
   override def setGold(money: Int): Unit = gameC.user ++ money
+
+  private def checkAnimationEnd(url: String):Boolean = MovementAnimation.anim.status.value match {
+    case Status.STOPPED =>
+      dashboard.setPlayer(dashboard.player.position, url + ".png")
+      true
+    case _ => throw new DoubleMovementException
+  }
 }
 
 object MapController {
@@ -150,5 +145,4 @@ object MapController {
     })
     list
   }
-
 }

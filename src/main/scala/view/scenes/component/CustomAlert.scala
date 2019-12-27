@@ -6,23 +6,28 @@ import scalafx.scene.layout.Pane
 import scalafx.Includes._
 
 class CustomAlert extends Dialog[(Option[String], Option[Difficulty])] {
+
   title = "Setting"
+
   val name: TextField = new TextField() {
     style = "-fx-pref-width:150px"
     text = "Player1"
     translateY = 25
     translateX = 110
   }
+
   val nameLabel: Label = new Label("Enter your name") {
     translateY = 30
     translateX = 10
   }
+
   val difficulty: ComboBox[Difficulty] = new ComboBox[Difficulty](List(Difficulty.Easy, Difficulty.Medium, Difficulty.Hard)) {
     value = Difficulty.Medium
     translateY = 70
     translateX = 110
     style = "-fx-pref-width:150px"
   }
+
   val difficultyLabel: Label = new Label("Select difficulty") {
     translateY = 70
     translateX = 10

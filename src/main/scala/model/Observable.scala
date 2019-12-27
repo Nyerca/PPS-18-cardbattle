@@ -1,8 +1,6 @@
 package model
 
-
 import view.scenes.ObserverScene
-
 
 abstract class Observable {
 
@@ -13,5 +11,4 @@ abstract class Observable {
   def removeObserver(observer: ObserverScene): Unit = observers = observers diff List(observer)
 
   def notifyObserver[A](model: A): Unit = observers.foreach(ob => ob.update(model))
-
 }

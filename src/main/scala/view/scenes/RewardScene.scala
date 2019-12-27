@@ -17,10 +17,6 @@ object RewardScene {
 
   private class Reward(override val parentStage: Stage, gameController: GameController, levelUp: Option[LevelUp]) extends RewardScene {
 
-    MusicPlayer.play(SoundType.WinningSound)
-
-    stylesheets.add("style.css")
-
     private val shuffledCards: List[Card] = Random.shuffle(gameController.allCards)
 
     val rewards: List[CardComponent] = for (
@@ -35,6 +31,10 @@ object RewardScene {
     })
 
     val title: Label = GUIObjectFactory.labelFactory(120, 50, "Choose your reward", "rewardTitle")
+
+    MusicPlayer.play(SoundType.WinningSound)
+
+    stylesheets.add("style.css")
 
     for (n <- 0 until 3) yield rewards(n) setCardInformation shuffledCards(n)
 

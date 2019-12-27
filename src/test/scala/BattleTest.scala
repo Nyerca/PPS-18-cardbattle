@@ -64,9 +64,6 @@ class BattleTest extends FunSpec with Matchers {
     it("should win player 1 if he/she has life points > 0 and enemy has  life points <= 0") {
       battle.fight(battle.user.battleDeck.head, battle.enemy.battleDeck.head)
       assert(battle.checkWinner() == (Some(baseUser), Some(baseEnemy)))
-
     }
-
-
   }
 }

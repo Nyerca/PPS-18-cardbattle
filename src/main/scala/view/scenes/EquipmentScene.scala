@@ -9,33 +9,35 @@ import scalafx.scene.control.ScrollPane.ScrollBarPolicy
 import scalafx.scene.control._
 import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.layout._
-import scalafx.scene.text.Text
 import scalafx.scene.Node
 import scalafx.stage.Stage
-import view.scenes.component.CardComponentImpl
-
+import view.scenes.component.CardComponent
 import scala.collection.mutable.ListBuffer
 
 trait EquipmentScene extends BaseScene
 
 object EquipmentScene {
+
   def apply(parentStage: Stage, gameController: GameController): EquipmentScene = EquipmentSceneImpl(parentStage, gameController)
 
   private case class EquipmentSceneImpl(override val parentStage: Stage, gameController: GameController) extends EquipmentScene{
 
-    stylesheets.add("mapStyle.css")
-    stylesheets.add("style.css")
+    private var index = 0
+
+    private val gridPane: GridPane = new GridPane() {id="grid"; minHeight = 798}
+
+    private val observableCards = new SimpleStringProperty("CARDS:         " +gameController.user.battleDeck.size+ " /8")
 
     private def createCardPane(card: Card): Pane = new Pane {
       children = new ListBuffer[Node]
-      val c = new CardComponentImpl(0,0, false,handle{
+      val c = CardComponent(0,0, false,handle{
         println(gameController.user.battleDeck.map(el => el.name))
 
         gameController.setDeck(card)
         if(btn.styleClass.contains("equipSelectedCard")) btn.styleClass.remove("equipSelectedCard")
         else btn.styleClass.add("equipSelectedCard")
 
-        setCards()
+        observableCards.set("CARDS:         " + gameController.user.battleDeck.size+ " /8")
       })
       c.setCardInformation(card)
       val btn: Button = c.clickableCard
@@ -48,20 +50,18 @@ object EquipmentScene {
       children.append(c.cardDamage)
     }
 
-    private var index = 0
-
     private def addCard(gridPane: GridPane, card: Card): Unit = {
       gridPane.add(createCardPane(card), index % 4, index / 4)
       index=index+1
     }
 
-    private val gridPane: GridPane = new GridPane() {id="grid"; minHeight = 798}
-    gameController.user.allCards.foreach(c => addCard(gridPane, c))
-
-    private val observableCards = new SimpleStringProperty("CARDS:         " +gameController.user.battleDeck.size+ " /8")
-    private def setCards(): Unit = observableCards.set("CARDS:         " + gameController.user.battleDeck.size+ " /8")
-
     private def changeScene(): Unit = gameController.setScene(this)
+
+    stylesheets.add("mapStyle.css")
+
+    stylesheets.add("style.css")
+
+    gameController.user.allCards.foreach(c => addCard(gridPane, c))
 
     root = new BorderPane() {
       top = GUIObjectFactory.toolbarFactory(

@@ -33,7 +33,6 @@ object MovementAnimation {
   def setAnimationIncrement(newRectangle:RectangleCell, incrementX : Double, incrementY: Double, stringUrl : String, fun:(RectangleCell, String, Boolean) => Unit): Unit = {
     anim.toX = anim.fromX.toDouble + incrementX
     anim.toY = anim.fromY.toDouble + incrementY
-
     anim.setOnFinished(_ =>  {
       setAnim(newRectangle,incrementX,incrementY,stringUrl + "2.png",fun)
       anim.setOnFinished(_ => {

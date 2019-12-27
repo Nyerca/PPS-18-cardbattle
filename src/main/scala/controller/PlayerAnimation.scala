@@ -9,8 +9,11 @@ import scalafx.scene.shape.Rectangle
 import scalafx.util.Duration
 
 object PlayerAnimation {
+
   val LEVEL_UP_PREFIX: String = "lev"
+
   val HEAL_PREFIX: String = "heal"
+
   private var currentPrefix: String = _
 
   private var animationImg = new Rectangle() {

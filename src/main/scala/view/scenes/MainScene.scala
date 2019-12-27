@@ -8,13 +8,9 @@ import scalafx.scene.media.MediaPlayer.Status
 import scalafx.stage.Stage
 import view.scenes.component.CustomAlert
 
-
 class MainScene(override val parentStage: Stage) extends BaseScene {
+
   private val gameController: GameController = GameController()
-
-  MusicPlayer.changeStatus(Status.Paused)
-
-  stylesheets.add("style.css")
 
   val newGame: Button = GUIObjectFactory.buttonFactory(950, 400, mouseTransparency = false, handle {
     new CustomAlert().showAndWait() match {
@@ -28,6 +24,10 @@ class MainScene(override val parentStage: Stage) extends BaseScene {
   val loadGame: Button = GUIObjectFactory.buttonFactory(950, 600, mouseTransparency = false, handle {
     gameController.setUserInformation(OperationType.LoadGame, this)
   }, GUIObjectFactory.DEFAULT_STYLE, "Load Game")("mainPageButton")
+
+  MusicPlayer.changeStatus(Status.Paused)
+
+  stylesheets.add("style.css")
 
   root = GUIObjectFactory.paneFactory(List(newGame, loadGame))("common","mainPane")(0,0)
 }

@@ -9,7 +9,6 @@ import scalafx.scene.control.{Button, Label, ProgressBar}
 import scalafx.scene.layout.{Pane, StackPane}
 import scalafx.util.Duration
 
-
 trait BattlePlayerRepresentation extends Pane {
 
   protected val observableHealthPoint: (SimpleDoubleProperty, SimpleStringProperty) = (new SimpleDoubleProperty(player.actualHealthPoint.toDouble / player.totalHealthPoint.toDouble), new SimpleStringProperty(player.name + ": " + player.actualHealthPoint + "hp"))

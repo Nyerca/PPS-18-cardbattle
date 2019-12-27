@@ -10,6 +10,7 @@ import scalafx.stage.Stage
 object GUIObjectFactory {
 
   val  DEFAULT_ON_ACTION: EventHandler[ActionEvent] = null
+
   val DEFAULT_STYLE: String = null
 
   def buttonFactory(marginX: Double, marginY: Double, mouseTransparency: Boolean, action: EventHandler[ActionEvent] = DEFAULT_ON_ACTION, styleString: String = DEFAULT_STYLE, buttonText: String = "")(classes: String*): Button = new Button {

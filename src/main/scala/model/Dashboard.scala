@@ -3,7 +3,6 @@ package model
 import controller.MovementAnimation
 import exception.{MissingCellException, NoMovementException}
 
-
 trait Dashboard extends Observable{
   var cells: List[RectangleCell]
   var selected: Option[Cell]
@@ -11,7 +10,7 @@ trait Dashboard extends Observable{
   var translationY : Double
   def player: PlayerRepresentation
   def remove[A <: CellEvent]() :Unit
-  def postInsert(): Unit
+  def postInsert(changePlaceableCard: Boolean): Unit
   def setPlayer(newPosition: RectangleCell, newUrl: String): Unit
   def getAllEnemies: Int
   def ? (cells: List[RectangleCell], newX : Double, newY : Double): Option[RectangleCell]
@@ -24,14 +23,13 @@ object Dashboard {
   private class DashboardImpl(var cells: List[RectangleCell], startingDefined : Option[RectangleCell], var translationX:Double, var translationY:Double, user: Player) extends Dashboard {
     var selected: Option[Cell] = Option.empty
 
-   override def remove[A]() :Unit = cells.collect { case f if f.mapEvent.isDefined && f == player.position && f.mapEvent.get.cellEvent.isInstanceOf[A] => f.mapEvent_(Option.empty); postInsert() }
-
     var player : PlayerRepresentation = _
     startingDefined match {
       case Some(rect: RectangleCell) => player = PlayerRepresentation(? (cells, rect.x, rect.y).get, "/player/bot.png")
       case _ => player = PlayerRepresentation(cells.head, "/player/bot.png")
     }
 
+    override def remove[A]() :Unit = cells.collect { case f if f.mapEvent.isDefined && f == player.position && f.mapEvent.get.cellEvent.isInstanceOf[A] => f.mapEvent_(Option.empty); postInsert(false) }
 
     /**
       * Check for existing cell in the map given (x, y)
@@ -54,21 +52,6 @@ object Dashboard {
       */
     override def ? (cell_list: List[RectangleCell], newX : Double, newY : Double, movement: Move): Option[RectangleCell] = cell_list.find(rectangle => rectangle.isRectangle(newX, newY) && rectangle.isMoveAllowed(movement))
 
-    private def move(movement:Move, incX : Double, incY : Double): Unit = {
-      MovementAnimation.setAnimation(translationX, translationX + incX.toInt * (-5), translationY, translationY + incY.toInt * (-5))
-
-      val newRectangle = ? (cells, player.position.x + incX.toInt * (-5), player.position.y + incY.toInt * (-5), movement.opposite)
-
-      if(player.position.isMoveAllowed(movement)) {
-        if(newRectangle.isDefined) {
-          MovementAnimation.setAnimationIncrement(newRectangle.get, incX, incY, movement.url(), afterMovement)
-          translationX += incX * 5
-          translationY += incY * 5
-          MovementAnimation.anim.play()
-        } else throw new MissingCellException
-      } else throw new NoMovementException
-    }
-
     /**
       * Handle the movement in a specific direction.
       *
@@ -81,7 +64,37 @@ object Dashboard {
       case Left => move(movement, +40,0)
     }
 
+    override def setPlayer(newPosition: RectangleCell, newUrl: String): Unit = {
+      player = PlayerRepresentation(newPosition, newUrl)
+      notifyObserver(player)
+    }
 
+    override def getAllEnemies: Int = cells.map(m=> m.mapEvent).count(f => f.isDefined && f.get.cellEvent.isInstanceOf[Enemy])
+
+    override def postInsert(changePlaceableCard: Boolean): Unit = {
+      if(getAllEnemies > 0) pyramidDoor("pyramid.png")
+      else pyramidDoor("pyramidDoor.png")
+      notifyObserver(cells, getAllEnemies, changePlaceableCard)
+      selected = Option.empty
+    }
+
+    private def pyramidDoor(url: String): Unit = {
+      val pyramid = cells.find(f => f.mapEvent.isDefined && f.mapEvent.get.cellEvent.isInstanceOf[Pyramid]).get
+      pyramid.mapEvent_(Option(MapEvent(pyramid.mapEvent.get.cellEvent, PlayerRepresentation(pyramid, url))))
+    }
+
+    private def move(movement:Move, incX : Double, incY : Double): Unit = {
+      MovementAnimation.setAnimation(translationX, translationX + incX.toInt * (-5), translationY, translationY + incY.toInt * (-5))
+      val newRectangle = ? (cells, player.position.x + incX.toInt * (-5), player.position.y + incY.toInt * (-5), movement.opposite)
+      if(player.position.isMoveAllowed(movement)) {
+        if(newRectangle.isDefined) {
+          MovementAnimation.setAnimationIncrement(newRectangle.get, incX, incY, movement.url(), afterMovement)
+          translationX += incX * 5
+          translationY += incY * 5
+          MovementAnimation.anim.play()
+        } else throw new MissingCellException
+      } else throw new NoMovementException
+    }
 
     /**
       * Check for cell type and event after the movement.
@@ -93,8 +106,8 @@ object Dashboard {
     private def afterMovement(newRectangle: RectangleCell ,stringUrl : String, isEnded: Boolean): Unit ={
       if(isEnded) {
         if(newRectangle.url.contains("Dmg")) user - 1
+        if(user.actualHealthPoint <= 0 ) notifyObserver(user.actualHealthPoint)
         setPlayer(newRectangle, player.url)
-
         val event = player.position.mapEvent
         if(event.isDefined && user.actualHealthPoint > 0) {
           event.get.cellEvent match {
@@ -106,30 +119,7 @@ object Dashboard {
         }
       } else setPlayer(player.position, stringUrl)
     }
-
-    override def setPlayer(newPosition: RectangleCell, newUrl: String): Unit = {
-      player = PlayerRepresentation(newPosition, newUrl)
-      notifyObserver(player)
-    }
-
-
-    def getAllEnemies: Int = cells.map(m=> m.mapEvent).count(f => f.isDefined && f.get.cellEvent.isInstanceOf[Enemy])
-
-    private def pyramidDoor(url: String): Unit = {
-      val pyramid = cells.find(f => f.mapEvent.isDefined && f.mapEvent.get.cellEvent.isInstanceOf[Pyramid]).get
-      pyramid.mapEvent_(Option(MapEvent(pyramid.mapEvent.get.cellEvent, PlayerRepresentation(pyramid, url))))
-    }
-
-    override def postInsert(): Unit = {
-      if(getAllEnemies > 0) pyramidDoor("pyramid.png")
-      else pyramidDoor("pyramidDoor.png")
-      notifyObserver(cells, getAllEnemies)
-      selected = Option.empty
-    }
   }
 
-
-
   def apply(list: List[RectangleCell], startingDefined : Option[RectangleCell], traslationX:Double, traslationY:Double, user:Player): Dashboard = new DashboardImpl(list, startingDefined, traslationX, traslationY, user)
-
 }

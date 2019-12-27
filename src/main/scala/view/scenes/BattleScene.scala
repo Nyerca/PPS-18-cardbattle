@@ -9,12 +9,10 @@ import scalafx.scene.layout.Pane
 import scalafx.stage.Stage
 import scalafx.util.Duration
 import view.scenes.component.{BattleEnemyRepresentation, BattlePlayerRepresentation, BattleUserRepresentation, CardComponent}
-
 import scala.language.postfixOps
 import scala.util.{Success, Try}
 
 trait BattleScene extends BaseScene with ObserverScene {
-
   def userDeck: Button
   def cpuDeck: Button
   def cpuCardIndicator: Button
@@ -24,16 +22,11 @@ trait BattleScene extends BaseScene with ObserverScene {
   def userRepresentation: BattlePlayerRepresentation
   def enemyRepresentation: BattlePlayerRepresentation
   def battleField: Pane
-
 }
 
 object BattleScene {
 
   private class BattleSceneImpl(override val parentStage: Stage, enemy: Enemy, gameController: GameController) extends BattleScene {
-
-    MusicPlayer.play(SoundType.BattleSound)
-
-    stylesheets.add("style.css")
 
     private val battleController: BattleController = BattleController(this, Battle(gameController.user, enemy))
 
@@ -72,12 +65,6 @@ object BattleScene {
       case (optionPlayer: Option[Player], optionLevelUp: Option[LevelUp]) => checkWinner(optionPlayer, optionLevelUp)
     }
 
-    root = GUIObjectFactory.paneFactory(userCardIndicators ++ userHandCard.map(x => x.clickableCard) ++ userHandCard.map(x => x.cardLevel) ++ userHandCard.map(x => x.cardName) ++ userHandCard.map(x => x.cardDamage) ++ List(cpuCardIndicator, userDeck, cpuDeck, cpuHandCard.clickableCard, cpuHandCard.cardName, cpuHandCard.cardDamage, cpuHandCard.cardLevel, battleField))("common", "battleScene")(0, 0)
-
-    for (_ <- 0 until 3) yield battleController.drawCard(gameController.user)
-
-    battleController.drawCard(enemy)
-
     /**
      * Handles fight animation and at the end checks the winner and updates HP.
      * @param family of card played
@@ -110,13 +97,23 @@ object BattleScene {
     private def checkWinner(player: Option[Player], levelUp: Option[LevelUp]): Unit = Try(player.get) match {
       case Success(value) => value match {
         case _: User => TransitionFactory.fadeTransitionFactory(Duration(2000), root.value, handle(gameController.setScene(this, RewardScene(parentStage, gameController, levelUp)))).play()
-        case _ => TransitionFactory.fadeTransitionFactory(Duration(2000), root.value, handle(gameController.setScene(this, GameOverScene(parentStage, gameController)))).play()
+        case _: Enemy => TransitionFactory.fadeTransitionFactory(Duration(2000), root.value, handle(gameController.setScene(this, GameOverScene(parentStage, gameController)))).play()
       }
       case _ =>
         battleController.drawCard(enemy)
         userHandCard.filter(cc => cc.clickableCard.opacity.value == 1) foreach (cc => cc.clickableCard.mouseTransparent = false)
         userDeck.mouseTransparent = false
     }
+
+    MusicPlayer.play(SoundType.BattleSound)
+
+    stylesheets.add("style.css")
+
+    root = GUIObjectFactory.paneFactory(userCardIndicators ++ userHandCard.map(x => x.clickableCard) ++ userHandCard.map(x => x.cardLevel) ++ userHandCard.map(x => x.cardName) ++ userHandCard.map(x => x.cardDamage) ++ List(cpuCardIndicator, userDeck, cpuDeck, cpuHandCard.clickableCard, cpuHandCard.cardName, cpuHandCard.cardDamage, cpuHandCard.cardLevel, battleField))("common", "battleScene")(0, 0)
+
+    for (_ <- 0 until 3) yield battleController.drawCard(gameController.user)
+
+    battleController.drawCard(enemy)
   }
 
   def apply(parentStage: Stage, enemy: Enemy, gameController: GameController): BattleScene = new BattleSceneImpl(parentStage, enemy, gameController)
