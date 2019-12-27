@@ -2,7 +2,7 @@
 
 Game rules:
 - W A S D to move in the map.
-- Defeat all of the enemies on the current map to open the door to the next level!
+- Defeat all of the enemies on the current map to open the door to the next level! (Reach the pyramid when the door is opened to change level)
 
 For execution on linux OS:
 - required java 11 or higher
