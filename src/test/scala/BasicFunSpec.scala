@@ -1,11 +1,13 @@
+import exception.{IllegalSizeException, MissingCellException, NoMovementException}
+import model.RectangleCell
 import org.junit.runner.RunWith
 import org.scalatestplus.junit.JUnitRunner
-import org.scalatest.{FlatSpec, FunSpec, FunSuite, Matchers}
-
+import org.scalatest.{FunSpec, Matchers}
+import model._
 
 @RunWith(classOf[JUnitRunner])
 class BasicFunSpec extends FunSpec with Matchers  {
-
+  var rect : RectangleCell = _
 
   describe(" A Set ") {
     describe(" when empty ") {
@@ -23,9 +25,62 @@ class BasicFunSpec extends FunSpec with Matchers  {
       it("should have the correct size") { // Here, 'it' refers to "A Set (when non-empty)". This test's full
         assert(Set(1, 2, 3).size == 3)     // name is: "A Set (when non-empty) should have the correct size"
       }
-
     }
   }
 
-  
+  describe("A rectangle cant have all connections to false") {
+    it(" should raise NoMovementException") {
+      assertThrows[NoMovementException] {
+        val rect =  RectangleCell(false, false, false, false, 10, 10, 0, 0, false)
+      }
+    }
+  }
+
+
+  describe("A rectangle cant have height = 0") {
+    it(" should raise IllegalSizeException") {
+      assertThrows[IllegalSizeException] {
+        val r =  RectangleCell(false, false, true, false, 10, 0, 0, 0, false)
+      }
+    }
+  }
+
+  describe("A rectangle cant have width = 0") {
+    it(" should raise IllegalSizeException") {
+      assertThrows[IllegalSizeException] {
+        val r =  RectangleCell(false, false, true, false, 0, 10, 0, 0, false)
+      }
+    }
+  }
+
+  describe("A movement") {
+    it(" should raise MissingCellException if done on a missing cell") {
+      assertThrows[MissingCellException] {
+        var list:List[RectangleCell] = List()
+        var re =  RectangleCell(true, true, true, true, 200,200,0,0, false)
+        var re2 =  RectangleCell(true, true, true, true, 200,200,0,200, false)
+        list = list :+ re
+        list = list :+ re2
+        val p = PlayerRepresentation(re, "bot.png")
+        val dash = Dashboard(list, Option(list.head), 0, 0, new User ("nome","bot.png", 1, List(),1,1,1,1))
+        println(p.position)
+        dash.->(Right)
+      }
+    }
+
+    it(" should raise NoMovementException if done on a cell that doesn't allow that movement") {
+      assertThrows[NoMovementException] {
+        var list:List[RectangleCell] = List()
+        var re =  RectangleCell(true, false, true, true, 200,200,0,0, false)
+        var re2 =  RectangleCell(true, true, true, true, 200,200,0,200, false)
+        list = list :+ re
+        list = list :+ re2
+        val p = PlayerRepresentation(re, "bot.png")
+        val dash = Dashboard(list, Option(list.head), 0, 0, new User ("nome","bot.png", 1, List(),1,1,1,1))
+        println(p.position)
+        dash.->(Right)
+      }
+    }
+  }
+
 }
